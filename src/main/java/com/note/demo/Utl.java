@@ -1,0 +1,153 @@
+package com.note.demo;
+
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class Utl {
+
+    //status
+    public enum Status {
+        EV1_ONPROCESS("OnProcess"),
+        EV2_CURRENT("Current"),
+        EV3_FINISHED("Finished"),
+        EV4_GIVEUP("GiveUp"),
+        EV6_LOOKBACK("LookBack"),
+        EV7_COMPLETE("Complete"),
+        EV9_REGULAR("Regular"),
+        COL1_ONPROCESS("OnProcess");
+
+        // フィールドの定義
+        private String name;
+        
+        // コンストラクタの定義
+        private Status(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return this.name;
+        }        
+    }
+
+
+
+
+    //parser
+    public static Boolean isNullOrEmpty(String str)
+    {
+        if(str == null || str.trim().equals(""))
+            return true;
+        else
+            return false;
+    }
+
+    public static Boolean isNullOrEmpty(int str)
+    {
+        if(str <= 0)
+            return true;
+        else
+            return false;
+    }  
+
+    public static Boolean check(String str)
+    {
+        if(isNullOrEmpty(str))
+            return false;
+        else
+            return true;
+    }
+
+    public static Boolean check(int str)
+    {
+        if(isNullOrEmpty(str))
+            return false;
+        else
+            return true;
+    }
+
+    public static Boolean check(double d)
+    {
+        if(d == 0.0)
+            return false;
+        else
+            return true;
+    }    
+
+    public static int parseInt(String str)
+    {
+        try {
+            return Integer.parseInt(str);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public static double parseDouble(String str)
+    {
+        try {
+            return Double.parseDouble(str);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return 0;
+        }
+    }
+
+    //date
+    public static LocalDate MAX_DATE = LocalDate.of(9999,12,31);
+
+    public static LocalDate convertDate(String str)
+    {
+        try {
+            return LocalDate.parse(str);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return LocalDate.MIN;
+        }
+    }
+
+    //map
+    public static String getMapKeyByValue(Map<String, String> map, String value) {
+        for (Entry<String, String> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return "";
+    }
+    // BidiMap<Integer, String> flipMap = bidiMap.inverseBidiMap();
+    // flipMap.get(200);           // "キャベツ"
+    // flipMap.getKey("レタス");   // null
+    // flipMap.getKey("キャベツ"); // 200
+
+    // public static String ToString(LocalDate date)
+    // {
+    //     try {
+    //         return date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         return LocalDate.MIN.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    //     }
+
+    // } 
+
+
+    // ngsql
+    // Install-Package Npgsql -Version 4.1.2
+
+    // string conn_str = "Server=gnm-devrtft01;Port=5432;User ID=postgres;Database=note;Password=TSSummit00#;Enlist=true";
+
+    // using (NpgsqlConnection conn = new NpgsqlConnection(conn_str))
+    // {
+    //     //PostgreSQLへ接続
+    //     conn.Open();
+
+    //     string cmd_str = "DELETE FROM person where id=1 ";
+    //     NpgsqlCommand cmd = new NpgsqlCommand(cmd_str, conn);
+    //     cmd.ExecuteNonQuery();
+    //     Console.WriteLine("Connection success!");
+
+    //     conn.Close();
+    // }
+}

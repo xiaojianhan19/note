@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Category View</h3>
+<div th:replace="category_rec :: item">(sub-nodes here)</div>
+<hr/>
+
+<h3>Add a Category</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/category/addChild}" th:object="${categoryChildBean}" > 
+	<table class="table table-bordered noborder headline">
+	  <tr>
+      <td>id</td><td ><input th:field="*{id}" /></td>
+	  </tr>
+	  <tr>
+      <td>name</td><td ><input th:field="*{name}" /></td>
+    </tr>   
+    <tr>
+      <td>parent</td><td ><input name="parentId" /></td>
+    </tr>
+	  <tr>
+      <td>root</td><td ><input th:field="*{root}" readonly="true" /></td>
+	  </tr> 
+  </table>
+  <br/>
+    <input type="submit" value="Add" />
+</form>
+
+</div>
+</body>
+</html>

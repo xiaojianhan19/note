@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function formatDate(date, format) {
+  format = format.replace(/yyyy/g, date.getFullYear());
+  format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2));
+  format = format.replace(/dd/g, ('0' + date.getDate()).slice(-2));
+  return format;
+}
+function chgDate(days) {
+	var date = new Date(document.getElementById("targetDate").value);
+    date.setDate(date.getDate() + days);
+    var formatedDate = formatDate(date, "yyyy-MM-dd");
+    //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+    document.getElementById("targetDate").value = formatedDate;
+	chgDateForm.submit();
+}
+function addParticipant(id) {
+
+}
+function inputClear() {
+    document.getElementById("inputId").value = "";
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputCategory").value = "";
+    document.getElementById("inputStatus").value = "";
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+function insertItem(id) {
+    document.getElementById("insertId").value = id;
+	insertForm.submit();
+}
+function selectItem(id, nm, ct, st) {
+    inputClear();
+    document.getElementById("inputId").value = id;
+    document.getElementById("inputName").value = nm
+    document.getElementById("inputCategory").value = ct;
+    document.getElementById("inputStatus").value = st;
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+
+function convertCat(str) {
+    var res = document.getElementById(str);
+    //var catList = "${catList}";
+    //var res = catList[str];
+    return res.innerText;
+}
+$(function() {
+    $('.category').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertCat(str));
+    });
+});
+
+function convertStatus(str) {
+    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+    // });
+    var s = "";
+    switch(str)
+    {
+        case "1": 
+            s = "OnProcess";
+            break;
+        case "2":
+            s = "Current";
+            break;
+        case "3": 
+            s = "Finished";
+            break;
+        case "4":
+            s = "GiveUp";
+            break;
+        case "6":
+            s = "LookBack";
+            break;
+        case "7": 
+            s = "Complete";
+            break;
+        case "9":
+            s = "Regular";
+            break;   
+        default:
+            s = str;
+            break;
+    }
+
+    return s;
+}
+$(function() {
+    $('.status').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertStatus(str));
+    });
+});
+
+function convertTime(str) {
+    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+    // });
+    var time = 0.0;
+    var cnt = 1.0;
+    if(str.length == 2)
+    {
+        cnt = parseFloat(str.substr(0,1));
+        str = str.substr(1,1);
+    }
+    if (str == "h" || str == "H")
+    {
+        time = 0.5 * cnt;
+    }
+    else if (str == "q" || str == "Q")
+    {
+        time = 0.25 * cnt;
+    }
+    else if (str == "t" || str == "T")
+    {
+        time = 0.1 * cnt;
+    }
+    if(time != 0.0)
+    {
+        return String(time);
+    }
+    return str;
+}
+function totalCalc() {
+    var list = document.getElementsByClassName("time");
+    var total = 0.0;
+    // for(n in list)
+    // {
+    //     try {
+    //         total += parseFloat(n.prototype.value) ;
+    //     } catch (error) {
+            
+    //     }
+    // }
+   for(n=0; n<list.length; n++)
+    {
+        try {
+            total += parseFloat(list[n].value) ;
+        } catch (error) {
+            
+        }
+    }
+
+    document.getElementById("totaltime").innerHTML = total;
+}
+$(function() {
+    $('.time').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertTime(str));
+        totalCalc();
+    });
+});
+$(function () {
+    totalCalc();
+});
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div>
+        <form name="chgDateForm" action="#" th:action="@{/event/chgDate}" method="GET" >
+            <input type="text" id="targetDate" name="targetDate" th:value="${date}" class="textbox"/>
+            <input type="button" value="Change" th:onclick="chgDate(0)" class="btn-comn"></input>
+            <input type="button" value="prev" th:onclick="chgDate(-1)" class="btn-comn"></input>
+            <input type="button" value="next" th:onclick="chgDate(1)" class="btn-comn"></input>
+        </form>
+    </div>
+
+<h3 style="text-align: right;">Total Time : <span id="totaltime">00.00</span> </h3>
+<form name="saveForm" action="#" th:action="@{/event/saveList}" th:object="${form}" method="post">
+
+        <table class="table table-bordered noborder headline">
+            <thead>
+                <tr>
+                    <th>eId</th>
+                    <th>pId</th>
+                    <th width="20%">name/pname</th>
+                    <th>category/pcategory</th>
+                    <th>status/pstatus</th>
+                    <th>sorted</th>
+                    <th>itemSorted</th>
+                    <th>time</th>
+                    <th width="20%">memo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="item, itemStat : ${form.items}">
+                <tr>
+                    <th:block th:if="${item.itemSorted == '1'}">
+                        <td>
+                            <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                        </td>
+
+                        <td>
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                        </td>
+                    </th:block>
+                
+                    <th:block th:if="${item.itemSorted == '2'}">
+                        <td>
+                            <input type="hidden" th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                        </td>
+                                                
+                        <td>
+                            <input th:name="|items[${itemStat.index}].person.id|" th:value="${item.person.getId()}" readonly="true"/>
+                        </td>
+
+                            <input type="hidden" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                            <input type="hidden" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                            <input type="hidden" th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                            
+                        <td>
+                            <input th:name="|items[${itemStat.index}].person.name|" th:value="${item.person.getName()}" />
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].person.category|" th:value="${item.person.getCategory()}" class="category"/>
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                        </td>
+                    </th:block>
+
+                    <th:block th:if="${item.itemSorted == '3'}">
+                        <td>
+                            <input type="hidden" th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                        </td>
+                                                
+                        <td>
+                            <input th:name="|items[${itemStat.index}].collection.id|" th:value="${item.collection.getId()}" readonly="true"/>
+                        </td>
+
+                            <input type="hidden" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                            <input type="hidden" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                            <input type="hidden" th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                            
+                        <td>
+                            <input th:name="|items[${itemStat.index}].collection.name|" th:value="${item.collection.getName()}" />
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].collection.category|" th:value="${item.collection.getCategory()}" class="category"/>
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                        </td>
+                    </th:block>
+
+                    <td>
+                        <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
+                    </td>
+                    <td>
+                        <input th:name="|items[${itemStat.index}].itemSorted|" th:value="${item.getItemSorted()}" class="itemSorted"  />
+                    </td>                    
+                    <td>
+                        <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
+                    </td>
+                    <td>
+                        <input th:name="|items[${itemStat.index}].memo|" th:value="${item.getMemo()}" />
+                    </td>
+                    <td hidden="">
+                        <input th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
+                    </td>
+                </th:block>
+            </tbody>
+        </table>
+        <input type="submit" id="submitButton" th:value="Save" >
+        <input type="reset" id="resetButton" name="reset" th:value="Reset" />
+
+</form>
+
+<h3>Add a EventViewBean</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/event/add}" th:object="${eventViewBean}">
+	<table class="table table-bordered inputbox noborder">
+	  <tr>
+        <td width="15%">id</td>
+        <td ><input th:field="*{id}" id="inputId" /></td>
+	  </tr>
+	  <tr>
+        <td >name</td>
+        <td ><input th:field="*{name}" id="inputName" /></td>
+	  </tr>
+      <tr>
+        <td >category</td>
+        <td ><input th:field="*{category}" id="inputCategory" class="category" /></td>
+      </tr>
+      <tr>
+        <td >status</td>
+        <td ><input th:field="*{status}" id="inputStatus" class="status" /></td>
+      </tr>
+      <tr>
+        <td >sorted</td>
+        <td ><input th:field="*{sorted}" id="inputSorted" class="sorted" /></td>
+      </tr>
+      <tr>
+        <td >itemSorted</td>
+        <td ><input th:field="*{itemSorted}" id="inputItemSorted" class="itemSorted" /></td>
+      </tr>
+      <tr>
+        <td >person</td>
+        <td ><input th:field="*{person}" id="inputPerson" class="person" /></td>
+      </tr>      
+      <tr>
+        <td >collection</td>
+        <td ><input th:field="*{collection}" id="inputCollection" class="collection" /></td>
+      </tr>
+      <tr>
+        <td >time</td>
+        <td ><input th:field="*{time}" id="inputTime" /></td>
+	  </tr>
+      <tr>
+        <td >memo</td>
+        <td ><input th:field="*{memo}" id="inputMemo" /></td>
+      </tr>
+      <tr hidden="">
+        <td >date</td>
+        <td ><input th:field="*{date}" id="inputDate" readonly="true" /></td>
+	  </tr>
+    </table>
+	    <input type="submit" value="Add" />
+	    <input type="button" value="Clear" onclick="inputClear()" />
+</form>
+
+<hr/>
+<h3>Search a EventViewBean</h3>
+<form name="findForm" action="#" th:action="@{/event/find}" method="GET">
+    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="text" name="targetName" class="textbox"/>
+    <input type="submit" value="search"></input>
+</form>
+
+<div th:unless="${#lists.isEmpty(refEvents)}">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>      
+            <th>Name</th>        
+            <th>Category</th>      
+            <th>Operation</th>
+            <th>Operation2</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${refEvents}">
+            <td th:text="${current.id}"></td>
+            <td th:text="${current.name}"></td>
+            <td th:text="${current.category}"></td>
+            <td ><input type="button" value="Select" 
+                th:data-id="${current.id}"
+                th:data-nm="${current.name}"
+                th:data-ct="${current.category}"
+                th:data-st="${current.status}"
+                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'));" ></input>
+            </td>
+            <td ><input type="button" value="Insert" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'));" ></input></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<form name="insertForm" method="POST" action="#" th:action="@{/event/insert}">
+    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" id="insertId" name="insertId" value=""></input>
+</form>
+
+<div th:unless="${#lists.isEmpty(catList)}">
+    <hr/>
+    <h3>CategoryList</h3>
+    <table class="table table-bordered table-hover table-striped headline">
+        <tr>
+            <th>id</th>
+            <th>category</th>
+        </tr>
+        <tr th:each="current : ${catList}">
+            <td th:text="${current.key}"></td>
+            <td th:text="${current.value}" th:id="${current.key}" ></td>
+        </tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

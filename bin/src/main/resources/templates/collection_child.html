@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function inputClear() {
+    document.getElementById("inputId").value = "";
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputCategory").value = "";
+    document.getElementById("inputStatus").value = "";
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+function selectItem(id, nm, ct, st) {
+    inputClear();
+    document.getElementById("inputId").value = id;
+    document.getElementById("inputName").value = nm;
+    document.getElementById("inputCategory").value = ct;
+    document.getElementById("inputStatus").value = st;
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+
+function convertType(str) {
+    var s = "";
+    switch(str)
+    {
+        case "1": 
+            s = "Character";
+            break;
+        case "2":
+            s = "Paragraph";
+            break;
+        case "3": 
+            s = "Setting";
+            break;
+    }
+
+    return s;
+}
+$(function() {
+    $('.type').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertType(str));
+    });
+});
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Collection List</h3>
+<ul>
+    <li>
+        <span>name</span>
+        <span>name2</span>
+        <span>name3</span>
+        <span>date</span>
+        <span>parentId</span>
+    </li>
+    <li th:each="current : ${item.items}">
+        <span th:text="${current.name}"></span>
+        <span th:text="${current.name2}"></span>
+        <span th:text="${current.name3}"></span>
+        <span th:text="${current.date}"></span>
+        <span th:text="${current.collection.id}"></span>
+    </li>
+</ul>
+<hr/>
+
+<h3>Add a Collection Child Item</h3>
+<form name="addChildForm" method="POST" action="#" th:action="@{/collection/addChild}" th:object="${collectionChildBean}">
+	<table class="table table-bordered noborder headline">
+	  <tr>
+        <td >id</td><td ><input th:field="*{id}" id="cid"/></td>
+      </tr>
+	  <tr>
+        <td >type</td><td ><input th:field="*{type}" id="ctype" class="type"/></td>
+      </tr>
+      <tr>
+        <td >index</td><td ><input th:field="*{index}" id="cindex"/></td>
+      </tr>
+	  <tr>
+        <td >name</td><td ><input th:field="*{name}" id="cname"/></td>
+      </tr>
+	  <tr>
+        <td >name2</td><td ><input th:field="*{name2}" id="cname2"/></td>
+      </tr>
+	  <tr>
+        <td >name3</td><td ><input th:field="*{name3}" id="cname3"/></td>
+	  </tr>
+      <tr>
+        <td >memo</td><td ><input th:field="*{memo}"  id="cmemo"/></td>
+      </tr>
+      <tr>
+        <td >date</td><td ><input th:field="*{date}"  id="cdate" /></td>
+      </tr>
+      <tr>
+        <td >parentId</td><td ><input th:field="*{collection}"  id="ccollection" /></td>
+      </tr>      
+    </table>
+    <br/>
+	    <input type="submit" value="Add" />
+	    <input type="button" value="Clear" onclick="inputClear()" />
+</form>
+<hr/>
+
+</div>
+</body>
+</html>

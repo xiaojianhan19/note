@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function inputClear() {
+    document.getElementById("inputId").value = "";
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputCategory").value = "";
+    document.getElementById("inputStatus").value = "";
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+function selectItem(id, nm, ct, st) {
+    inputClear();
+    document.getElementById("inputId").value = id;
+    document.getElementById("inputName").value = nm
+    document.getElementById("inputCategory").value = ct;
+    document.getElementById("inputStatus").value = st;
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+function convertCat(str) {
+    var res = document.getElementById(str);
+    return res.innerText;
+}
+$(function() {
+    $('.category').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertCat(str));
+    });
+});
+
+function convertStatus(str) {
+    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+    // });
+    var s = "";
+    switch(str)
+    {
+        case "1": 
+            s = "OnProcess";
+            break;
+        case "2":
+            s = "Current";
+            break;
+        case "3": 
+            s = "Finished";
+            break;
+        case "4":
+            s = "GiveUp";
+            break;
+        case "6":
+            s = "LookBack";
+            break;
+        case "7": 
+            s = "Complete";
+            break;
+        case "9":
+            s = "Regular";
+            break;   
+        default:
+            s = str;
+            break;
+    }
+
+    return s;
+}
+$(function() {
+    $('.status').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertStatus(str));
+    });
+});
+
+function convertTime(str) {
+    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+    // });
+    var time = 0.0;
+    var cnt = 1.0;
+    if(str.length == 2)
+    {
+        cnt = parseFloat(str.substr(0,1));
+        str = str.substr(1,1);
+    }
+    if (str == "h" || str == "H")
+    {
+        time = 0.5 * cnt;
+    }
+    else if (str == "q" || str == "Q")
+    {
+        time = 0.25 * cnt;
+    }
+    else if (str == "t" || str == "T")
+    {
+        time = 0.1 * cnt;
+    }
+    if(time != 0.0)
+    {
+        return String(time);
+    }
+    return str;
+}
+$(function() {
+    $('.time').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertTime(str));
+    });
+});
+function editItem(id) {
+    document.getElementById("itemId").value = id;
+	editForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Collection List</h3>
+<div th:unless="${#lists.isEmpty(colList)}">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Name2</th>
+            <th>Name3</th>
+            <th>Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${colList}">
+            <td th:text="${current.name}"></td>
+            <td th:text="${current.name2}"></td>
+            <td th:text="${current.name3}"></td>
+            <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<form name="editForm" method="GET" action="#" th:action="@{/collection/detail}" >
+    <input type="hidden" id="itemId" name="itemId" value=""></input>
+</form>
+
+<hr/>
+
+<h3>Add a Collection Item</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/collection/add}" th:object="${collectionBean}">
+	<table class="table table-bordered noborder headline">
+	  <tr>
+        <td >id</td><td ><input th:field="*{id}" id="inputId"/></td>
+	  </tr>
+	  <tr>
+        <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
+      </tr>
+	  <tr>
+        <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
+      </tr>
+	  <tr>
+        <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
+	  </tr>      
+      <tr>
+        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
+      </tr>
+      <tr>
+        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
+	  </tr>
+      <tr>
+        <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
+	  </tr>
+      <tr>
+        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
+      </tr>
+      <tr>
+        <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
+      </tr>
+      <tr>
+        <td >date</td><td ><input th:field="*{testDate}"  id="testDate" /></td>
+	  </tr>
+    </table>
+    <br/>
+	    <input type="submit" value="Add" />
+	    <input type="button" value="Clear" onclick="inputClear()" />
+</form>
+
+<div th:unless="${#lists.isEmpty(catList)}">
+    <hr/>
+    <h3>CategoryList</h3>    
+    <table class="table table-bordered table-hover table-striped">
+        <tbody>
+            <tr th:each="current : ${catList}">
+                <td th:text="${current.key}" ></td>
+                <td th:text="${current.value}" th:id="${current.key}" ></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</div>
+</body>
+</html>

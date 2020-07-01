@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function editItem(id) {
+    document.getElementById("itemId").value = id;
+	editForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Category View</h3>
+<div th:unless="${#lists.isEmpty(categoryList)}">
+  <table class="table table-bordered table-hover table-striped">
+      <tr>
+          <th>id</th>
+          <th>name</th>
+          <th>start</th>
+          <th>end</th>
+          <th>input</th>
+          <th>root</th>
+          <th>op</th>
+      </tr>
+      <tr th:each="current : ${categoryList}">
+          <td th:text="${current.id}"></td>
+          <td th:text="${current.name}"></td>
+          <td th:text="${current.startDate}"></td>
+          <td th:text="${current.endDate}"></td>
+          <td th:text="${current.inputDate}"></td>
+          <td th:text="${current.item.id}"></td>
+          <td ><input type="button" value="Edit" th:data-id="${current.item.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
+      </tr>
+  </table>
+</div>
+
+<form name="editForm" method="GET" action="#" th:action="@{/category/detail}" >
+  <input type="hidden" id="itemId" name="itemId" value=""></input>
+</form>
+<hr/>
+
+<h3>Add a Category</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/category/add}" th:object="${categoryBean}"> 
+	<table>
+	  <tr>
+      <td>id</td><td ><input type="text" th:field="*{id}" /></td>
+	  </tr>
+	  <tr>
+      <td>name</td><td ><input type="text" th:field="*{name}" /></td>
+    </tr>  
+    <tr>
+      <td>start</td><td ><input type="text" th:field="*{startDate}" /></td>
+    </tr>
+    <tr>
+      <td>end</td><td ><input type="text" th:field="*{endDate}" /></td>
+    </tr>
+    <tr>
+      <td>date</td><td ><input type="text" th:field="*{inputDate}" /></td>
+    </tr>
+    <tr>
+      <td>item</td><td ><input type="text" th:field="*{item}" /></td>
+    </tr>    
+  </table>
+  <br/>
+    <input type="submit" value="Add" />
+</form>
+
+</div>
+</body>
+</html>
