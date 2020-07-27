@@ -30,8 +30,8 @@ public class CollectionService {
     return repository.findById(Utl.parseInt(id));
   }
 
-  public List<CollectionChildBean> findByDate(String date) {
-    return itemRepository.findByDateOrderByParent(date);
+  public List<CollectionChildBean> findByInputDate(String date) {
+    return itemRepository.findByInputDateOrderByParent(date);
   }
 
   public void save(CollectionParentBean b, CollectionChildBean c) {
@@ -42,13 +42,31 @@ public class CollectionService {
 
   public void save(CollectionParentBean p)
   {
-    repository.save(p);
+    if(Utl.check(p.getId()))
+    {
+      // repository.findById(p.getId()).ifPresent( r -> {
+      //     Utl.copyPropertiesIgnoreNull(p, r);
+      //     repository.save(r);
+      //   });
+      Optional<CollectionParentBean> res = repository.findById(p.getId());
+      if(res.isPresent())
+      {
+        CollectionParentBean r = res.get();
+        Utl.copyPropertiesIgnoreNull(p, r);
+        repository.save(r);
+      }
+    }
+    else
+    {
+      repository.save(p);
+    }
   }
 
   public void save(CollectionChildBean c)
   {
-    if(c.getDate().isEmpty())
-      c.setDate(LocalDate.now().toString());
+    if(c.getInputDate().isEmpty())
+      c.setInputDate(LocalDate.now().toString());
+    c.setUpdateDate(LocalDate.now().toString());
     itemRepository.save(c);
   }
 
@@ -58,12 +76,12 @@ public class CollectionService {
     itemRepository.save(c);
   }
 
-  public void saveAll(List<CollectionParentBean> list) {
-    for(CollectionParentBean p : list)
-    {
-        repository.save(p);
-    }
-  }
+  // public void saveAll(List<CollectionParentBean> list) {
+  //   for(CollectionParentBean p : list)
+  //   {
+  //       repository.save(p);
+  //   }
+  // }
 
   public void delete(String id) {
     repository.deleteById(Utl.parseInt(id));

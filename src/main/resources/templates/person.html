@@ -19,16 +19,6 @@ function inputClear() {
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
 }
-function selectItem(id, nm, ct, st) {
-    inputClear();
-    document.getElementById("inputId").value = id;
-    document.getElementById("inputName").value = nm
-    document.getElementById("inputCategory").value = ct;
-    document.getElementById("inputStatus").value = st;
-    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
-    document.getElementById("inputTime").value = "";
-	document.getElementById("inputMemo").value = "";
-}
 function convertCat(str) {
     var res = document.getElementById(str);
     return res.innerText;
@@ -121,6 +111,15 @@ function editItem(id) {
     document.getElementById("itemId").value = id;
 	editForm.submit();
 }
+
+$(document).ready(function()
+{
+$("#mymenu ul li").next("ul").hide();
+$("#mymenu ul li").click(function()
+{
+$(this).next("ul").toggle();
+});
+});
 /*]]>*/
 </script>
 </head>
@@ -138,6 +137,7 @@ function editItem(id) {
             <th>Name3</th>
             <th>Category</th>
             <th>InputDate</th>
+            <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -148,14 +148,20 @@ function editItem(id) {
             <td th:text="${current.name3}"></td>
             <td th:text="${current.category}"></td>
             <td th:text="${current.inputDate}"></td>
+            <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
         </tr>
         </tbody>
     </table>
 </div>
+
+<form name="editForm" method="GET" action="#" th:action="@{/person/detail}" >
+    <input type="hidden" id="itemId" name="itemId" value=""></input>
+</form>
+
 <hr/>
 
 <h3>Group List</h3>
-<div th:replace="person_rec :: item">(sub-nodes here)</div>
+<div id="mymenu2" th:replace="person_rec :: item">(sub-nodes here)</div>
 <hr/>
 
 <h3>Add a Person Item</h3>
@@ -180,13 +186,13 @@ function editItem(id) {
         <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
 	  </tr>
       <tr>
-        <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
-	  </tr>
-      <tr>
         <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
       </tr>
       <tr>
         <td >address</td><td ><input th:field="*{address}"  id="address" /></td>
+      </tr>
+      <tr>
+        <td >memo</td><td ><textarea th:field="*{memo}" th:value="${memo}" /></td>
       </tr>
     </table>
 	    <input type="submit" value="Add" />
@@ -204,6 +210,24 @@ function editItem(id) {
             </tr>
         </tbody>
     </table>
+</div>
+
+<div id="mymenu">
+    <ul>
+    <li><a href="#">用户管理</a></li>
+    <ul>
+    <li><a href="#">用户查询</a></li>
+    <li><a href="#">添加用户</a></li>
+    <li><a href="#">用户组</a></li>
+    </ul>
+    </ul>
+    <ul>
+    <li><a href="#">课程管理</a></li>
+    <ul>
+    <li><a href="#">课程列表</a></li>
+    <li><a href="#">添加课程</a></li>
+    </ul>
+    </ul>
 </div>
 
 </div>

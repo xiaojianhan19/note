@@ -9,10 +9,9 @@
 <body>
 
 <div th:fragment="item" th:if="${item}">
-	<span th:text="${item.id}"></span> 
-	<span th:text="${item.name}">
-	(item's content here.)</span>
-	<ul>
+	<span th:text="${item.id} + ' ' +${item.name}">
+		(item's content here.)</span> 
+	<ul class="wtree">
 		<li th:each="item : ${item.children}">
 			<div th:replace="category_rec :: item">
 			(sub-nodes here)</div>

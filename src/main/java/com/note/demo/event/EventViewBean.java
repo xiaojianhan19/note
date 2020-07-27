@@ -12,6 +12,7 @@ public class EventViewBean {
     private String date;
     private String time;
     private String memo;
+    private String duration;
 
     public EventViewBean(){}
 
@@ -91,7 +92,7 @@ public class EventViewBean {
         }
     }
 
-    public EventViewBean(EventChildBean item, String date){
+    public EventViewBean(EventChildBean item){
         EventParentBean event = item.getParent();
         if(event == null)
             return;
@@ -100,6 +101,7 @@ public class EventViewBean {
         this.category = event.getCategory();
         this.status = event.getStatus();
         this.sorted = event.getSorted();
+        this.date = item.getDate();
         this.time = String.valueOf(item.getTime());
         this.memo = item.getMemo();
     }
@@ -115,6 +117,34 @@ public class EventViewBean {
 
     public void setSorted(String sorted) {
         this.sorted = sorted;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public EventViewBean(EventParentBean event, String startDate, String endDate){
+        this.id = String.valueOf(event.getId());
+        this.name = event.getName();
+        this.category = event.getCategory();
+        this.status = event.getStatus();
+        this.sorted = event.getSorted();
+        double totalTime = 0.0;
+        int totalDuration = 0;
+        for(EventChildBean item : event.getItems())
+        {
+            if(item.getDate().compareTo(startDate) >= 0 && item.getDate().compareTo(endDate) < 0)
+            {
+                totalTime += item.getTime();
+                totalDuration++;
+            }
+        }
+        this.time = String.valueOf(totalTime);
+        this.duration = String.valueOf(totalDuration);
     }
 
 }

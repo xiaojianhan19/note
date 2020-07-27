@@ -133,16 +133,18 @@ function editItem(id) {
         <thead>
         <tr>
             <th>Name</th>
-            <th>Name2</th>
-            <th>Name3</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Level</th>
             <th>Operation</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="current : ${colList}">
             <td th:text="${current.name}"></td>
-            <td th:text="${current.name2}"></td>
-            <td th:text="${current.name3}"></td>
+            <td th:text="${current.category}"></td>
+            <td th:text="${current.status}"></td>
+            <td th:text="${current.level}"></td>
             <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
         </tr>
         </tbody>
@@ -157,7 +159,7 @@ function editItem(id) {
 
 <h3>Add a Collection Item</h3>
 <form name="addForm" method="POST" action="#" th:action="@{/collection/add}" th:object="${collectionBean}">
-	<table class="table table-bordered noborder headline">
+	<table class="table table-bordered noborder headline fcol">
 	  <tr>
         <td >id</td><td ><input th:field="*{id}" id="inputId"/></td>
 	  </tr>
@@ -185,9 +187,6 @@ function editItem(id) {
       <tr>
         <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
       </tr>
-      <tr>
-        <td >date</td><td ><input th:field="*{testDate}"  id="testDate" /></td>
-	  </tr>
     </table>
     <br/>
 	    <input type="submit" value="Add" />

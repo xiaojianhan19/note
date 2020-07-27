@@ -88,4 +88,13 @@ public class EventChildBean {
         this.memo = "";
         this.parent = p;
     }
+
+    public EventChildBean(EventChildBean item, EventParentBean parent) {
+        this.date = item.getDate();
+        this.time = item.getTime();
+        this.memo = item.getMemo();
+        this.parent = parent;
+    }
+    
+
 }

@@ -7,6 +7,9 @@ import javax.transaction.Transactional;
 import com.note.demo.Utl;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
+import com.note.demo.event.EventParentBean;
+import com.note.demo.event.EventService;
+import com.note.demo.event.EventViewBean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -23,6 +26,9 @@ public class PersonService {
 
   @Autowired
   CategoryService catService;
+
+  @Autowired
+  EventService eventService;
 
   public List<PersonParentBean> findAll() {
     return repository.findAll(Sort.by(Direction.ASC, "category"));
@@ -70,4 +76,16 @@ public class PersonService {
   public void delete(String id) {
     repository.deleteById(Utl.parseInt(id));
   }
+
+  public List<EventViewBean> findEventList(PersonParentBean p)
+  {
+    List<EventViewBean> list = eventService.findByName(p.getName());
+    if(!p.getName2().isEmpty())
+      list.addAll(eventService.findByName(p.getName2()));
+    if(!p.getName3().isEmpty())
+      list.addAll(eventService.findByName(p.getName3()));
+    eventService.sortByDate(list);
+    return list;
+  }
+
 }

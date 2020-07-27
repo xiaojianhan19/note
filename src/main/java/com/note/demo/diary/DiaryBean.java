@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -16,7 +17,8 @@ public class DiaryBean {
 	@Id
     private String date;
     private int length;
-    @Column(name = "memo")
+
+    @Column(columnDefinition = "text")
     private String memo;
 
     public DiaryBean(){}

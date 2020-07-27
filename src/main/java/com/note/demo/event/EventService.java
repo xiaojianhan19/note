@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 
 import com.note.demo.Utl;
 
+import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -65,7 +66,7 @@ public class EventService {
           if(!isFound)
           {
             list.add( new EventChildBean(date, p));
-          }          
+          }
         }
       }
     }
@@ -134,7 +135,7 @@ public class EventService {
       Boolean noExist = true;
       for(EventChildBean ev : event.getItems())
       {
-        if(vBean.getDate().equals(ev.getDate().toString()))
+        if(vBean.getDate().equals(ev.getDate()))
         {
           noExist = false;
           if(Utl.check(vBean.getMemo()) || Utl.check(Utl.parseDouble(vBean.getTime())))
@@ -236,6 +237,17 @@ public class EventService {
     });
   }
 
+  public void sortByDate(List<EventViewBean> list)
+  {
+    list.sort( (a,b)-> {
+      if(!a.getDate().equals(b.getDate()))
+      {
+        return a.getDate().compareTo(b.getDate());
+      }
+      return a.getName().compareTo(b.getName());
+    });
+  }
+
   public void deleteItem(EventChildBean ev)
   {
     // if(ev.getPerson() != null)
@@ -248,4 +260,81 @@ public class EventService {
     // }
     itemRepository.delete(ev);
   }
+
+  public void saveParent(List<EventViewBean> list) 
+  {
+    for(EventViewBean v : list)
+    {
+      EventParentBean p = new EventParentBean(v);
+      repository.save(p);
+    }
+
+    for(EventViewBean v : list)
+    {
+      List<EventParentBean> res = repository.findByNameAndCategoryOrderById(v.getName(), v.getCategory());
+      if(res.size() > 1)
+      {
+        int orgId = 0;
+        EventParentBean org = null;
+        int maxSize = 0;
+        for(EventParentBean item : res)
+        {
+          if(item.getItems() == null)
+          {
+            item.setItems(itemRepository.findByParent(item));
+          }
+          if(item.getItems().size() > maxSize)
+          {
+            maxSize = item.getItems().size();
+            orgId = item.getId();
+            org = item;
+          }
+        }
+
+        for(int i=0; i < res.size(); i++)
+        {
+          EventParentBean add = res.get(i);
+          if(add.getId() != orgId)
+          {
+            for(EventChildBean child : add.getItems())
+            {
+              List<EventChildBean> orgList = itemRepository.findByDateAndParent(child.getDate(), org);
+              if(orgList.size() == 0)
+              {
+                EventChildBean newC = new EventChildBean(child, org);
+                itemRepository.save(newC);
+              }
+            }
+            this.delete(add);
+          }
+        }
+      }
+    }
+
+  }
+
+   public void delete(EventParentBean p)
+   {
+     for(EventChildBean c : p.getItems())
+     {
+      itemRepository.delete(c);
+     }
+     repository.delete(p);
+   }
+
+
+   public List<EventViewBean> findByName(String name)
+   {
+    List<EventViewBean> list = new ArrayList<EventViewBean>();
+    List<EventParentBean> events = repository.findByNameContaining(name);
+    for(EventParentBean ev : events)
+    {
+      for(EventChildBean ch : ev.getItems())
+      {
+        list.add(new EventViewBean(ch));
+      }
+    }
+    return list;
+   }
+   
 }
