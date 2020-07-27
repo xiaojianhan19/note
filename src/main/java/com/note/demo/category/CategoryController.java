@@ -44,7 +44,7 @@ public class CategoryController {
 			CategoryChildBean c = new CategoryChildBean();
 			c.setRoot(item.getId());
 			model.addAttribute("categoryChildBean", c);
-			model.addAttribute("parentId", "");
+			model.addAttribute("parentId", item.getName());
 		});
 		return "category_child";
 	}
@@ -54,7 +54,16 @@ public class CategoryController {
 		service.saveChild(categoryChildBean, parentId.trim());
 
 		//service.save(categoryBean);
-		return detail(model, String.valueOf(categoryChildBean.getRoot()));
+		String itemId = String.valueOf(categoryChildBean.getRoot());
+		service.findChild(itemId).ifPresent( item -> {
+			model.addAttribute("item", item);
+			CategoryChildBean c = new CategoryChildBean();
+			c.setRoot(item.getId());
+			model.addAttribute("categoryChildBean", c);
+			model.addAttribute("parentId", parentId);
+		});
+		return "category_child";
+
 	}
 
 

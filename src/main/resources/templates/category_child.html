@@ -28,7 +28,7 @@
       <td>name</td><td ><input th:field="*{name}" /></td>
     </tr>   
     <tr>
-      <td>parent</td><td ><input name="parentId" /></td>
+      <td>parent</td><td ><input name="parentId" th:value="${parentId}"/></td>
     </tr>
 	  <tr>
       <td>root</td><td ><input th:field="*{root}" readonly="true" /></td>
