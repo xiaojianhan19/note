@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 
 import com.note.demo.Utl;
 
@@ -29,6 +30,7 @@ public class EventParentBean {
         allocationSize = 1)
 	private int id;
 
+    @NotEmpty
     private String name;
     private String category;
     private String status;
@@ -94,4 +96,5 @@ public class EventParentBean {
     public void setSorted(String sorted) {
         this.sorted = sorted;
     }
+    
 }

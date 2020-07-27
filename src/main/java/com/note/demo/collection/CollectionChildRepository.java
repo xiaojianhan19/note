@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CollectionChildRepository extends JpaRepository<CollectionChildBean, Integer> {
-    public List<CollectionChildBean> findByDateOrderByParent(String date);
+    public List<CollectionChildBean> findByInputDateOrderByParent(String date);
     
 }

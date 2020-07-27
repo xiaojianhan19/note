@@ -1,9 +1,11 @@
 package com.note.demo.collection;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -25,14 +27,18 @@ public class CollectionChildBean {
 	private int id;
 
     @ManyToOne
-	private CollectionParentBean parent;
+    private CollectionParentBean parent;
+    
     private String type;
-    private int index;    
+    private int index;
     private String name;
     private String name2;
     private String name3;
+    @Column(columnDefinition = "text")
     private String memo;
-    private String date;
+
+    private String inputDate;
+    private String updateDate;
 
     public CollectionChildBean(){}
 
@@ -54,15 +60,6 @@ public class CollectionChildBean {
 
     public void setParent(CollectionParentBean parent) {
         this.parent = parent;
-    }
- 
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
     public String getMemo() {
@@ -111,6 +108,22 @@ public class CollectionChildBean {
 
     public void setName3(String name3) {
         this.name3 = name3;
+    }
+
+    public String getInputDate() {
+        return inputDate;
+    }
+
+    public void setInputDate(String inputDate) {
+        this.inputDate = inputDate;
+    }
+
+    public String getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(String updateDate) {
+        this.updateDate = updateDate;
     }
 
 

@@ -32,7 +32,7 @@ public class CategoryParentBean {
     private CategoryChildBean item;
     
     private String startDate;    
-    private String endDate;    
+    private String endDate;
     private String inputDate;
     
     public CategoryParentBean(){}

@@ -9,8 +9,11 @@ import com.note.demo.Utl;
 import com.note.demo.category.CategoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,8 +32,16 @@ public class EventController {
 	@Autowired
 	CategoryService catService;	
 
+	@InitBinder  //类初始化是调用的方法注解
+    public void initBinder(WebDataBinder binder) {  
+        binder.setAutoGrowNestedPaths(true);
+        //给这个controller配置接收list的长度100000，仅在这个controller有效
+        binder.setAutoGrowCollectionLimit(10000); 
+
+    }
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String readEvents(Model model) {
+	public String readEvents(Model model, Device device) {
 		String date = LocalDate.now().toString();
 		model.addAttribute("date", date);
 
@@ -40,12 +51,15 @@ public class EventController {
 		EventViewForm form = new EventViewForm();
 		List<EventChildBean> events = service.findByDate(date);
 		for ( EventChildBean item : events) {
-			form.add(new EventViewBean(item, date));
+			form.add(new EventViewBean(item));
 		}
 		service.sortByCategory(form.getItems(), catList);
 		model.addAttribute("form", form);
 		
 		model.addAttribute("eventViewBean", new EventViewBean(date));
+        if (device.isMobile()) {
+            //return "mobile_event";
+        } 
 		return "event";
 	}
 
@@ -61,7 +75,7 @@ public class EventController {
 		form.setDate(date);
 		List<EventChildBean> events = service.findByDate(date);
 		for ( EventChildBean item : events) {
-			form.add(new EventViewBean(item, date));
+			form.add(new EventViewBean(item));
 		}
 		service.sortByCategory(form.getItems(), catList);
 		model.addAttribute("form", form);
@@ -104,7 +118,7 @@ public class EventController {
 		EventViewForm form = new EventViewForm();
 		List<EventChildBean> events = service.findByDate(date);
 		for ( EventChildBean item : events) {
-			form.add(new EventViewBean(item, date));
+			form.add(new EventViewBean(item));
 		}
 		model.addAttribute("form", form);
 
@@ -119,6 +133,29 @@ public class EventController {
 		return "redirect:/event/chgDate";
 	}
 
+	@RequestMapping(value = "/eventEdit", method = RequestMethod.GET)
+	public String readForEdit(Model model) {
+		String date = LocalDate.now().toString();
+		Map<String, String> catList = catService.GetCategoryMapByName("Event", date);
+		model.addAttribute("catList", catList);
 
+		EventViewForm form = new EventViewForm();
+		List<EventParentBean> events = service.findAll();
+		for ( EventParentBean item : events) {
+			form.add(new EventViewBean(item, "0000-01-01", "9999-12-31"));
+		}
+		service.sortByCategory(form.getItems(), catList);
+		model.addAttribute("form", form);
+
+		return "event_edit";
+	}
+
+	@RequestMapping(value = "/saveEdit", method = RequestMethod.POST)
+	public String saveEditList(@ModelAttribute EventViewForm recform, Model model) {
+		List<EventViewBean> items = recform.getItems();
+		service.saveParent(items);
+
+		return "redirect:/event/eventEdit";
+	}
 	
 }

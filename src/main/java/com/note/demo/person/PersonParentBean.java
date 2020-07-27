@@ -3,13 +3,19 @@ package com.note.demo.person;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import com.note.demo.event.EventParentBean;
+
+import org.springframework.data.annotation.Transient;
 
 
 @Entity
@@ -31,19 +37,18 @@ public class PersonParentBean {
     private String name;
     private String category;
     private String status;
-    private String sorted;
+    
+    @Column(columnDefinition = "text")
     private String memo;
 
     // private
     private String name2;
     private String name3;
-    private int Level;
     private String address;
     private String inputDate;
-    private String relation;
 
-    @OneToMany(mappedBy = "parent", cascade= {CascadeType.DETACH})
-    private List<PersonChildBean> items; 
+    // @Transient
+    // private List<EventParentBean> items; 
 
     public PersonParentBean(){}
 
@@ -102,15 +107,6 @@ public class PersonParentBean {
     public void setName3(String name3) {
         this.name3 = name3;
     }
-
-    public int getLevel() {
-        return Level;
-    }
-
-    public void setLevel(int level) {
-        Level = level;
-    }
-
     public String getInputDate() {
         return inputDate;
     }
@@ -127,28 +123,12 @@ public class PersonParentBean {
         this.address = address;
     }
 
-    public String getRelation() {
-        return relation;
-    }
+    // public List<EventParentBean> getItems() {
+    //     return items;
+    // }
 
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public List<PersonChildBean> getItems() {
-        return items;
-    }
-
-    public void setItems(List<PersonChildBean> items) {
-        this.items = items;
-    }
-
-    public String getSorted() {
-        return sorted;
-    }
-
-    public void setSorted(String sorted) {
-        this.sorted = sorted;
-    }
+    // public void setItems(List<EventParentBean> items) {
+    //     this.items = items;
+    // }
 
 }

@@ -49,9 +49,9 @@ public class CollectionController {
 
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
-		service.find(itemId).ifPresent( item -> {
-			model.addAttribute("item", item);
-			model.addAttribute("collectionChildBean", new CollectionChildBean(item));
+		service.find(itemId).ifPresent( collectionBean -> {
+			model.addAttribute("collectionBean", collectionBean);
+			model.addAttribute("collectionChildBean", new CollectionChildBean(collectionBean));
 		});
 		return "collection_child";
 	}

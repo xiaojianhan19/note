@@ -49,7 +49,6 @@ function totalCalc() {
 $(function () {
     totalCalc();
 });
-
 /*]]>*/
 </script>
 </head>
@@ -68,45 +67,25 @@ $(function () {
 <form name="saveForm" action="#" th:action="@{/event/saveList}" th:object="${form}" method="post">
 
         <table class="table table-bordered noborder headline">
-            <thead>
-                <tr>
-                    <th>eId</th>
-                    <th width="20%">name</th>
-                    <th>category</th>
-                    <th>status</th>
-                    <th>sorted</th>
-                    <th>time</th>
-                    <th width="20%">memo</th>
-                </tr>
-            </thead>
             <tbody>
                 <th:block th:each="item, itemStat : ${form.items}">
-                <tr>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
-                    </td>
-                    <td>
+                    <input type="hidden" th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                    <tr><td colspan="4">
                         <input type="text" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
-                    </td>
-                    <td>
+                    </td></tr>
+                    <tr><td></td><td>
                         <input type="text" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
-                    </td>
-                    <td>
+                        </td><td>
                         <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
-                    </td>
-                    <td>
+                        </td><td>
                         <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
-                    </td>
-                    <td>
+                    </td></tr>
+                    <tr><td></td><td>
                         <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
-                    </td>
-                    <td>
+                        </td><td colspan="2">
                         <input th:name="|items[${itemStat.index}].memo|" th:value="${item.getMemo()}" />
-                    </td>
-                    <td hidden="">
-                        <input th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
-                    </td>
-                </tr>
+                    </td></tr>
+                    <input type="hidden" th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
                 </th:block>
             </tbody>
         </table>
@@ -200,13 +179,11 @@ $(function () {
 
 <hr/>
 <h3>Other Options</h3>
-<div>
-<span><a th:href="@{/event/eventEdit}">EditAllEvent</a></span>
-<span style="margin-left: 30px;"><a th:href="@{/category/}">Category Setting</a></span>
-<a href="#" class="showcatlist" style="margin-left: 30px;">Show Category List</a>
-</div>
+<form name="editForm" method="GET" action="#" th:action="@{/event/eventEdit}">
+    <input type="submit" value="EditAllEvent"></input>
+</form>
 
-<div th:unless="${#lists.isEmpty(catList)}" class="catlist" style="display:none;">
+<div th:unless="${#lists.isEmpty(catList)}">
     <hr/>
     <h3>CategoryList</h3>
     <table class="table table-bordered table-hover table-striped headline">
@@ -219,7 +196,7 @@ $(function () {
             <td th:text="${current.value}" th:id="${current.key}" ></td>
         </tr>
     </table>
-</div>
+  </div>
 
 </div>
 </body>

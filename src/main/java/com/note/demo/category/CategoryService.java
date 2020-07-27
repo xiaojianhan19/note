@@ -36,30 +36,60 @@ public class CategoryService extends Node {
   }
 
   public void save(CategoryParentBean p) {
-    List<CategoryParentBean> res = repository.findByNameAndStartDate(p.getName(), p.getStartDate());
-    if(res.size() > 0)
+    CategoryParentBean r = new CategoryParentBean();
+    if(Utl.check(p.getId()))
     {
-      CategoryParentBean r = res.get(0);
-      if(!p.getName().isEmpty()) r.setName(p.getName());
-      if(!p.getInputDate().isEmpty()) r.setInputDate(p.getInputDate());
-      if(!p.getStartDate().isEmpty()) r.setStartDate(p.getStartDate());
-      if(!p.getEndDate().isEmpty()) r.setEndDate(p.getEndDate());
-      if(p.getItem() != null) r.setItem(p.getItem());
-      repository.save(r);
+      Optional<CategoryParentBean> res = repository.findById(p.getId());
+      if(res.isPresent())
+      {
+        r = res.get();
+      }
     }
     else
     {
-      if(p.getInputDate().isEmpty()) p.setInputDate(LocalDate.now().toString());
-      if(p.getStartDate().isEmpty()) p.setStartDate(LocalDate.now().toString());
-      if(p.getEndDate().isEmpty()) p.setEndDate(Utl.MAX_DATE.toString());
-      if(p.getItem() == null)
-      {
-        CategoryChildBean c = new CategoryChildBean(p.getName());
-        itemRepository.save(c);
-        p.setItem(c);
-      }
-      repository.save(p);
+      List<CategoryParentBean> res = repository.findByNameAndStartDate(p.getName(), p.getStartDate());
+      if(res.size() > 0)
+        r = res.get(0);
     }
+
+    if(!p.getName().isEmpty()) 
+    {    
+      r.setName(p.getName());
+    }
+
+    if(!p.getInputDate().isEmpty()) 
+    {    
+      r.setInputDate(p.getInputDate());
+    } else if(r.getInputDate().isEmpty()) {
+      r.setInputDate(LocalDate.now().toString());
+    }
+
+    if(!p.getStartDate().isEmpty()) 
+    {    
+      r.setStartDate(p.getStartDate());
+    } else if(r.getStartDate().isEmpty()) {
+      r.setStartDate(LocalDate.now().toString());
+    }
+
+    if(!p.getEndDate().isEmpty()) 
+    {    
+      r.setEndDate(p.getEndDate());
+    } else if(r.getEndDate().isEmpty()) {
+      r.setEndDate(Utl.MAX_DATE.toString());
+    }
+    
+    if(p.getItem() != null) 
+    {
+      r.setItem(p.getItem());
+    } 
+    if(r.getItem() == null) 
+    {
+      CategoryChildBean c = new CategoryChildBean(r.getName());
+      itemRepository.save(c);
+      r.setItem(c);
+    }
+
+    repository.save(r);
   }
 
 
@@ -121,6 +151,7 @@ public class CategoryService extends Node {
       cat = itemRepository.findById(c.getId()).orElse(cat);
     }
     cat.setName(c.getName());
+    cat.setRoot(c.getRoot());
     if(!parent.isEmpty())
     {
       CategoryChildBean res = this.findChildByRootAndName(String.valueOf(c.getRoot()), parent);

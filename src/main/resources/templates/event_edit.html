@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+<form name="saveForm" action="#" th:action="@{/event/saveEdit}" th:object="${form}" method="post">
+    <input type="submit" id="submitButton" th:value="Update" >
+    <table class="table table-bordered noborder headline">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th width="20%">name</th>
+                <th>category</th>
+                <th>status</th>
+                <th>sorted</th>
+                <th>time</th>
+                <th>duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="item, itemStat : ${form.items}">
+            <tr>
+                <td>
+                    <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                </td>
+                <td>
+                    <input type="text" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                </td>
+                <td>
+                    <input type="text" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" readonly="true"/>
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].duration|" th:value="${item.getDuration()}" class="duration" readonly="true"/>
+                </td>
+            </tr>
+            </th:block>
+        </tbody>
+    </table>
+</form>
+
+<div th:unless="${#lists.isEmpty(catList)}">
+    <hr/>
+    <h3>CategoryList</h3>
+    <table class="table table-bordered table-hover table-striped headline">
+        <tr>
+            <th>id</th>
+            <th>category</th>
+        </tr>
+        <tr th:each="current : ${catList}">
+            <td th:text="${current.key}"></td>
+            <td th:text="${current.value}" th:id="${current.key}" ></td>
+        </tr>
+    </table>
+</div>
+
+</div>
+</body>
+</html>

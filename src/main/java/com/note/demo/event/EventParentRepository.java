@@ -9,5 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface EventParentRepository extends JpaRepository<EventParentBean, Integer> {
     public List<EventParentBean> findByNameAndCategory(String name, String category);
     public List<EventParentBean> findByNameContaining(String name);
+    public List<EventParentBean> findByName(String name);
     public List<EventParentBean> findByStatus(String status);    
+    public List<EventParentBean> findByNameAndCategoryOrderById(String name, String category);
+    
 }

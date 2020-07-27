@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -35,7 +36,7 @@ public class CollectionParentBean {
     private String name;
     private String category;
     private String status;
-    private String sorted;    
+    @Column(columnDefinition = "text")
     private String memo;
 
     // private
@@ -44,7 +45,6 @@ public class CollectionParentBean {
     private int Level;
     private String inputDate;
     private String releaseDate;
-    private LocalDate testDate;
 
     @ElementCollection(fetch=FetchType.EAGER)
     @Column(name="tag")
@@ -143,14 +143,6 @@ public class CollectionParentBean {
         this.releaseDate = releaseDate;
     }
 
-    public LocalDate getTestDate() {
-        return testDate;
-    }
-
-    public void setTestDate(LocalDate testDate) {
-        this.testDate = testDate;
-    }
-
     public List<String> getTags() {
         return tags;
     }
@@ -158,14 +150,5 @@ public class CollectionParentBean {
     public void setTags(List<String> tags) {
         this.tags = tags;
     }
-
-    public String getSorted() {
-        return sorted;
-    }
-
-    public void setSorted(String sorted) {
-        this.sorted = sorted;
-    }
-
 
 }
