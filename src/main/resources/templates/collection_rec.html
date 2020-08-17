@@ -12,18 +12,15 @@
 		(item's content here.)</span>
 		<ul class="wtree">
 			<th:block th:unless="${#lists.isEmpty(group.items)}">
-			<li th:each="person : ${group.items}">
-				<!--
-				<span th:text="${person.id} + '  /  ' +${person.name} + '  /  ' +${person.name2}">
-					(item's content here.)</span>
-					-->
-				<a th:text="${person.name} + '  /  ' +${person.name2}"
-				th:href="@{'/person/detail?itemId=' + ${person.id}}">
-					(item's content here.)</a>
+			<li th:each="gItem : ${group.items}">
+				<a th:text="${gItem.name}"
+				th:href="@{'/collection/detail?itemId=' + ${gItem.id}}">
+				</a>
+				<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
 			</li>
 			</th:block>
 			<li th:each="group : ${group.children}">
-				<div th:replace="person_rec :: item">
+				<div th:replace="collection_rec :: item">
 				(sub-nodes here)</div>
 			</li>
 		</ul>

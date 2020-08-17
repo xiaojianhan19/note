@@ -73,19 +73,6 @@
   </table>
 </div>
 
-<div th:unless="${#lists.isEmpty(catList)}" >
-  <hr/>
-  <h3>CategoryList</h3>    
-  <table class="table table-bordered table-hover table-striped">
-      <tbody>
-          <tr th:each="current : ${catList}">
-              <td th:text="${current.key}" ></td>
-              <td th:text="${current.value}" th:id="${current.key}" ></td>
-          </tr>
-      </tbody>
-  </table>
-</div>
-
 </div>
 </body>
 </html>

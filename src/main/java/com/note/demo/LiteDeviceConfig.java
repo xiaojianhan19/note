@@ -31,7 +31,7 @@ public class LiteDeviceConfig implements WebMvcConfigurer {
     public LiteDeviceDelegatingViewResolver liteDeviceDelegatingViewResolver(ThymeleafViewResolver thymeleafViewResolver) {
         LiteDeviceDelegatingViewResolver liteDeviceDelegatingViewResolver = new LiteDeviceDelegatingViewResolver(thymeleafViewResolver);
         //liteDeviceDelegatingViewResolver.setMobilePrefix("mobile_");
-        liteDeviceDelegatingViewResolver.setMobileSuffix("_mobile");
+        //liteDeviceDelegatingViewResolver.setMobileSuffix("_mobile");
         //liteDeviceDelegatingViewResolver.setTabletPrefix("mobile_");
         //liteDeviceDelegatingViewResolver.setNormalPrefix("");
         return liteDeviceDelegatingViewResolver;

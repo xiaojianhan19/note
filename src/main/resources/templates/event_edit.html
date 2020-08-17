@@ -33,10 +33,10 @@
                     <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
                 </td>
                 <td>
-                    <input type="text" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                    <input th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
                 </td>
                 <td>
-                    <input type="text" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                    <input th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
                 </td>
                 <td>
                     <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
@@ -49,6 +49,9 @@
                 </td>
                 <td>
                     <input th:name="|items[${itemStat.index}].duration|" th:value="${item.getDuration()}" class="duration" readonly="true"/>
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].date|" th:value="${item.getDate()}" readonly="true" />
                 </td>
             </tr>
             </th:block>

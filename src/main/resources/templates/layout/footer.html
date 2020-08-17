@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div layout:fragment="footer">
+    <hr/>
+    <h3>Other Options</h3>
+    <span style="margin-left: 30px;"><a th:href="@{/category/}">Category Setting</a></span>
+    <div th:unless="${#lists.isEmpty(catList)}">       
+        <div>
+            <a href="#" class="showcatlist" style="margin-left: 30px;">Show Category List</a>
+        </div>
+        <div class="catlist" style="display:none;" >
+            <h3>CategoryList</h3>
+            <table class="table table-bordered table-hover table-striped headline">
+                <tr>
+                    <th>id</th>
+                    <th>category</th>
+                </tr>
+                <tr th:each="current : ${catList}">
+                    <td th:text="${current.key}"></td>
+                    <td th:text="${current.value}" th:id="${current.key}" ></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

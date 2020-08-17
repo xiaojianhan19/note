@@ -10,5 +10,6 @@ public interface PersonRepository extends JpaRepository<PersonParentBean, Intege
     public List<PersonParentBean> findByCategory(String category);
     public List<PersonParentBean> findByNameAndCategory(String name, String category);
     public List<PersonParentBean> findByNameContaining(String name);
-    
+    public List<PersonParentBean> findByName(String name);
+    public List<PersonParentBean> findByNameOrName2(String name, String name2);
 }

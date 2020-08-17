@@ -75,6 +75,14 @@ public class EventChildBean {
         this.memo = memo;
     }
 
+    public EventChildBean(EventChildBean item) {
+        this.id = item.getId();
+        this.date = item.getDate();
+        this.time = item.getTime();
+        this.memo = item.getMemo();
+        this.parent = item.getParent();
+    }
+
     public EventChildBean(EventViewBean vBean, EventParentBean p) {
         this.date = vBean.getDate();
         this.time = Utl.parseDouble(vBean.getTime());
@@ -90,6 +98,7 @@ public class EventChildBean {
     }
 
     public EventChildBean(EventChildBean item, EventParentBean parent) {
+        this.id = item.getId();
         this.date = item.getDate();
         this.time = item.getTime();
         this.memo = item.getMemo();

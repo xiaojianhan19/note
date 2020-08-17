@@ -2,6 +2,8 @@ package com.note.demo.event;
 
 import java.util.List;
 
+import com.note.demo.Utl;
+
 public class EventViewBean {
 	private String id;
     private String name;
@@ -13,6 +15,7 @@ public class EventViewBean {
     private String time;
     private String memo;
     private String duration;
+    private String percent;
 
     public EventViewBean(){}
 
@@ -73,7 +76,7 @@ public class EventViewBean {
     }
 
     public EventViewBean(EventParentBean event){
-        this.id = String.valueOf(event.getId());
+        this.id = Utl.parseIdToString(event.getId());
         this.name = event.getName();
         this.category = event.getCategory();
         this.status = event.getStatus();
@@ -86,7 +89,7 @@ public class EventViewBean {
         {
             if(date.equals(item.getDate()))
             {
-                this.time = String.valueOf(item.getTime());
+                this.time = Utl.parseTimeToString(item.getTime());
                 this.memo = item.getMemo();
             }
         }
@@ -96,19 +99,21 @@ public class EventViewBean {
         EventParentBean event = item.getParent();
         if(event == null)
             return;
-        this.id = String.valueOf(event.getId());
+        this.id = Utl.parseIdToString(event.getId());
         this.name = event.getName();
         this.category = event.getCategory();
         this.status = event.getStatus();
         this.sorted = event.getSorted();
         this.date = item.getDate();
-        this.time = String.valueOf(item.getTime());
+        this.time = Utl.parseTimeToString(item.getTime());
+
+
         this.memo = item.getMemo();
     }
 
     public EventViewBean(String date)
     {
-        this.date = date.toString();
+        this.date = date;
     }
 
     public String getSorted() {
@@ -128,11 +133,12 @@ public class EventViewBean {
     }
 
     public EventViewBean(EventParentBean event, String startDate, String endDate){
-        this.id = String.valueOf(event.getId());
+        this.id = Utl.parseIdToString(event.getId());
         this.name = event.getName();
         this.category = event.getCategory();
         this.status = event.getStatus();
         this.sorted = event.getSorted();
+        String inputDate = "";
         double totalTime = 0.0;
         int totalDuration = 0;
         for(EventChildBean item : event.getItems())
@@ -142,9 +148,32 @@ public class EventViewBean {
                 totalTime += item.getTime();
                 totalDuration++;
             }
+            if(inputDate.equals(""))
+            {
+                inputDate = item.getDate();
+            }
         }
-        this.time = String.valueOf(totalTime);
-        this.duration = String.valueOf(totalDuration);
+        this.time = Utl.parseTimeToString(totalTime);
+        this.duration = Utl.parseIdToString(totalDuration);
+        this.date = inputDate;
+    }
+
+    public String getPercent() {
+        return percent;
+    }
+
+    public void setPercent(String parcent) {
+        this.percent = parcent;
+    }
+
+    public EventViewBean(String name, String category, String status, String sorted, String date, String time, String memo){
+        this.name = name;
+        this.category = category;
+        this.status = status;
+        this.sorted = sorted;
+        this.date = date;
+        this.time = time;
+        this.memo = memo;
     }
 
 }

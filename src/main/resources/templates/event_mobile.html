@@ -31,21 +31,6 @@ function selectItem(id, nm, ct, st) {
 	document.getElementById("inputMemo").value = "";
 }
 
-function totalCalc() {
-    var list = document.getElementsByClassName("time");
-    var total = 0.0;
-    for(n=0; n<list.length; n++)
-    {
-        try {
-            total += parseFloat(list[n].value) ;
-        } catch (error) {
-            
-        }
-    }
-
-    document.getElementById("totaltime").innerHTML = total;
-}
-
 $(function () {
     totalCalc();
 });
@@ -65,33 +50,41 @@ $(function () {
 
 <h3 style="text-align: right;">Total Time : <span id="totaltime">00.00</span> </h3>
 <form name="saveForm" action="#" th:action="@{/event/saveList}" th:object="${form}" method="post">
-
+    <div style="text-align: right;">
+        <span><a th:href="@{/event/eventView}">EventView</a></span>
+        <input type="submit" id="submitButton" th:value="Save" style="margin: 10px;"/>
+        <span style="font-size:20px;margin: 10px;">Total Time :<span  id="totaltime">00.00</span></span>
+    </div>
         <table class="table table-bordered noborder headline">
             <tbody>
                 <th:block th:each="item, itemStat : ${form.items}">
                     <input type="hidden" th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
-                    <tr><td colspan="4">
-                        <input type="text" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
-                    </td></tr>
-                    <tr><td></td><td>
-                        <input type="text" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
-                        </td><td>
-                        <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
-                        </td><td>
-                        <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
-                    </td></tr>
-                    <tr><td></td><td>
-                        <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
-                        </td><td colspan="2">
+                    <tr>
+                        <td colspan="4">
+                        <input th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                        </td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
+                        
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                        </td>
+                        <td>
+                          <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                        </td>
+                        <td colspan="2">
                         <input th:name="|items[${itemStat.index}].memo|" th:value="${item.getMemo()}" />
-                    </td></tr>
+                        </td>
+                    </tr>
+                    <input type="hidden" th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
                     <input type="hidden" th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
                 </th:block>
             </tbody>
         </table>
-        <input type="submit" id="submitButton" th:value="Save" >
-        <input type="reset" id="resetButton" name="reset" th:value="Reset" />
-
 </form>
 
 <hr/>
@@ -183,20 +176,6 @@ $(function () {
     <input type="submit" value="EditAllEvent"></input>
 </form>
 
-<div th:unless="${#lists.isEmpty(catList)}">
-    <hr/>
-    <h3>CategoryList</h3>
-    <table class="table table-bordered table-hover table-striped headline">
-        <tr>
-            <th>id</th>
-            <th>category</th>
-        </tr>
-        <tr th:each="current : ${catList}">
-            <td th:text="${current.key}"></td>
-            <td th:text="${current.value}" th:id="${current.key}" ></td>
-        </tr>
-    </table>
-  </div>
 
 </div>
 </body>

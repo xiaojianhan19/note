@@ -20,30 +20,16 @@ function insertItem(id) {
     document.getElementById("insertId").value = id;
 	insertForm.submit();
 }
-function selectItem(id, nm, ct, st) {
+function selectItem(id, nm, ct, st, so) {
     inputClear();
     document.getElementById("inputId").value = id;
     document.getElementById("inputName").value = nm
     document.getElementById("inputCategory").value = ct;
     document.getElementById("inputStatus").value = st;
+    document.getElementById("inputSorted").value = so;
     document.getElementById("inputDate").value = document.getElementById("targetDate").value;
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
-}
-
-function totalCalc() {
-    var list = document.getElementsByClassName("time");
-    var total = 0.0;
-    for(n=0; n<list.length; n++)
-    {
-        try {
-            total += parseFloat(list[n].value) ;
-        } catch (error) {
-            
-        }
-    }
-
-    document.getElementById("totaltime").innerHTML = total;
 }
 
 $(function () {
@@ -64,55 +50,55 @@ $(function () {
         </form>
     </div>
 
-<h3 style="text-align: right;">Total Time : <span id="totaltime">00.00</span> </h3>
+
 <form name="saveForm" action="#" th:action="@{/event/saveList}" th:object="${form}" method="post">
-
-        <table class="table table-bordered noborder headline">
-            <thead>
-                <tr>
-                    <th>eId</th>
-                    <th width="20%">name</th>
-                    <th>category</th>
-                    <th>status</th>
-                    <th>sorted</th>
-                    <th>time</th>
-                    <th width="20%">memo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <th:block th:each="item, itemStat : ${form.items}">
-                <tr>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
-                    </td>
-                    <td>
-                        <input type="text" th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
-                    </td>
-                    <td>
-                        <input type="text" th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
-                    </td>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
-                    </td>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
-                    </td>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
-                    </td>
-                    <td>
-                        <input th:name="|items[${itemStat.index}].memo|" th:value="${item.getMemo()}" />
-                    </td>
-                    <td hidden="">
-                        <input th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
-                    </td>
-                </tr>
-                </th:block>
-            </tbody>
-        </table>
-        <input type="submit" id="submitButton" th:value="Save" >
-        <input type="reset" id="resetButton" name="reset" th:value="Reset" />
-
+    
+    <div style="text-align: right;">
+        <span><a th:href="@{/event/eventView}">EventView</a></span>
+        <input type="submit" id="submitButton" th:value="Save" style="margin: 10px;"/>
+        <span style="font-size:20px;margin: 10px;">Total Time :<span  id="totaltime">00.00</span></span>
+    </div>
+    <table class="table table-bordered noborder headline">
+        <thead>
+            <tr>
+                <th width="20%">name</th>
+                <th>category</th>
+                <th>status</th>
+                <th>time</th>
+                <th width="40%">memo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="item, itemStat : ${form.items}">
+            <tr>
+                <td hidden="">
+                    <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
+                </td>
+                <td hidden="">
+                    <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" />
+                </td>
+                <td>
+                    <input th:name="|items[${itemStat.index}].memo|" th:value="${item.getMemo()}" />
+                </td>
+                <td hidden="">
+                    <input th:name="|items[${itemStat.index}].date|" th:value="${date}" readonly="true" />
+                </td>
+            </tr>
+            </th:block>
+        </tbody>
+    </table>
 </form>
 
 <hr/>
@@ -141,7 +127,7 @@ $(function () {
       </tr>
       <tr>
         <td >time</td>
-        <td ><input th:field="*{time}" id="inputTime" /></td>
+        <td ><input th:field="*{time}" id="inputTime" class="time" /></td>
 	  </tr>
       <tr>
         <td >memo</td>
@@ -185,7 +171,8 @@ $(function () {
                 th:data-nm="${current.name}"
                 th:data-ct="${current.category}"
                 th:data-st="${current.status}"
-                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'));" ></input>
+                th:data-so="${current.sorted}"
+                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'),this.getAttribute('data-so'));" ></input>
             </td>
             <td ><input type="button" value="Insert" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'));" ></input></td>
         </tr>
@@ -199,27 +186,8 @@ $(function () {
 </form>
 
 <hr/>
-<h3>Other Options</h3>
-<div>
+<h3>Event Options</h3>
 <span><a th:href="@{/event/eventEdit}">EditAllEvent</a></span>
-<span style="margin-left: 30px;"><a th:href="@{/category/}">Category Setting</a></span>
-<a href="#" class="showcatlist" style="margin-left: 30px;">Show Category List</a>
-</div>
-
-<div th:unless="${#lists.isEmpty(catList)}" class="catlist" style="display:none;">
-    <hr/>
-    <h3>CategoryList</h3>
-    <table class="table table-bordered table-hover table-striped headline">
-        <tr>
-            <th>id</th>
-            <th>category</th>
-        </tr>
-        <tr th:each="current : ${catList}">
-            <td th:text="${current.key}"></td>
-            <td th:text="${current.value}" th:id="${current.key}" ></td>
-        </tr>
-    </table>
-</div>
 
 </div>
 </body>

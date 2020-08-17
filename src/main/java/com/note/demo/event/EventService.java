@@ -40,7 +40,7 @@ public class EventService {
 
   public List<EventChildBean> findByDate(String date) {
     List<EventChildBean> list = itemRepository.findByDateOrderByParent(date);
-    if(showMode == 0 && LocalDate.now().toString().equals(date))
+    if(showMode == 0 && LocalDate.now().plusDays(-3).toString().compareTo(date) < 0)
     {
       List<String> targetStatus = new ArrayList<String>(Arrays.asList(
         Utl.Status.EV1_ONPROCESS.getValue(),
@@ -74,23 +74,31 @@ public class EventService {
     return list;
   }
 
+  public List<EventParentBean> findByPeriod(String start, String end) {
+    List<EventChildBean> list = itemRepository.findByDateBetweenOrderByParent(start, end);
+    List<EventParentBean> pList = new ArrayList<EventParentBean>();
+    for(EventChildBean ch : list)
+    {
+      if(!pList.contains(ch.getParent()))
+        pList.add(ch.getParent());
+    }
 
-  // public void save(EventParentBean b, EventChildBean c) {
-  //   repository.save(b);
-  //   c.setEvent(b);
-  //   itemRepository.save(c);
-  // }  
+    return pList;
+  }
 
-  // public void save(EventChildBean c)
-  // {
-  //   itemRepository.save(c);
-  // }
-
-  // public void save(EventChildBean c, EventParentBean p)
-  // {
-  //   c.setEvent(p);
-  //   itemRepository.save(c);
-  // }
+  public List<EventViewBean> findByName(String name)
+  {
+   List<EventViewBean> list = new ArrayList<EventViewBean>();
+   List<EventParentBean> events = repository.findByNameContaining(name);
+   for(EventParentBean ev : events)
+   {
+     for(EventChildBean ch : ev.getItems())
+     {
+       list.add(new EventViewBean(ch));
+     }
+   }
+   return list;
+  }
 
   public void save(List<EventViewBean> list) {
     for(EventViewBean p : list)
@@ -108,9 +116,10 @@ public class EventService {
 
   public void save(EventViewBean vBean)
   {
-    // Find
+    // Update EventParent
+    EventParentBean newEv = new EventParentBean(vBean);
     EventParentBean event = null;
-    EventChildBean child = null;
+    Boolean exist = false;
     if(Utl.check(vBean.getId()))
     {
       Optional<EventParentBean> res = repository.findById( Utl.parseInt(vBean.getId()));
@@ -121,85 +130,62 @@ public class EventService {
     }
     else if(Utl.check(vBean.getName()) && Utl.check(vBean.getCategory()))
     {
-      List<EventParentBean> events = repository.findByNameAndCategory(vBean.getName(), vBean.getCategory());
-      if(events.size() > 0)
+      List<EventParentBean> res = repository.findByNameAndCategory(vBean.getName(), vBean.getCategory());
+      if(res.size() > 0)
       {
-        event = events.get(0);
+        event = res.get(0);
       }
     }
-
-    // Set
     if(event != null)
     {
+      exist = true;
       // update
-      Boolean noExist = true;
-      for(EventChildBean ev : event.getItems())
-      {
-        if(vBean.getDate().equals(ev.getDate()))
-        {
-          noExist = false;
-          if(Utl.check(vBean.getMemo()) || Utl.check(Utl.parseDouble(vBean.getTime())))
-          {
-            ev.setMemo(vBean.getMemo());
-            ev.setTime(Utl.parseDouble(vBean.getTime()));
-          }
-          break;
-        }
-      }
-      if(noExist && vBean.getDate() != null && ( Utl.check(Utl.parseDouble(vBean.getTime())) || Utl.check(vBean.getMemo())))
-      {
-         child = new EventChildBean(vBean, event);
-         itemRepository.save(child);
-      }
-
-      if(Utl.check(vBean.getName()))
-      {
-        if(!event.getName().equals(vBean.getName()))
-          event.setName(vBean.getName());
-      }
-      if(Utl.check(vBean.getCategory()))
-      {
-        if(!event.getCategory().equals(vBean.getCategory()))
-          event.setCategory(vBean.getCategory());
-      }      
-      if(Utl.check(vBean.getStatus()))
-      {
-        if(!event.getStatus().equals(vBean.getStatus()))
-          event.setStatus(vBean.getStatus());
-      }
-      if(Utl.check(vBean.getSorted()))
-      {
-        if(!event.getSorted().equals(vBean.getSorted()))
-          event.setSorted(vBean.getSorted());
-      }
+      Utl.copyPropertiesIgnoreNull(newEv, event);
     }
     else
     {
       // add  
-      event = new EventParentBean(vBean);
-      if(!Utl.check(event.getSorted()))
-      {
-        event.setSorted("1");
-      }
-
-      child = new EventChildBean(vBean, event);
+      event = newEv;
     }
 
-    if(event != null && Utl.check(event.getName()) && Utl.check(event.getCategory()))
+    if(Utl.check(event.getName()) && Utl.check(event.getCategory()))
     {
       repository.save(event);
     }
-
-    if(child != null && (Utl.check(child.getTime()) || Utl.check(child.getMemo())))
+    
+    // Update EventChild
+    EventChildBean newCh = new EventChildBean(vBean, event);
+    EventChildBean child = null;
+    if(exist)
     {
-      itemRepository.save(child);
+      for(EventChildBean ev : event.getItems())
+      {
+        if(vBean.getDate().equals(ev.getDate()))
+        {
+          child = new EventChildBean(ev);
+          Utl.copyPropertiesIgnoreNull(newCh, child);
+          break;
+        }
+      }
+    }
+    if(child == null)
+    {
+      child = newCh;
+    }
+
+    if(Utl.check(child.getTime()) || Utl.check(child.getMemo()))
+    {
+      if(child.getTime() == -1.0)
+      {
+        if(Utl.check(child.getId()))
+          itemRepository.delete(child);
+      }
+      else
+      {
+        itemRepository.save(child);
+      }
     }
   }
-
-  public void delete(String id) {
-    repository.deleteById(Utl.parseInt(id));
-  }
-
 
   public List<EventViewBean> findTargets(String name)
   {
@@ -215,11 +201,12 @@ public class EventService {
 
   public void insert(String id, String date)
   {
-    Optional<EventParentBean> res = repository.findById( Utl.parseInt(id));
+    Optional<EventParentBean> res = repository.findById(Utl.parseInt(id));
     if(res.isPresent())
     {
       EventParentBean event = res.get();
       EventChildBean child = new EventChildBean(date, event);
+      child.setTime(0.5);
       itemRepository.save(child);
     }
   }
@@ -246,19 +233,6 @@ public class EventService {
       }
       return a.getName().compareTo(b.getName());
     });
-  }
-
-  public void deleteItem(EventChildBean ev)
-  {
-    // if(ev.getPerson() != null)
-    // {
-    //   itemRepository.deleteByPerson(ev.getPerson().getId());
-    // }
-    // if(ev.getCollection() != null)
-    // {
-    //   itemRepository.delteByCollection(ev.getCollection().getId());
-    // }
-    itemRepository.delete(ev);
   }
 
   public void saveParent(List<EventViewBean> list) 
@@ -296,16 +270,27 @@ public class EventService {
           EventParentBean add = res.get(i);
           if(add.getId() != orgId)
           {
-            for(EventChildBean child : add.getItems())
+            List<EventChildBean> chgItems = add.getItems();
+            int cnt = chgItems.size();
+            for(int j=0; j < cnt; j++)
             {
+              EventChildBean child = chgItems.get(j);
               List<EventChildBean> orgList = itemRepository.findByDateAndParent(child.getDate(), org);
               if(orgList.size() == 0)
               {
                 EventChildBean newC = new EventChildBean(child, org);
                 itemRepository.save(newC);
               }
+              else
+              {
+                EventChildBean newC = orgList.get(0);
+                newC.setTime(newC.getTime() + child.getTime());
+                newC.setMemo(newC.getMemo() + child.getMemo());
+                itemRepository.save(newC);
+                itemRepository.delete(child);
+              }
             }
-            this.delete(add);
+            repository.delete(add);
           }
         }
       }
@@ -322,19 +307,26 @@ public class EventService {
      repository.delete(p);
    }
 
-
-   public List<EventViewBean> findByName(String name)
+   public void deleteItem(EventChildBean ev)
    {
-    List<EventViewBean> list = new ArrayList<EventViewBean>();
-    List<EventParentBean> events = repository.findByNameContaining(name);
-    for(EventParentBean ev : events)
+     itemRepository.delete(ev);
+   }
+
+   public void delete(String id) {
+    repository.deleteById(Utl.parseInt(id));
+  }
+
+  public void updateEventName(String oldName, String newName)
+  {
+    List<EventParentBean> res = repository.findByName(oldName);
+    if(res.size() > 0)
     {
-      for(EventChildBean ch : ev.getItems())
+      for(EventParentBean p : res)
       {
-        list.add(new EventViewBean(ch));
+        p.setName(newName);
+        repository.save(p);
       }
     }
-    return list;
-   }
+  }
    
 }

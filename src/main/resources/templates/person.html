@@ -126,6 +126,7 @@ $(this).next("ul").toggle();
 <body>
 <div layout:fragment="content">
 
+<!--
 <h3>Person List</h3>
 <div th:unless="${#lists.isEmpty(list)}">
     <table class="table table-bordered table-hover table-striped">
@@ -159,6 +160,7 @@ $(this).next("ul").toggle();
 </form>
 
 <hr/>
+-->
 
 <h3>Group List</h3>
 <div id="mymenu2" th:replace="person_rec :: item">(sub-nodes here)</div>
@@ -198,37 +200,6 @@ $(this).next("ul").toggle();
 	    <input type="submit" value="Add" />
 	    <input type="button" value="Clear" onclick="inputClear()" />
 </form>
-
-<div th:unless="${#lists.isEmpty(catList)}" >
-    <hr/>
-    <h3>CategoryList</h3>    
-    <table class="table table-bordered table-hover table-striped">
-        <tbody>
-            <tr th:each="current : ${catList}">
-                <td th:text="${current.key}" ></td>
-                <td th:text="${current.value}" th:id="${current.key}" ></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<div id="mymenu">
-    <ul>
-    <li><a href="#">用户管理</a></li>
-    <ul>
-    <li><a href="#">用户查询</a></li>
-    <li><a href="#">添加用户</a></li>
-    <li><a href="#">用户组</a></li>
-    </ul>
-    </ul>
-    <ul>
-    <li><a href="#">课程管理</a></li>
-    <ul>
-    <li><a href="#">课程列表</a></li>
-    <li><a href="#">添加课程</a></li>
-    </ul>
-    </ul>
-</div>
 
 </div>
 </body>

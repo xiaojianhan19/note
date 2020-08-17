@@ -150,8 +150,7 @@ public class CategoryService extends Node {
     {
       cat = itemRepository.findById(c.getId()).orElse(cat);
     }
-    cat.setName(c.getName());
-    cat.setRoot(c.getRoot());
+    Utl.copyPropertiesIgnoreNull(c, cat);
     if(!parent.isEmpty())
     {
       CategoryChildBean res = this.findChildByRootAndName(String.valueOf(c.getRoot()), parent);

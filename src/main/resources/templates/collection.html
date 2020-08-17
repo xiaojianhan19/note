@@ -127,84 +127,82 @@ function editItem(id) {
 <body>
 <div layout:fragment="content">
 
-<h3>Collection List</h3>
-<div th:unless="${#lists.isEmpty(colList)}">
-    <table class="table table-bordered table-hover table-striped">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Level</th>
-            <th>Operation</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="current : ${colList}">
-            <td th:text="${current.name}"></td>
-            <td th:text="${current.category}"></td>
-            <td th:text="${current.status}"></td>
-            <td th:text="${current.level}"></td>
-            <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<form name="editForm" method="GET" action="#" th:action="@{/collection/detail}" >
-    <input type="hidden" id="itemId" name="itemId" value=""></input>
-</form>
-
-<hr/>
-
-<h3>Add a Collection Item</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/collection/add}" th:object="${collectionBean}">
-	<table class="table table-bordered noborder headline fcol">
-	  <tr>
-        <td >id</td><td ><input th:field="*{id}" id="inputId"/></td>
-	  </tr>
-	  <tr>
-        <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
-      </tr>
-	  <tr>
-        <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
-      </tr>
-	  <tr>
-        <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
-	  </tr>      
-      <tr>
-        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
-      </tr>
-      <tr>
-        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
-	  </tr>
-      <tr>
-        <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
-	  </tr>
-      <tr>
-        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
-      </tr>
-      <tr>
-        <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
-      </tr>
-    </table>
-    <br/>
-	    <input type="submit" value="Add" />
-	    <input type="button" value="Clear" onclick="inputClear()" />
-</form>
-
-<div th:unless="${#lists.isEmpty(catList)}">
-    <hr/>
-    <h3>CategoryList</h3>    
-    <table class="table table-bordered table-hover table-striped">
-        <tbody>
-            <tr th:each="current : ${catList}">
-                <td th:text="${current.key}" ></td>
-                <td th:text="${current.value}" th:id="${current.key}" ></td>
+    <!--
+    <h3>Collection List</h3>
+    <div th:unless="${#lists.isEmpty(colList)}">
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Level</th>
+                <th>Operation</th>
             </tr>
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+            <tr th:each="current : ${colList}">
+                <td th:text="${current.name}"></td>
+                <td th:text="${current.category}"></td>
+                <td th:text="${current.status}"></td>
+                <td th:text="${current.level}"></td>
+                <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+
+    <form name="editForm" method="GET" action="#" th:action="@{/collection/detail}" >
+        <input type="hidden" id="itemId" name="itemId" value=""></input>
+    </form>
+
+    <hr/>
+    -->
+
+    <h3>Group List</h3>
+    <div th:replace="collection_rec :: item">(sub-nodes here)</div>
+    <hr/>
+
+    <h3>Add a Collection Item</h3>
+    <form name="addForm" method="POST" action="#" th:action="@{/collection/add}" th:object="${collectionBean}">
+        <table class="table table-bordered noborder headline fcol">
+        <tr>
+            <td >id</td><td ><input th:field="*{id}" id="inputId"/></td>
+        </tr>
+        <tr>
+            <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
+        </tr>
+        <tr>
+            <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
+        </tr>
+        <tr>
+            <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
+        </tr>      
+        <tr>
+            <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
+        </tr>
+        <tr>
+            <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
+        </tr>
+        <tr>
+            <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
+        </tr>
+        <tr>
+            <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
+        </tr>
+        <tr>
+            <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
+        </tr>
+        </table>
+        <br/>
+            <input type="submit" value="Add" />
+            <input type="button" value="Clear" onclick="inputClear()" />
+    </form>
+
+    <hr/>
+    <h3>Collection Options</h3>
+    <span><a th:href="@{/collection/unsortedEdit}">EditUnsortedItems</a></span>
 
 </div>
 </body>

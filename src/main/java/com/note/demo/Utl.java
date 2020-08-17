@@ -36,7 +36,25 @@ public class Utl {
         }        
     }
 
+    //sorted
+    public enum Sorted {
+        ST1_EVENT("Event"),
+        ST2_PERSON("Person"),
+        ST3_COLLECTION("Collection"),
+        ST4_ACHIEVEMENT("Achievement");
 
+        // フィールドの定義
+        private String name;
+        
+        // コンストラクタの定義
+        private Sorted(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return this.name;
+        }        
+    }
 
 
     //parser
@@ -98,6 +116,16 @@ public class Utl {
             //e.printStackTrace();
             return 0;
         }
+    }
+
+    public static String parseIdToString(int id)
+    {
+        return (id == 0) ? "" : String.valueOf(id);
+    }
+
+    public static String parseTimeToString(double time)
+    {
+        return (time == 0.0) ? "" : String.format("%.2f", time);
     }
 
     //date
@@ -184,6 +212,11 @@ public class Utl {
             else if(srcValue instanceof Double) {
                 double value = ((Double) srcValue).doubleValue();
                 if(value == 0.0)
+                    emptyNames.add(pd.getName());
+            }
+            else if(srcValue instanceof String) {
+                String value = ((String) srcValue);
+                if(value.equals(""))
                     emptyNames.add(pd.getName());
             }
         }

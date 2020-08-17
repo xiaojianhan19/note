@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
@@ -50,19 +51,13 @@ public class CategoryController {
 	}
 	
 	@RequestMapping(value = "/addChild", method = RequestMethod.POST)
-	public String addChild(@ModelAttribute("categoryChildBean") CategoryChildBean categoryChildBean, @ModelAttribute("parentId") String parentId, Model model) {
+	public String addChild(@ModelAttribute("categoryChildBean") CategoryChildBean categoryChildBean, @ModelAttribute("parentId") String parentId, Model model, RedirectAttributes redirectAttributes) {
 		service.saveChild(categoryChildBean, parentId.trim());
 
 		//service.save(categoryBean);
 		String itemId = String.valueOf(categoryChildBean.getRoot());
-		service.findChild(itemId).ifPresent( item -> {
-			model.addAttribute("item", item);
-			CategoryChildBean c = new CategoryChildBean();
-			c.setRoot(item.getId());
-			model.addAttribute("categoryChildBean", c);
-			model.addAttribute("parentId", parentId);
-		});
-		return "category_child";
+		redirectAttributes.addAttribute("itemId", itemId);
+		return "redirect:/category/detail";
 
 	}
 

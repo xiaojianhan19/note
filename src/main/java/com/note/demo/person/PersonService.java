@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import com.note.demo.Utl;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
+import com.note.demo.category.CategoryViewBean;
 import com.note.demo.event.EventParentBean;
 import com.note.demo.event.EventService;
 import com.note.demo.event.EventViewBean;
@@ -34,22 +35,49 @@ public class PersonService {
     return repository.findAll(Sort.by(Direction.ASC, "category"));
   }
 
-  public PersonGroupBean findAllInGroup(String date) {
+  // public PersonGroupBean findAllInGroup(String date) {
+  //   CategoryParentBean p = catService.findByNameAndDate("Person", date);
+  //   PersonGroupBean group = new PersonGroupBean(p.getItem());
+  //   AddPersonToGroup(group);
+  //   return group;
+  // }
+
+  // private void AddPersonToGroup(PersonGroupBean group)
+  // {
+  //   if(group == null)
+  //       return;
+  //   List<PersonParentBean> list = repository.findByCategory(group.getName());
+  //   group.setItems(list);
+  //   if(group.getChildren() != null)
+  //   {
+  //       for(PersonGroupBean child : group.getChildren())
+  //       {
+  //           AddPersonToGroup(child);
+  //       }
+  //   }
+  // }
+
+  public CategoryViewBean findAllInGroup(String date) {
     CategoryParentBean p = catService.findByNameAndDate("Person", date);
-    PersonGroupBean group = new PersonGroupBean(p.getItem());
+    CategoryViewBean group = new CategoryViewBean(p.getItem());
     AddPersonToGroup(group);
     return group;
   }
 
-  private void AddPersonToGroup(PersonGroupBean group)
+  private void AddPersonToGroup(CategoryViewBean group)
   {
     if(group == null)
         return;
     List<PersonParentBean> list = repository.findByCategory(group.getName());
-    group.setItems(list);
+    List<Object> objList = group.getItems();
+    for(PersonParentBean p : list)
+    {
+      objList.add(p);
+    }
+    group.setItems(objList);
     if(group.getChildren() != null)
     {
-        for(PersonGroupBean child : group.getChildren())
+        for(CategoryViewBean child : group.getChildren())
         {
             AddPersonToGroup(child);
         }
@@ -61,21 +89,51 @@ public class PersonService {
   }
 
   public void save(PersonParentBean p) {
+    if(Utl.check(p.getId()))
+    {
+      repository.findById(p.getId()).ifPresent( res -> {
+        if(!res.getName().equals(p.getName()))
+        {
+          eventService.updateEventName(res.getName(), p.getName());
+        }
+      });;
+    }
+    else
+    {
+      List<EventViewBean> res = eventService.findByName(p.getName());
+      if(res.size() == 0)
+      {
+        EventViewBean v = new EventViewBean(p.getName(), "Communicate", p.getStatus(), "Person", LocalDate.now().toString(), "0.1", "");
+        eventService.save(v);
+      }
+    }
+
     if(p.getInputDate().isEmpty())
       p.setInputDate(LocalDate.now().toString());      
     repository.save(p);
   }
 
-  public void saveAll(List<PersonParentBean> list) {
-    for(PersonParentBean p : list)
-    {
-        repository.save(p);
-    }
-  }
-
-  public void delete(String id) {
-    repository.deleteById(Utl.parseInt(id));
-  }
+  // public void update(PersonParentBean p) {
+  //   if(Utl.check(p.getId()))
+  //   {
+  //     repository.findById(p.getId()).ifPresent( res -> {
+  //       if(!res.getName().equals(p.getName()))
+  //       {
+  //         eventService.updateEventName(res.getName(), p.getName());
+  //       }
+  //     });;
+  //   }
+  //   if(p.getInputDate().isEmpty())
+  //     p.setInputDate(LocalDate.now().toString());      
+  //   repository.save(p);
+  // }
+  
+  // public void saveAll(List<PersonParentBean> list) {
+  //   for(PersonParentBean p : list)
+  //   {
+  //       repository.save(p);
+  //   }
+  // }
 
   public List<EventViewBean> findEventList(PersonParentBean p)
   {
@@ -87,5 +145,31 @@ public class PersonService {
     eventService.sortByDate(list);
     return list;
   }
+
+  public void createByEvent(EventViewBean vBean)
+  {
+    if(!vBean.getSorted().equals("Person"))
+    { 
+      return ;
+    }
+
+    List<PersonParentBean> res = repository.findByNameOrName2(vBean.getName(), vBean.getName());
+    if(res.size() == 0)
+    {
+      PersonParentBean p = new PersonParentBean();
+      p.setName(vBean.getName());
+      p.setCategory("Unsorted");
+      p.setStatus("");
+      p.setName2("");
+      p.setName3("");
+      p.setAddress("");
+      p.setInputDate(vBean.getDate());
+      p.setMemo("");
+      if(vBean.getMemo() != null)
+        p.setMemo(vBean.getMemo());
+      repository.save(p);
+    }    
+  }
+
 
 }

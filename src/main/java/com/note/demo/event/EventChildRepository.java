@@ -11,7 +11,7 @@ public interface EventChildRepository extends JpaRepository<EventChildBean, Inte
     public List<EventChildBean> findByParent(EventParentBean parent);
     public List<EventChildBean> findByDateOrderByParent(String date);
     public List<EventChildBean> findByDateAndParent(String date, EventParentBean parent);
-    
+    public List<EventChildBean> findByDateBetweenOrderByParent(String start, String end);
     // public void deleteByPerson(Integer id);
     // public void delteByCollection(Integer id);
 }
