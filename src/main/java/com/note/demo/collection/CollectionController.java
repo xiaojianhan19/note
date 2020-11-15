@@ -89,4 +89,18 @@ public class CollectionController {
 		return "collection_edit";
 	}
 
+	@RequestMapping(value = "/Achievement_category", method = RequestMethod.GET)
+	public String readByCategory(Model model, @RequestParam(value = "categoryName") String categoryName) {
+		String date = LocalDate.now().toString();
+		
+		Map<String, String> catList = catService.GetCategoryMapByName("Achievement", LocalDate.now().toString());
+		model.addAttribute("catList", catList);
+
+        CategoryViewBean group = service.findAllInGroup("Achievement", date);
+		model.addAttribute("group", group);
+
+        model.addAttribute("collectionBean", new CollectionParentBean());        
+		return "collection";
+	}
+
 }

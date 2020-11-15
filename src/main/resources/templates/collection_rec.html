@@ -8,16 +8,36 @@
 </head>
 <body>
 	<div th:fragment="item" th:if="${group}">
-		<span th:text="${group.name}">
+		<span th:text="${group.name}" th:url="@{'/collection/detail?itemId=' + ${group.id}}">
 		(item's content here.)</span>
 		<ul class="wtree">
 			<th:block th:unless="${#lists.isEmpty(group.items)}">
-			<li th:each="gItem : ${group.items}">
-				<a th:text="${gItem.name}"
-				th:href="@{'/collection/detail?itemId=' + ${gItem.id}}">
-				</a>
-				<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
-			</li>
+			<th:block th:each="gItem,gStat : ${group.items}">
+				<th:block th:if="${gItem.level} eq 7" >
+					<a style="color:red;" th:text="${gItem.name}" th:href="@{'/collection/detail?itemId=' + ${gItem.id}}"></a>
+					<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
+				</th:block>				
+				<th:block th:if="${gItem.level} eq 6" >
+					<a style="color:purple;" th:text="${gItem.name}" th:href="@{'/collection/detail?itemId=' + ${gItem.id}}"></a>
+					<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
+				</th:block>
+				<th:block th:if="${gItem.level} eq 4 or ${gItem.level} eq 5" >
+					<a style="color:orange;" th:text="${gItem.name}" th:href="@{'/collection/detail?itemId=' + ${gItem.id}}">
+					</a>
+					<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
+				</th:block>
+				<th:block th:if="${gItem.level} eq 3 or ${gItem.level} eq 2" >
+					<a style="color:green;" th:text="${gItem.name}" th:href="@{'/collection/detail?itemId=' + ${gItem.id}}">
+					</a>
+					<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
+				</th:block>			
+				<th:block th:if="${gItem.level} eq 1" >
+					<a th:text="${gItem.name}" th:href="@{'/collection/detail?itemId=' + ${gItem.id}}">
+					</a>
+					<small th:text="'  /  lvl:' +${gItem.level} + '  /  ' +${gItem.status}"></small>
+			    </th:block>				
+				<th:block th:if="${gStat.index} % 4 eq 3" ><br/></th:block>
+			</th:block>
 			</th:block>
 			<li th:each="group : ${group.children}">
 				<div th:replace="collection_rec :: item">

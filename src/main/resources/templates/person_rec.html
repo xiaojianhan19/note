@@ -12,15 +12,16 @@
 		(item's content here.)</span>
 		<ul class="wtree">
 			<th:block th:unless="${#lists.isEmpty(group.items)}">
-			<li th:each="person : ${group.items}">
-				<!--
-				<span th:text="${person.id} + '  /  ' +${person.name} + '  /  ' +${person.name2}">
-					(item's content here.)</span>
-					-->
-				<a th:text="${person.name} + '  /  ' +${person.name2}"
-				th:href="@{'/person/detail?itemId=' + ${person.id}}">
-					(item's content here.)</a>
-			</li>
+				<th:block th:each="person,pStat : ${group.items}">
+					<!--
+					<span th:text="${person.id} + '  /  ' +${person.name} + '  /  ' +${person.name2}">
+						(item's content here.)</span>
+						-->
+					<a th:text="${person.name} + '  /  ' +${person.name2}"
+					th:href="@{'/person/detail?itemId=' + ${person.id}}">
+						(item's content here.)</a>&emsp;&emsp;
+					<th:block th:if="${pStat.index} % 4 eq 3" ><br/></th:block>
+				</th:block>
 			</th:block>
 			<li th:each="group : ${group.children}">
 				<div th:replace="person_rec :: item">
