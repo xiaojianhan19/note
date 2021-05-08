@@ -181,4 +181,19 @@ public class CollectionService {
     return repository.findByCategoryNotIn(catList);
   } 
 
+  public CollectionParentBean modifyBean(CollectionParentBean b) {
+    CollectionParentBean newBean = new CollectionParentBean(b);
+    for(CollectionChildBean child : newBean.getItems())
+    {
+      if(child.getMemo().length() > 50) {
+        child.setMemo(child.getMemo().substring(0, 50));
+      }
+    }
+    return newBean;
+  }
+
+  public Optional<CollectionChildBean> findChild(String id) {
+    return itemRepository.findById(Utl.parseInt(id));
+  }
+
 }

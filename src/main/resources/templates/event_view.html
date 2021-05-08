@@ -23,37 +23,16 @@
             <input type="button" value="next" th:onclick="chgMonth(1)" class="btn-comn"></input>
         </form>
     </div>
-    
-    <hr/>
 
-    <div th:unless="${#lists.isEmpty(form.items)}">
-        <table class="table table-bordered table-hover table-striped">
-            <thead>
-            <tr>
-                <th width="30%">name</th>
-                <th>category</th>
-                <th>status</th>
-                <th>time</th>
-                <th>duration</th>
-                <th>percent</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="current : ${form.items}">
-                <td th:text="${current.name}"></td>
-                <td th:text="${current.category}"></td>
-                <td th:text="${current.status}"></td>
-                <td th:text="${current.time}"></td>
-                <td th:text="${current.duration}"></td>
-                <td th:text="${current.percent}"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <ul class="wtree">
+        <li th:each="child, childStat : ${cat.children}">
+            <div th:replace="event_view_rec :: frag">(sub-nodes here)</div>
+        </li>
+    </ul>
 
     <hr/>
-
-    <div th:replace="event_view_rec :: item">(sub-nodes here)</div>
+    <h3>Event Options</h3>
+    <span><a th:href="@{/event/eventEdit}">EditAllEvent</a></span>
 
 </div>
 </body>

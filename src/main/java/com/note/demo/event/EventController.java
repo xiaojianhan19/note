@@ -65,22 +65,12 @@ public class EventController {
 		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
 		model.addAttribute("date", date);
 
-		Map<String, String> catList = catService.GetCategoryMapByName("Event", date);
-		model.addAttribute("catList", catList);
+		CategoryViewBean cat = service.loadCatViewBeanByDate(date);
+		model.addAttribute("cat", cat);
 
-		EventViewForm form = new EventViewForm();
-		form.setDate(date);
-		List<EventChildBean> events = service.findByDate(date);
-		for ( EventChildBean item : events) {
-			form.add(new EventViewBean(item));
-		}
-		service.sortByCategory(form.getItems(), catList);
-		model.addAttribute("form", form);
-		
-		model.addAttribute("eventViewBean", new EventViewBean(date));
         if (device.isMobile()) {
             return "event_mobile";
-        } 
+		}
 		return "event";
 	}
 
@@ -110,14 +100,44 @@ public class EventController {
 
 	@RequestMapping(value = "/find", method = RequestMethod.GET)
 	public String addEventViewBean(@ModelAttribute("targetName") String targetName, @ModelAttribute("targetDate") String targetDate, Model model, Device device) {
+		String date = targetDate;
+
+		model.addAttribute("date", date);
+		
+		EventViewBean v = new EventViewBean(date);
+		v.setStatus(Utl.Status.COL1_ONPROCESS.getValue());
+		v.setSorted("Event");
+		model.addAttribute("eventViewBean", v);
+
 		List<EventViewBean> refEvents = service.findTargets(targetName);
 		for(EventViewBean bean : refEvents)
 		{
 			bean.setDate(targetDate);
 		}
 		model.addAttribute("refEvents", refEvents);
-		return readByDate(targetDate, model, device);
+		return "event_add";
 	}
+
+	@RequestMapping(value = "/addByCat", method = RequestMethod.GET)
+	public String addByCat(@ModelAttribute("targetCat") String targetCat, @ModelAttribute("targetDate") String targetDate, Model model, Device device) {
+		String date = targetDate;
+
+		model.addAttribute("date", date);
+		
+		EventViewBean v = new EventViewBean(date);
+		v.setCategory(targetCat);
+		v.setStatus(Utl.Status.COL1_ONPROCESS.getValue());
+		v.setSorted("Event");
+		model.addAttribute("eventViewBean", v);
+
+		List<EventViewBean> refEvents = service.findRefEventsByCat(targetCat, date);
+		for(EventViewBean bean : refEvents)
+		{
+			bean.setDate(targetDate);
+		}
+		model.addAttribute("refEvents", refEvents);
+		return "event_add";
+	}	
 
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public String insertEventById(RedirectAttributes redirectAttributes, @ModelAttribute("insertId") String insertId, @ModelAttribute("targetDate") String targetDate, Model model) {
@@ -175,37 +195,8 @@ public class EventController {
 		Map<String, String> catList = catService.GetCategoryMapByName("Event", date);
 		model.addAttribute("catList", catList);	
 		
-		EventViewForm form = new EventViewForm();
-		List<EventParentBean> events = service.findByPeriod(start, end);
-		for ( EventParentBean item : events) {
-			form.add(new EventViewBean(item, start, end));
-		}
-		double total = 0.0;
-		for ( EventViewBean v : form.getItems()) {
-			total += Utl.parseDouble(v.getTime());
-		}
-		for ( EventViewBean v : form.getItems()) {
-			double pt = Utl.parseDouble(v.getTime()) / total * 100;
-			if(Utl.check(pt)) {
-				v.setPercent( Utl.parseTimeToString(pt) + "%");
-			}
-		}
-
-		service.sortByCategory(form.getItems(), catList);
-		model.addAttribute("form", form);
-
-		CategoryParentBean catP = catService.findByNameAndDate("Event", date);
-		CategoryViewBean cat = new CategoryViewBean(catP.getItem());
-		if(cat != null)
-		{
-			for(EventViewBean ev : form.getItems())
-			{
-				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
-			}
-			cat.updateTotal(total);
-		}
-
-		model.addAttribute("item", cat);
+		CategoryViewBean cat = service.loadCatViewBeanByPeriod(date, start, end);
+		model.addAttribute("cat", cat);
 		return "event_view";
 	}
 

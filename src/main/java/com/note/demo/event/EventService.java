@@ -1,5 +1,6 @@
 package com.note.demo.event;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,9 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import com.note.demo.Utl;
+import com.note.demo.category.CategoryParentBean;
+import com.note.demo.category.CategoryService;
+import com.note.demo.category.CategoryViewBean;
 
 import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,9 @@ public class EventService {
 
   @Autowired
   EventChildRepository itemRepository;
+
+  @Autowired
+  CategoryService catService;
 
   public static int showMode = 0;
 
@@ -199,6 +206,24 @@ public class EventService {
     return refEvents;
   }
 
+  public List<EventViewBean> findRefEventsByCat(String cat, String date)
+  {
+    String start = LocalDate.now().plusMonths(-1).toString();
+    List<EventViewBean> refEvents = new ArrayList<EventViewBean>();
+
+    List<EventParentBean> events = repository.findByCategory(cat);    
+    for(EventParentBean ev : events)
+    {
+      for(EventChildBean ch : ev.getItems()) {
+        if(ch.getDate().compareTo(start) > 0 ) {
+          refEvents.add(new EventViewBean(ev));
+          break;
+        }
+      }      
+    }
+    return refEvents;
+  }  
+
   public void insert(String id, String date)
   {
     Optional<EventParentBean> res = repository.findById(Utl.parseInt(id));
@@ -328,5 +353,101 @@ public class EventService {
       }
     }
   }
+
+  public void AddEventToCategory(CategoryViewBean cat, EventViewBean ev)
+  {
+    if(cat == null)
+        return;
+    if(cat.getName().equals(ev.getCategory())) {
+      cat.getItems().add(ev);
+    }
+    else {
+      for(CategoryViewBean child : cat.getChildren()) {
+        AddEventToCategory(child, ev);
+      }
+    }
+  }  
    
+  public CategoryViewBean loadCatViewBeanByDate(String date) {
+    List<EventChildBean> events = findByDate(date);
+
+    double total = 0.0;
+		for ( EventChildBean v : events) {
+			total += v.getTime();
+    }
+    List<EventViewBean> list = new ArrayList<EventViewBean>();
+    int index = 0;
+    for(EventChildBean v : events) {
+      EventViewBean newBean = new EventViewBean(v);
+      if(Utl.check(total)) {
+        double pt = v.getTime() / total * 100;
+        newBean.setPercent( Utl.parseTimeToString(pt) + "%");
+      }
+      newBean.setIndex(index);
+      index++;
+      list.add(newBean);
+    }
+    
+		CategoryParentBean catP = catService.findByNameAndDate("Event", date);
+		CategoryViewBean cat = new CategoryViewBean(catP.getItem());
+		if(cat != null)
+		{
+			for(EventViewBean ev : list)
+			{
+				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
+				this.AddEventToCategory(cat, ev);
+			}
+			cat.updateTotal(total);
+			//cat.clearChild();
+		}
+
+    return cat;
+
+    /* 
+    // change value of double
+    try {
+      Field field = Double.class.getDeclaredField("value");
+      field.setAccessible(true);
+      field.set(total, new Double(totalTime));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    // */
+    //return list;
+  }
+
+  public CategoryViewBean loadCatViewBeanByPeriod(String date, String start, String end) {
+
+    List<EventParentBean> events = this.findByPeriod(start, end);
+    List<EventViewBean> list = new ArrayList<EventViewBean>();
+		for ( EventParentBean item : events) {
+			list.add(new EventViewBean(item, start, end));
+		}
+		double total = 0.0;
+		for ( EventViewBean v : list) {
+			total += Utl.parseDouble(v.getTime());
+		}
+		for ( EventViewBean v : list) {
+			double pt = Utl.parseDouble(v.getTime()) / total * 100;
+			if(Utl.check(pt)) {
+				v.setPercent( Utl.parseTimeToString(pt) + "%");
+			}
+		}
+
+		CategoryParentBean catP = catService.findByNameAndDate("Event", date);
+		CategoryViewBean cat = new CategoryViewBean(catP.getItem());
+		if(cat != null)
+		{
+			for(EventViewBean ev : list)
+			{
+				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
+				this.AddEventToCategory(cat, ev);
+			}
+			cat.updateTotal(total);
+			//cat.clearChild();
+		}
+
+    return cat;
+  }
+
 }

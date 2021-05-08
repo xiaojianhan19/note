@@ -67,7 +67,7 @@ function totalCalc() {
         } catch (error) {
         }
     }
-
+    total = Math.round(total * 100) / 100;
     document.getElementById("totaltime").innerHTML = total;
 }
 

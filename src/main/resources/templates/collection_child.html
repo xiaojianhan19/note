@@ -94,11 +94,11 @@ $(function() {
         <td th:text="${current.id}"></td>
         <td th:text="${current.type}"></td>
         <td th:text="${current.index}"></td>
-        <td th:text="${current.name}"></td>
+        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/collection/child?childId=' + ${current.id}}"></td>
         <td th:text="${current.name2}"></td>
         <td th:text="${current.name3}"></td>
         <td th:text="${current.updateDate}"></td>
-        <td th:text="${current.memo}"></td>
+        <td><span th:if="${#strings.length(current.memo) < 50}" th:text="${current.memo}" ></span></td>
       </tr>
       </tbody>
   </table>

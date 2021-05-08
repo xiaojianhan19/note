@@ -42,6 +42,18 @@ public class CollectionChildBean {
 
     public CollectionChildBean(){}
 
+    public CollectionChildBean(CollectionChildBean org) {
+        this.id = org.id;
+        this.name = org.name;
+        this.name2 = org.name2;
+        this.name3 = org.name3;
+        this.type = org.type;
+        this.index = org.index;
+        this.memo = org.memo;
+        this.inputDate = org.inputDate;
+        this.updateDate = org.updateDate;
+    }
+
     public CollectionChildBean(CollectionParentBean p) {
         this.setParent(p);
     }

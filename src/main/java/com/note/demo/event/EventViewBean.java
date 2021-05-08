@@ -16,6 +16,7 @@ public class EventViewBean {
     private String memo;
     private String duration;
     private String percent;
+    private int index;
 
     public EventViewBean(){}
 
@@ -114,6 +115,9 @@ public class EventViewBean {
     public EventViewBean(String date)
     {
         this.date = date;
+        this.status = Utl.Status.COL1_ONPROCESS.getValue();
+        this.sorted = Utl.Sorted.ST1_EVENT.getValue();
+        this.time = "";
     }
 
     public String getSorted() {
@@ -143,7 +147,7 @@ public class EventViewBean {
         int totalDuration = 0;
         for(EventChildBean item : event.getItems())
         {
-            if(item.getDate().compareTo(startDate) >= 0 && item.getDate().compareTo(endDate) < 0)
+            if(item.getDate().compareTo(startDate) >= 0 && item.getDate().compareTo(endDate) <= 0)
             {
                 totalTime += item.getTime();
                 totalDuration++;
@@ -174,6 +178,14 @@ public class EventViewBean {
         this.date = date;
         this.time = time;
         this.memo = memo;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
 }

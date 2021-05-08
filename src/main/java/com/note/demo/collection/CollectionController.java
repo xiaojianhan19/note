@@ -67,6 +67,7 @@ public class CollectionController {
 	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
 		service.find(itemId).ifPresent( collectionBean -> {
 			model.addAttribute("collectionBean", collectionBean);
+			//model.addAttribute("collectionBean", service.modifyBean(collectionBean));
 			model.addAttribute("collectionChildBean", new CollectionChildBean(collectionBean));
 		});
 		Map<String, String> catList = catService.GetCategoryMapByName("Collection", LocalDate.now().toString());
@@ -102,5 +103,15 @@ public class CollectionController {
         model.addAttribute("collectionBean", new CollectionParentBean());        
 		return "collection";
 	}
+
+	@RequestMapping(value = "/child", method = RequestMethod.GET)
+	public String child(Model model, @RequestParam(value = "childId") String childId) {
+		service.findChild(childId).ifPresent( collectionChildBean -> {
+			model.addAttribute("collectionChildBean", collectionChildBean);
+		});
+		Map<String, String> catList = catService.GetCategoryMapByName("Collection", LocalDate.now().toString());
+		model.addAttribute("catList", catList);
+		return "collection_child_detail";
+	}	
 
 }

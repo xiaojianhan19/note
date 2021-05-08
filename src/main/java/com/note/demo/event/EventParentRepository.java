@@ -12,5 +12,6 @@ public interface EventParentRepository extends JpaRepository<EventParentBean, In
     public List<EventParentBean> findByName(String name);
     public List<EventParentBean> findByStatus(String status);    
     public List<EventParentBean> findByNameAndCategoryOrderById(String name, String category);
+    public List<EventParentBean> findByCategory(String category);
     
 }

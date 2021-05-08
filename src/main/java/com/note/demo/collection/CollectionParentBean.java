@@ -55,6 +55,28 @@ public class CollectionParentBean {
 
     public CollectionParentBean(){}
 
+    public CollectionParentBean(CollectionParentBean org) {
+        this.id = org.id;
+        this.name = org.name;
+        this.name2 = org.name2;
+        this.name3 = org.name3;
+        this.category = org.category;
+        this.status = org.status;
+        this.memo = org.memo;
+        this.Level = org.Level;
+        this.inputDate = org.inputDate;
+        this.releaseDate = org.releaseDate;
+        for(String tag : org.tags) 
+        {
+            this.tags.add(tag);
+        }
+        for(CollectionChildBean item : org.items) 
+        {
+            CollectionChildBean newItem = new CollectionChildBean(item);
+            this.items.add(newItem);
+        }
+    }
+
     public int getId() {
         return id;
     }

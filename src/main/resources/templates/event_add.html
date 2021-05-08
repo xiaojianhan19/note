@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function inputClear() {
+    document.getElementById("inputId").value = "";
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputCategory").value = "";
+    document.getElementById("inputStatus").value = "";
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+function insertItem(id) {
+    document.getElementById("insertId").value = id;
+	insertForm.submit();
+}
+function selectItem(id, nm, ct, st, so) {
+    inputClear();
+    document.getElementById("inputId").value = id;
+    document.getElementById("inputName").value = nm
+    document.getElementById("inputCategory").value = ct;
+    document.getElementById("inputStatus").value = st;
+    document.getElementById("inputSorted").value = so;
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+
+$(function () {
+    totalCalc();
+});
+
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<form name="addForm" method="POST" action="#" th:action="@{/event/add}" th:object="${eventViewBean}">
+	<table class="table table-bordered inputbox noborder fcol">
+	  <tr>
+        <td width="15%">id</td>
+        <td ><input th:field="*{id}" id="inputId" /></td>
+	  </tr>
+	  <tr>
+        <td >name</td>
+        <td ><input th:field="*{name}" id="inputName" /></td>
+	  </tr>
+      <tr>
+        <td >category</td>
+        <td ><input th:field="*{category}" id="inputCategory" class="category" /></td>
+      </tr>
+      <tr>
+        <td >status</td>
+        <td ><input th:field="*{status}" id="inputStatus" class="status" /></td>
+      </tr>
+      <tr>
+        <td >sorted</td>
+        <td ><input th:field="*{sorted}" id="inputSorted" class="sorted" /></td>
+      </tr>
+      <tr>
+        <td >time</td>
+        <td ><input th:field="*{time}" id="inputTime" class="time" /></td>
+	  </tr>
+      <tr>
+        <td >memo</td>
+        <td ><input th:field="*{memo}" id="inputMemo" /></td>
+      </tr>
+      <tr hidden="">
+        <td >date</td>
+        <td ><input th:field="*{date}" id="inputDate" readonly="true" /></td>
+	  </tr>
+    </table>
+	    <input type="submit" value="Add" />
+	    <input type="button" value="Clear" onclick="inputClear()" />
+</form>
+
+<hr/>
+<h3>Search by Name</h3>
+<form name="findForm" action="#" th:action="@{/event/find}" method="GET">
+    <input type="hidden" name="targetDate" id="targetDate" th:value="${date}" readonly="true" />
+    <input type="text" name="targetName" id="targetName" class="textbox"/>
+    <input type="submit" value="search"></input>
+</form>
+
+<div th:unless="${#lists.isEmpty(refEvents)}">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>      
+            <th>Name</th>        
+            <th>Category</th>      
+            <th>Operation</th>
+            <th>Operation2</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${refEvents}">
+            <td th:text="${current.id}"></td>
+            <td th:text="${current.name}"></td>
+            <td th:text="${current.category}"></td>
+            <td ><input type="button" value="Select" 
+                th:data-id="${current.id}"
+                th:data-nm="${current.name}"
+                th:data-ct="${current.category}"
+                th:data-st="${current.status}"
+                th:data-so="${current.sorted}"
+                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'),this.getAttribute('data-so'));" ></input>
+            </td>
+            <td ><input type="button" value="Insert" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'));" ></input></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<form name="insertForm" method="POST" action="#" th:action="@{/event/insert}">
+    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" id="insertId" name="insertId" value=""></input>
+</form>
+
+</div>
+</body>
+</html>

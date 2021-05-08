@@ -29,7 +29,8 @@ public class CategoryViewBean {
     private String percent;
     private List<Object> items;
     private int count;
-
+    private Boolean isBlank;
+    
     public CategoryViewBean(){}
 
     public CategoryViewBean(String name)
@@ -122,7 +123,9 @@ public class CategoryViewBean {
         }
 
         this.time += time;
-        this.percent = Utl.parseTimeToString(this.time / total * 100) + "%";
+        if(Utl.check(total)) {
+            this.percent = Utl.parseTimeToString(this.time / total * 100) + "%";
+        }        
 	}
 
     public int getIndex() {
@@ -148,4 +151,27 @@ public class CategoryViewBean {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public void clearChild() {
+        for(CategoryViewBean child : this.getChildren() ) {
+
+            List<CategoryViewBean> children = child.getChildren();
+            int cnt = children.size();
+            for(int i=cnt-1; i >= 0; i--) {
+                CategoryViewBean ch = children.get(i);
+                if(ch.getTime() == 0.0) {
+                    children.remove(i);
+                }
+            }
+        }
+    }
+
+    public Boolean getIsBlank() {
+        return isBlank;
+    }
+
+    public void setIsBlank(Boolean isBlank) {
+        this.isBlank = isBlank;
+    }
+
 }
