@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import com.note.demo.Utl;
+import com.note.demo.category.CategoryChildBean;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
@@ -141,11 +142,21 @@ public class CollectionService {
     }    
   }
 
-  public CategoryViewBean findAllInGroup(String category, String date) {
-    CategoryParentBean p = catService.findByNameAndDate(category, date);
+  public CategoryViewBean findAllInGroup(String CName, String category, String date) {
+/*     CategoryParentBean p = catService.findByNameAndDate(category, date);
     CategoryViewBean group = new CategoryViewBean(p.getItem());
-    AddPersonToGroup(group);
-    return group;
+    AddPersonToGroup(group); */
+    CategoryParentBean p = catService.findByNameAndDate(CName, date);
+    CategoryChildBean c = p.getItem();
+    for(CategoryChildBean cat : c.getChildren()) {
+      if(cat.getName().equals(category)) {
+        CategoryViewBean group = new 	CategoryViewBean(cat);
+        AddPersonToGroup(group);
+        return group;
+      }
+    }
+    CategoryViewBean groupNull = new 	CategoryViewBean(p.getItem());
+    return groupNull;
   }
 
   public void AddPersonToGroup(CategoryViewBean group)

@@ -107,6 +107,29 @@ public class CategoryService extends Node {
     return new CategoryParentBean();
   }
 
+  public CategoryChildBean findByParentAndNameAndDate(String pName, String name, String date) {
+    List<CategoryParentBean> res = repository.findByName(pName);
+    CategoryChildBean root = null;
+    for(CategoryParentBean p : res)
+    {
+      if( date.compareTo(p.getStartDate()) >= 0 && date.compareTo(p.getEndDate()) < 0)
+      {
+        root = p.getItem();
+      }
+    }
+    if(root == null && res.size() > 0) {
+      root = res.get(0).getItem();
+    }
+    
+    if(root != null) {
+      List<CategoryChildBean> objList = new ArrayList<CategoryChildBean>() ;
+        searchCategoryChild(root, name, objList);
+      if(objList.size() > 0)
+        return objList.get(0);
+    }
+
+    return new CategoryChildBean();
+  }
 
   public Optional<CategoryChildBean> findChild(String id){
     return itemRepository.findById(Utl.parseInt(id));

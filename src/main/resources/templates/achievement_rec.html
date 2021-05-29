@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<div th:fragment="item" th:if="${group}">
+		<span> 
+			<b th:text="${group.name}"></b>
+		</span>
+		<ul class="wtree">
+			<li th:unless="${#lists.isEmpty(group.items)}" th:each="gItem,gStat : ${group.items}">
+				<th:block th:if="${gItem.level} eq 7" >
+					<span><b><a style="color:red;" th:text="${gItem.name}" th:href="@{'/achievement/detail?itemId=' + ${gItem.id}}">
+					</a></b></span>
+				</th:block>				
+				<th:block th:if="${gItem.level} eq 6" >
+					<span><a style="color:purple;" th:text="${gItem.name}" th:href="@{'/achievement/detail?itemId=' + ${gItem.id}}">
+					</a></a></span>
+				</th:block>
+				<th:block th:if="${gItem.level} eq 4 or ${gItem.level} eq 5" >
+					<span><a style="color:orange;" th:text="${gItem.name}" th:href="@{'/achievement/detail?itemId=' + ${gItem.id}}">
+					</a></span>
+				</th:block>
+				<th:block th:if="${gItem.level} eq 3 or ${gItem.level} eq 2" >
+					<span><a style="color:green;" th:text="${gItem.name}" th:href="@{'/achievement/detail?itemId=' + ${gItem.id}}">
+					</a></span>
+				</th:block>			
+				<th:block th:if="${gItem.level} eq 1" >
+					<span><a th:text="${gItem.name}" th:href="@{'/achievement/detail?itemId=' + ${gItem.id}}">
+					</a></span>
+				</th:block>
+				<!--<th:block th:if="${gStat.index} % 4 eq 3" ><br/></th:block>-->
+			</li>
+		
+			<li th:each="group : ${group.children}">
+				<div th:replace="achievement_rec :: item">(sub-nodes here)</div>
+			</li>
+		</ul>
+	</div>	
+</body>

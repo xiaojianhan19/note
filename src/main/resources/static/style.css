@@ -3,7 +3,7 @@ body {
   padding: 50px;
   padding-top: 90px;
   font-family: helvetica, arial,sans-serif;
-  background-color: rgb(199, 237, 204);
+  background-color: rgb(220, 250, 224);
 }
 
 .table th, .table td {
@@ -13,6 +13,10 @@ body {
 .noborder input{
     width : 100%;
     border: 0px solid #000 !important;
+}
+
+.table {
+  margin-bottom: 0.3rem;
 }
 
 .headline thead{
@@ -55,7 +59,9 @@ input[type="button"], input[type="submit"], input[type="reset"] {
     color: #111;
 }
 */
-
+input[type="button"]:hover{
+  background-color:#ccc;
+}
 /*
 .btn-comn:active{
   border-bottom: none;
@@ -160,3 +166,8 @@ ul {
   border-color: #777;
 }
 
+#article {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 18px;
+}

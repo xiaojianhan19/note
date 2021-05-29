@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/collection")
 public class CollectionController {
 	//private static final Logger log = LoggerFactory.getLogger(CollectionController.class);
+	String CName = "Collection";
 
 	@Autowired
 	CollectionService service;
@@ -33,10 +34,29 @@ public class CollectionController {
 	public String readCollections(Model model) {
 		String date = LocalDate.now().toString();
 		
+		String catName = "Animation";
+		model.addAttribute("targetCat", catName);
+
+		Map<String, String> catList = catService.GetCategoryMapByName(CName, LocalDate.now().toString());
+		model.addAttribute("catList", catList);
+
+        CategoryViewBean group = service.findAllInGroup(CName, catName, date);
+		model.addAttribute("group", group);
+
+        model.addAttribute("collectionBean", new CollectionParentBean());        
+		return "collection";
+	}
+
+	@RequestMapping(value = "/group", method = RequestMethod.GET)
+	public String readCollectionsByCat(@RequestParam(value = "group") String groupName, Model model) {
+		String date = LocalDate.now().toString();
+		
+		model.addAttribute("targetCat", groupName);
+
 		Map<String, String> catList = catService.GetCategoryMapByName("Collection", LocalDate.now().toString());
 		model.addAttribute("catList", catList);
 
-        CategoryViewBean group = service.findAllInGroup("Collection", date);
+        CategoryViewBean group = service.findAllInGroup(CName, groupName, date);
 		model.addAttribute("group", group);
 
         model.addAttribute("collectionBean", new CollectionParentBean());        
@@ -47,14 +67,17 @@ public class CollectionController {
 	public String readAchievement(Model model) {
 		String date = LocalDate.now().toString();
 		
+		String catName = "Fantasy";
+		model.addAttribute("targetCat", catName);
+
 		Map<String, String> catList = catService.GetCategoryMapByName("Achievement", LocalDate.now().toString());
 		model.addAttribute("catList", catList);
 
-        CategoryViewBean group = service.findAllInGroup("Achievement", date);
+        CategoryViewBean group = service.findAllInGroup(CName, catName, date);
 		model.addAttribute("group", group);
 
         model.addAttribute("collectionBean", new CollectionParentBean());        
-		return "collection";
+		return "Achievement";
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -97,11 +120,11 @@ public class CollectionController {
 		Map<String, String> catList = catService.GetCategoryMapByName("Achievement", LocalDate.now().toString());
 		model.addAttribute("catList", catList);
 
-        CategoryViewBean group = service.findAllInGroup("Achievement", date);
+        CategoryViewBean group = service.findAllInGroup("Achievement", "Achievement", date);
 		model.addAttribute("group", group);
 
         model.addAttribute("collectionBean", new CollectionParentBean());        
-		return "collection";
+		return "Achievement";
 	}
 
 	@RequestMapping(value = "/child", method = RequestMethod.GET)
@@ -111,6 +134,14 @@ public class CollectionController {
 		});
 		Map<String, String> catList = catService.GetCategoryMapByName("Collection", LocalDate.now().toString());
 		model.addAttribute("catList", catList);
+		return "collection_child_edit";
+	}	
+
+	@RequestMapping(value = "/childDetail", method = RequestMethod.GET)
+	public String childDetail(Model model, @RequestParam(value = "childId") String childId) {
+		service.findChild(childId).ifPresent( collectionChildBean -> {
+			model.addAttribute("child", collectionChildBean);
+		});
 		return "collection_child_detail";
 	}	
 

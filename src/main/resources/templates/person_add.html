@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function inputClear() {
+    document.getElementById("inputId").value = "";
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputCategory").value = "";
+    document.getElementById("inputStatus").value = "";
+    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputTime").value = "";
+	document.getElementById("inputMemo").value = "";
+}
+
+function editItem(id) {
+    document.getElementById("itemId").value = id;
+	editForm.submit();
+}
+
+$(document).ready(function()
+{
+$("#mymenu ul li").next("ul").hide();
+$("#mymenu ul li").click(function()
+{
+$(this).next("ul").toggle();
+});
+});
+
+function addPersonByCat(cat) {
+      document.getElementById("targetCat").value = cat;
+      addByCatForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <nav class="navbar-expand" role="navigation">
+        <div id="navbar">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Circle" >Circle</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=History" >History</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Story" >Collection</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Character" >Fantasy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/unsorted" >Unsorted</a></li>
+            </ul>
+        </div>
+    </nav>
+
+<h3>Add a Person Item</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/person/add}" th:object="${personBean}">
+  <input type="hidden" name="targetCat" id="targetCat" th:value="${targetCat}"/>
+
+	<table class="table table-bordered noborder headline">
+	  <tr>
+        <td width="15%">id</td><td ><input th:field="*{id}" id="inputId"/></td>
+	  </tr>
+	  <tr>
+        <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
+      </tr>
+	  <tr>
+        <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
+      </tr>
+	  <tr>
+        <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
+	  </tr>      
+      <tr>
+        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
+      </tr>
+      <tr>
+        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
+	  </tr>
+      <tr>
+        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
+      </tr>
+      <tr>
+        <td >address</td><td ><input th:field="*{address}"  id="address" /></td>
+      </tr>
+      <tr>
+        <td >memo</td><td ><textarea th:field="*{memo}" th:value="${memo}" /></td>
+      </tr>
+    </table>
+	    <input type="submit" value="Add" />
+	    <input type="button" value="Clear" onclick="inputClear()" />
+</form>
+
+</div>
+</body>
+</html>

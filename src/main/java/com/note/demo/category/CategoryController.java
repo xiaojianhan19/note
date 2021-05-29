@@ -39,13 +39,19 @@ public class CategoryController {
 	}
 
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
-	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
+	public String detail(Model model, @RequestParam(value = "itemId") String itemId, @ModelAttribute("parentId") String parentId) {
 		service.findChild(itemId).ifPresent( item -> {
 			model.addAttribute("item", item);
 			CategoryChildBean c = new CategoryChildBean();
 			c.setRoot(item.getId());
 			model.addAttribute("categoryChildBean", c);
-			model.addAttribute("parentId", item.getName());
+			if(!parentId.equals("")) {
+				model.addAttribute("parentId", parentId);
+			}
+			else {
+				model.addAttribute("parentId", item.getName());
+			}
+			
 		});
 		return "category_child";
 	}
@@ -57,6 +63,7 @@ public class CategoryController {
 		//service.save(categoryBean);
 		String itemId = String.valueOf(categoryChildBean.getRoot());
 		redirectAttributes.addAttribute("itemId", itemId);
+		redirectAttributes.addAttribute("parentId", parentId);
 		return "redirect:/category/detail";
 
 	}

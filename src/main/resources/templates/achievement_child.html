@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function convertType(str) {
+    var s = "";
+    switch(str)
+    {
+        case "1": 
+            s = "Character";
+            break;
+        case "2":
+            s = "Paragraph";
+            break;
+        case "3": 
+            s = "Setting";
+            break;
+    }
+
+    return s;
+}
+$(function() {
+    $('.type').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertType(str));
+    });
+});
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Achievement</h3>
+<form name="addForm" method="POST" action="#" th:action="@{/achievement/add}" th:object="${collectionBean}">
+	<table class="table table-bordered noborder fcol">
+	  <tr>
+        <td >id</td><td ><input th:field="*{id}" id="inputId"/></td>
+	  </tr>
+	  <tr>
+        <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
+      </tr>
+	  <tr>
+        <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
+      </tr>
+	  <tr>
+        <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
+	  </tr>      
+      <tr>
+        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
+      </tr>
+      <tr>
+        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
+	  </tr>
+      <tr>
+        <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
+	  </tr>
+      <tr>
+        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
+      </tr>
+      <tr>
+        <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
+      </tr>
+    </table>
+	    <input type="submit" value="Update" />
+</form>
+
+<div th:unless="${#lists.isEmpty(collectionBean.items)}">
+  <hr/>
+  <h3>Collection Items</h3>
+  <table class="table table-bordered table-hover table-striped">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>Type</th>
+        <th>Idx</th>
+        <th>Name</th>
+        <th>Name2</th>
+        <th>Name3</th>
+        <th>UpdateDate</th>
+        <th width="40%">Memo</th>
+        <th>Option</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="current : ${collectionBean.items}">
+        <td th:text="${current.id}"></td>
+        <td th:text="${current.type}"></td>
+        <td th:text="${current.index}"></td>
+        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/collection/childDetail?childId=' + ${current.id}}"></td>
+        <td th:text="${current.name2}"></td>
+        <td th:text="${current.name3}"></td>
+        <td th:text="${current.updateDate}"></td>
+        <td><span th:if="${#strings.length(current.memo) < 50}" th:text="${current.memo}" ></span></td>
+        <td><a style="color:blue;" th:text="Edit" th:href="@{'/collection/child?childId=' + ${current.id}}"></td>
+      </tr>
+      </tbody>
+  </table>
+</div>
+<hr/>
+
+<h3>Add a Collection Child Item</h3>
+<form name="addChildForm" method="POST" action="#" th:action="@{/collection/addChild}" th:object="${collectionChildBean}">
+	<table class="table table-bordered noborder fcol">
+	  <tr>
+        <td >id</td><td ><input th:field="*{id}" id="cid"/></td>
+      </tr>
+	  <tr>
+        <td >type</td><td ><input th:field="*{type}" id="ctype" class="type"/></td>
+      </tr>
+      <tr>
+        <td >index</td><td ><input th:field="*{index}" id="cindex"/></td>
+      </tr>
+	  <tr>
+        <td >name</td><td ><input th:field="*{name}" id="cname"/></td>
+      </tr>
+	  <tr>
+        <td >name2</td><td ><input th:field="*{name2}" id="cname2"/></td>
+      </tr>
+	  <tr>
+        <td >name3</td><td ><input th:field="*{name3}" id="cname3"/></td>
+	  </tr>
+      <tr>
+        <td >memo</td><td ><textarea th:field="*{memo}" th:value="${memo}" ></textarea></td>
+      </tr>
+      <tr>
+        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="cinputDate" /></td>
+      </tr>
+      <tr>
+        <td >date</td><td ><input th:field="*{updateDate}"  id="cupdateDate" /></td>
+      </tr>
+      <tr>
+        <td >parentId</td><td ><input th:field="*{parent}"  id="parent" /></td>
+      </tr> 
+    </table>
+
+	    <input type="submit" value="Save" />
+</form>
+<hr/>
+
+</div>
+</body>
+</html>

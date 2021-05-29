@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import com.note.demo.Utl;
+import com.note.demo.category.CategoryChildBean;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
@@ -57,9 +58,9 @@ public class PersonService {
   //   }
   // }
 
-  public CategoryViewBean findAllInGroup(String date) {
-    CategoryParentBean p = catService.findByNameAndDate("Person", date);
-    CategoryViewBean group = new CategoryViewBean(p.getItem());
+  public CategoryViewBean findAllInGroup(String pName,String groupName, String date) {
+    CategoryChildBean c = catService.findByParentAndNameAndDate(pName, groupName, date);
+    CategoryViewBean group = new CategoryViewBean(c);
     AddPersonToGroup(group);
     return group;
   }
@@ -103,7 +104,8 @@ public class PersonService {
       List<EventViewBean> res = eventService.findByName(p.getName());
       if(res.size() == 0)
       {
-        EventViewBean v = new EventViewBean(p.getName(), "Communicate", p.getStatus(), "Person", LocalDate.now().toString(), "0.1", "");
+        String inputDate = ("").equals(p.getInputDate()) ? LocalDate.now().toString() : p.getInputDate();
+        EventViewBean v = new EventViewBean(p.getName(), "Communicate", p.getStatus(), "Person", inputDate, "0.1", "");
         eventService.save(v);
       }
     }

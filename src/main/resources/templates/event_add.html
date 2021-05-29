@@ -16,10 +16,14 @@ function inputClear() {
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
 }
-function insertItem(id) {
+function insertItem(id, time) {
     document.getElementById("insertId").value = id;
+    if(time != 0.0) {
+      document.getElementById("targetTime").value = time;
+    }
 	insertForm.submit();
 }
+
 function selectItem(id, nm, ct, st, so) {
     inputClear();
     document.getElementById("inputId").value = id;
@@ -97,7 +101,6 @@ $(function () {
             <th>Name</th>        
             <th>Category</th>      
             <th>Operation</th>
-            <th>Operation2</th>
         </tr>
         </thead>
         <tbody>
@@ -105,15 +108,18 @@ $(function () {
             <td th:text="${current.id}"></td>
             <td th:text="${current.name}"></td>
             <td th:text="${current.category}"></td>
-            <td ><input type="button" value="Select" 
+            <td >
+              <input type="button" value="Select" 
                 th:data-id="${current.id}"
                 th:data-nm="${current.name}"
                 th:data-ct="${current.category}"
                 th:data-st="${current.status}"
                 th:data-so="${current.sorted}"
                 th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'),this.getAttribute('data-so'));" ></input>
+              <input type="button" value="0.25" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.25);" ></input>
+              <input type="button" value="0.5" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.5);" ></input>
+              <input type="button" value="1.0" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 1.0);" ></input>
             </td>
-            <td ><input type="button" value="Insert" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'));" ></input></td>
         </tr>
         </tbody>
     </table>
@@ -121,6 +127,7 @@ $(function () {
 
 <form name="insertForm" method="POST" action="#" th:action="@{/event/insert}">
     <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" id="targetTime" name="targetTime" th:value="0.5" readonly="true" />
     <input type="hidden" id="insertId" name="insertId" value=""></input>
 </form>
 

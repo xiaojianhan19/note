@@ -224,14 +224,16 @@ public class EventService {
     return refEvents;
   }  
 
-  public void insert(String id, String date)
+  public void insert(String id, String date, String time)
   {
     Optional<EventParentBean> res = repository.findById(Utl.parseInt(id));
     if(res.isPresent())
     {
       EventParentBean event = res.get();
       EventChildBean child = new EventChildBean(date, event);
-      child.setTime(0.5);
+      double t = Utl.parseDouble(time);
+      t = (Utl.check(t)) ? t : 0.5;
+      child.setTime(t);
       itemRepository.save(child);
     }
   }

@@ -8,20 +8,29 @@
 </head>
 <body>
 	<div th:fragment="item" th:if="${group}">
-		<span th:text="${group.name}">
-		(item's content here.)</span>
+		<span>
+			<b th:text="${group.name}"></b>
+			<input type="button" value="+" th:data-cat="${group.name}" th:onclick="addPersonByCat(this.getAttribute('data-cat'));"
+			style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>
+		</span>
+
 		<ul class="wtree">
 			<th:block th:unless="${#lists.isEmpty(group.items)}">
+			<table class="table table-bordered headline">
 				<th:block th:each="person,pStat : ${group.items}">
-					<!--
-					<span th:text="${person.id} + '  /  ' +${person.name} + '  /  ' +${person.name2}">
-						(item's content here.)</span>
-						-->
-					<a th:text="${person.name} + '  /  ' +${person.name2}"
-					th:href="@{'/person/detail?itemId=' + ${person.id}}">
-						(item's content here.)</a>&emsp;&emsp;
-					<th:block th:if="${pStat.index} % 4 eq 3" ><br/></th:block>
+					<th:block th:if="${pStat.index} % 4 eq 0" >
+						<tr>
+					</th:block>
+					<td width="25%">
+					<b><a th:text="${person.name}" th:href="@{'/person/detail?targetCat=' + ${group.name} + '&itemId=' + ${person.id}} "></a></b>
+					<b th:unless="${#strings.isEmpty(person.name2)}" th:text="'  /  ' +${person.name2}"></b>
+					<b th:unless="${#strings.isEmpty(person.name3)}" th:text="'  /  ' +${person.name3}"></b>
+					</td>
+					<th:block th:if="${pStat.index} % 4 eq 3 or ${pStat.count} eq ${#lists.size(group.items)}" >
+						</tr>
+					</th:block>
 				</th:block>
+			</table>
 			</th:block>
 			<li th:each="group : ${group.children}">
 				<div th:replace="person_rec :: item">

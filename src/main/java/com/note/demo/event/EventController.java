@@ -140,8 +140,9 @@ public class EventController {
 	}	
 
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
-	public String insertEventById(RedirectAttributes redirectAttributes, @ModelAttribute("insertId") String insertId, @ModelAttribute("targetDate") String targetDate, Model model) {
-		service.insert(insertId, targetDate);
+	public String insertEventById(RedirectAttributes redirectAttributes, @ModelAttribute("insertId") String insertId,
+					@ModelAttribute("targetDate") String targetDate, @ModelAttribute("targetTime") String targetTime, Model model) {
+		service.insert(insertId, targetDate, targetTime);
 		redirectAttributes.addAttribute("targetDate", targetDate);
 		return "redirect:/event/chgDate";
 	}

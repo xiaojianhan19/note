@@ -19,94 +19,7 @@ function inputClear() {
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
 }
-function convertCat(str) {
-    var res = document.getElementById(str);
-    return res.innerText;
-}
-$(function() {
-    $('.category').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertCat(str));
-    });
-});
 
-function convertStatus(str) {
-    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
-    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
-    // });
-    var s = "";
-    switch(str)
-    {
-        case "1": 
-            s = "OnProcess";
-            break;
-        case "2":
-            s = "Current";
-            break;
-        case "3": 
-            s = "Finished";
-            break;
-        case "4":
-            s = "GiveUp";
-            break;
-        case "6":
-            s = "LookBack";
-            break;
-        case "7": 
-            s = "Complete";
-            break;
-        case "9":
-            s = "Regular";
-            break;   
-        default:
-            s = str;
-            break;
-    }
-
-    return s;
-}
-$(function() {
-    $('.status').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertStatus(str));
-    });
-});
-
-function convertTime(str) {
-    // return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
-    //     return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
-    // });
-    var time = 0.0;
-    var cnt = 1.0;
-    if(str.length == 2)
-    {
-        cnt = parseFloat(str.substr(0,1));
-        str = str.substr(1,1);
-    }
-    if (str == "h" || str == "H")
-    {
-        time = 0.5 * cnt;
-    }
-    else if (str == "q" || str == "Q")
-    {
-        time = 0.25 * cnt;
-    }
-    else if (str == "t" || str == "T")
-    {
-        time = 0.1 * cnt;
-    }
-    if(time != 0.0)
-    {
-        return String(time);
-    }
-    return str;
-}
-$(function() {
-    $('.time').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertTime(str));
-    });
-});
 function editItem(id) {
     document.getElementById("itemId").value = id;
 	editForm.submit();
@@ -120,86 +33,40 @@ $("#mymenu ul li").click(function()
 $(this).next("ul").toggle();
 });
 });
+
+function addPersonByCat(cat) {
+      document.getElementById("targetCat").value = cat;
+      addByCatForm.submit();
+}
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
 
-<!--
-<h3>Person List</h3>
-<div th:unless="${#lists.isEmpty(list)}">
-    <table class="table table-bordered table-hover table-striped">
-        <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Name2</th>
-            <th>Name3</th>
-            <th>Category</th>
-            <th>InputDate</th>
-            <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="current : ${list}">
-            <td th:text="${current.id}"></td>
-            <td th:text="${current.name}"></td>
-            <td th:text="${current.name2}"></td>
-            <td th:text="${current.name3}"></td>
-            <td th:text="${current.category}"></td>
-            <td th:text="${current.inputDate}"></td>
-            <td ><input type="button" value="Edit" th:data-id="${current.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <nav class="navbar-expand" role="navigation">
+        <div id="navbar">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Circle" >Circle</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=History" >History</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Collection" >Collection</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/group?group=Fantasy" >Fantasy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/person/unsorted" >Unsorted</a></li>
+            </ul>
+        </div>
+    </nav>
 
-<form name="editForm" method="GET" action="#" th:action="@{/person/detail}" >
-    <input type="hidden" id="itemId" name="itemId" value=""></input>
-</form>
+    <form name="addByCatForm" action="#" th:action="@{/person/addByCat}" method="GET">
+        <input type="hidden" name="targetCat" id="targetCat"/>
+    </form>
 
-<hr/>
--->
-
-<h3>Group List</h3>
-<div id="mymenu2" th:replace="person_rec :: item">(sub-nodes here)</div>
-<hr/>
-
-<h3>Add a Person Item</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/person/add}" th:object="${personBean}">
-	<table class="table table-bordered noborder headline">
-	  <tr>
-        <td width="15%">id</td><td ><input th:field="*{id}" id="inputId"/></td>
-	  </tr>
-	  <tr>
-        <td >name</td><td ><input th:field="*{name}" id="inputName"/></td>
-      </tr>
-	  <tr>
-        <td >name2</td><td ><input th:field="*{name2}" id="inputName2"/></td>
-      </tr>
-	  <tr>
-        <td >name3</td><td ><input th:field="*{name3}" id="inputName3"/></td>
-	  </tr>      
-      <tr>
-        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
-      </tr>
-      <tr>
-        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
-	  </tr>
-      <tr>
-        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="inputDate" /></td>
-      </tr>
-      <tr>
-        <td >address</td><td ><input th:field="*{address}"  id="address" /></td>
-      </tr>
-      <tr>
-        <td >memo</td><td ><textarea th:field="*{memo}" th:value="${memo}" /></td>
-      </tr>
-    </table>
-	    <input type="submit" value="Add" />
-	    <input type="button" value="Clear" onclick="inputClear()" />
-</form>
+    <h3 th:text="${group.name}"></h3>
+    <ul class="wtree">
+        <li th:each="group : ${group.children}">
+            <div th:replace="person_rec :: item">
+            (sub-nodes here)</div>
+        </li>
+    </ul>
 
 </div>
 </body>

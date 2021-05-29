@@ -87,6 +87,7 @@ $(function() {
         <th>Name3</th>
         <th>UpdateDate</th>
         <th width="40%">Memo</th>
+        <th>Option</th>
       </tr>
       </thead>
       <tbody>
@@ -94,11 +95,12 @@ $(function() {
         <td th:text="${current.id}"></td>
         <td th:text="${current.type}"></td>
         <td th:text="${current.index}"></td>
-        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/collection/child?childId=' + ${current.id}}"></td>
+        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/collection/childDetail?childId=' + ${current.id}}"></td>
         <td th:text="${current.name2}"></td>
         <td th:text="${current.name3}"></td>
         <td th:text="${current.updateDate}"></td>
         <td><span th:if="${#strings.length(current.memo) < 50}" th:text="${current.memo}" ></span></td>
+        <td><a style="color:blue;" th:text="Edit" th:href="@{'/collection/child?childId=' + ${current.id}}"></td>
       </tr>
       </tbody>
   </table>

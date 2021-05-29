@@ -10,72 +10,35 @@
         th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function convertType(str) {
-    var s = "";
-    switch(str)
-    {
-        case "1": 
-            s = "Character";
-            break;
-        case "2":
-            s = "Paragraph";
-            break;
-        case "3": 
-            s = "Setting";
-            break;
-    }
-
-    return s;
-}
-$(function() {
-    $('.type').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertType(str));
-    });
-});
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
 
-<form name="addChildForm" method="POST" action="#" th:action="@{/collection/addChild}" th:object="${collectionChildBean}">
-	<table class="table table-bordered noborder fcol">
-	  <tr>
-        <td >id</td><td ><input th:field="*{id}" id="cid"/></td>
-      </tr>
-	  <tr>
-        <td >type</td><td ><input th:field="*{type}" id="ctype" class="type"/></td>
-      </tr>
-      <tr>
-        <td >index</td><td ><input th:field="*{index}" id="cindex"/></td>
-      </tr>
-	  <tr>
-        <td >name</td><td ><input th:field="*{name}" id="cname"/></td>
-      </tr>
-	  <tr>
-        <td >name2</td><td ><input th:field="*{name2}" id="cname2"/></td>
-      </tr>
-	  <tr>
-        <td >name3</td><td ><input th:field="*{name3}" id="cname3"/></td>
-	  </tr>
-      <tr>
-        <td >memo</td><td ><textarea th:field="*{memo}" th:value="${memo}" ></textarea></td>
-      </tr>
-      <tr>
-        <td >inputDate</td><td ><input th:field="*{inputDate}"  id="cinputDate" /></td>
-      </tr>
-      <tr>
-        <td >date</td><td ><input th:field="*{updateDate}"  id="cupdateDate" /></td>
-      </tr>
-      <tr>
-        <td >parentId</td><td ><input th:field="*{parent}"  id="parent" /></td>
-      </tr> 
-    </table>
+	<table class="table table-bordered noborder">
+    <tr>
+      <td width="15%" bgcolor="gray">id</td>
+      <td width="20%" th:text="${child.id}"></td>
+      <td width="15%" bgcolor="gray">type</td>
+      <td width="20%" th:text="${child.type}"></td>
+      <td width="15%" bgcolor="gray">index</td>
+      <td th:text="${child.index}"></td>
+    </tr>
+    <tr>
+      <td bgcolor="gray">name</td><td th:text="${child.name}"></td>
+      <td bgcolor="gray">name2</td><td th:text="${child.name2}"></td>
+      <td bgcolor="gray">name3</td><td th:text="${child.name3}"></td>
+    </tr>
+    <tr>
+      <td bgcolor="gray">inputDate</td><td th:text="${child.inputDate}"></td>
+      <td bgcolor="gray">updateDate</td><td th:text="${child.updateDate}"></td>
+    </tr>
+    <tr><td colspan="6">
+      <div id="article" th:text="${child.memo}"></div>
+    </td></tr>
 
-	    <input type="submit" value="Save" />
-</form>
-<hr/>
+  </table>
 
 </div>
 </body>

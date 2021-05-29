@@ -17,6 +17,8 @@
 <div layout:fragment="content">
 
 <form name="addForm" method="POST" action="#" th:action="@{/person/add}" th:object="${personBean}">
+  <input type="hidden" name="targetCat" id="targetCat" th:value="${targetCat}"/>
+
 	<table class="table table-bordered noborder headline">
 	  <tr>
       <td width="15%">id</td><td ><input th:field="*{id}" id="inputId"/></td>
