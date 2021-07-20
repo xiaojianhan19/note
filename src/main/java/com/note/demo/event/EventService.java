@@ -203,6 +203,7 @@ public class EventService {
     {
       refEvents.add(new EventViewBean(ev));
     }
+    sortByLastDate(refEvents);
     return refEvents;
   }
 
@@ -221,6 +222,7 @@ public class EventService {
         }
       }      
     }
+    sortByLastDate(refEvents);
     return refEvents;
   }  
 
@@ -261,6 +263,17 @@ public class EventService {
       return a.getName().compareTo(b.getName());
     });
   }
+
+  public void sortByLastDate(List<EventViewBean> list)
+  {
+    list.sort( (a,b)-> {
+      if(!a.getLastDate().equals(b.getLastDate()))
+      {
+        return b.getLastDate().compareTo(a.getLastDate());
+      }
+      return a.getName().compareTo(b.getName());
+    });
+  }  
 
   public void saveParent(List<EventViewBean> list) 
   {

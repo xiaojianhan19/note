@@ -17,6 +17,7 @@ public class EventViewBean {
     private String duration;
     private String percent;
     private int index;
+    private String lastDate;
 
     public EventViewBean(){}
 
@@ -81,7 +82,10 @@ public class EventViewBean {
         this.name = event.getName();
         this.category = event.getCategory();
         this.status = event.getStatus();
-        this.sorted = event.getSorted();
+        this.sorted = event.getSorted();        
+        if(event.getItems() != null && event.getItems().size() != 0) {
+            this.lastDate = event.getItems().get(event.getItems().size() - 1).getDate();
+        }
     }
 
     public EventViewBean(EventParentBean event, String date){
@@ -186,6 +190,14 @@ public class EventViewBean {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public String getLastDate() {
+        return lastDate;
+    }
+
+    public void setLastDate(String lastDate) {
+        this.lastDate = lastDate;
     }
 
 }
