@@ -39,7 +39,7 @@ function addEventByCat(cat) {
             <input type="submit" id="submitButton" th:value="Save" style="margin: 10px;"/>
             <span style="font-size:20px;margin: 10px;">Total Time :<span  id="totaltime">00.00</span></span>
         </div>
-        <ul class="wtree">
+        <ul class="wtree" th:with="floor=''">
             <li th:each="child, childStat : ${cat.children}">
                 <div th:replace="event_rec :: frag">(sub-nodes here)</div>
             </li>

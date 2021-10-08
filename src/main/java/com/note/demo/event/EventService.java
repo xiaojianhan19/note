@@ -4,12 +4,17 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.transaction.Transactional;
 
+import com.note.demo.PropertiesUtils;
 import com.note.demo.Utl;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
@@ -20,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+
+import ch.qos.logback.core.joran.conditional.ElseAction;
 
 
 @Service
@@ -36,6 +43,27 @@ public class EventService {
   CategoryService catService;
 
   public static int showMode = 0;
+  Map<String, String> catToTypeMap = new HashMap<String, String>();
+
+  public EventService() {
+
+    //PropertiesUtils pFile = new PropertiesUtils("static/application-map.properties");
+    //for (Map.Entry<Object, Object> entry : pFile.properties.entrySet()) {
+    //  catToTypeMap.put( entry.getKey().toString() , entry.getValue().toString() );
+    //}
+    catToTypeMap.put( "Project" , "Achievement" );
+    catToTypeMap.put( "Fantasy" , "Achievement" );
+    catToTypeMap.put( "Discipline" , "Achievement" );
+    catToTypeMap.put( "Exercise" , "Achievement" );
+    catToTypeMap.put( "Animation" , "Collection" );
+    catToTypeMap.put( "Book" , "Collection" );
+    catToTypeMap.put( "Game" , "Collection" );
+    catToTypeMap.put( "Movie" , "Collection" );
+    catToTypeMap.put( "Music" , "Collection" );
+    catToTypeMap.put( "Communicate" , "Person" );
+    catToTypeMap.put( "TSSummit" , "Achievement" );
+    catToTypeMap.put( "" , "" );
+  }
 
   public List<EventParentBean> findAll(){
     return repository.findAll(Sort.by(Direction.ASC, "category"));
@@ -412,8 +440,12 @@ public class EventService {
 				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
 				this.AddEventToCategory(cat, ev);
 			}
-			cat.updateTotal(total);
-			//cat.clearChild();
+      cat.updateTotal(total);
+      
+      if(LocalDate.now().plusDays(-3).toString().compareTo(date) >= 0) 
+      {
+        cat.clearChild();
+      }
 		}
 
     return cat;
@@ -463,6 +495,24 @@ public class EventService {
 		}
 
     return cat;
+  }
+
+  public EventViewBean updateNewEventByCategory(EventViewBean v, String cat)
+  {
+    v.setCategory(cat);
+    v.setSortedCategory(cat);
+    String type = catToTypeMap.get(cat);
+    if(Utl.check(type)) {
+      
+      v.setStatus(Utl.Status.EV3_FINISHED.getValue());
+      v.setSorted(type);
+      return v;
+    }
+    else {
+      v.setStatus(Utl.Status.EV3_FINISHED.getValue());
+      v.setSorted("Event");
+      return v;
+    }
   }
 
 }

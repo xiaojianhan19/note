@@ -10,6 +10,7 @@ public class EventViewBean {
     private String category;
     private String status;
     private String sorted;
+    private String sortedCategory;
 
     private String date;
     private String time;
@@ -198,6 +199,14 @@ public class EventViewBean {
 
     public void setLastDate(String lastDate) {
         this.lastDate = lastDate;
+    }
+
+    public String getSortedCategory() {
+        return sortedCategory;
+    }
+
+    public void setSortedCategory(String sortedCategory) {
+        this.sortedCategory = sortedCategory;
     }
 
 }

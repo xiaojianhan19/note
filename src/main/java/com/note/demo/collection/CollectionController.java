@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpSession;
+
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
 
@@ -25,6 +27,9 @@ public class CollectionController {
 	String CName = "Collection";
 
 	@Autowired
+	HttpSession session;
+
+	@Autowired
 	CollectionService service;
 
 	@Autowired
@@ -42,6 +47,7 @@ public class CollectionController {
 
         CategoryViewBean group = service.findAllInGroup(CName, catName, date);
 		model.addAttribute("group", group);
+		session.setAttribute("recentCat", catName);
 
         model.addAttribute("collectionBean", new CollectionParentBean());        
 		return "collection";
@@ -58,6 +64,7 @@ public class CollectionController {
 
         CategoryViewBean group = service.findAllInGroup(CName, groupName, date);
 		model.addAttribute("group", group);
+		session.setAttribute("recentCat", groupName);
 
         model.addAttribute("collectionBean", new CollectionParentBean());        
 		return "collection";
@@ -83,12 +90,18 @@ public class CollectionController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String add(@ModelAttribute("collectionBean") CollectionParentBean collectionBean, Model model) {
 		service.save(collectionBean);
-		return "redirect:/collection/";
+		Object rc = session.getAttribute("recentCat");
+		if(rc == null || ("unsorted").equals(rc)) {
+			return unsortedEdit(model);
+		} else {
+			return readCollectionsByCat(rc.toString(), model);
+		}		
 	}
 
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
 		service.find(itemId).ifPresent( collectionBean -> {
+			service.sortByIndex(collectionBean);
 			model.addAttribute("collectionBean", collectionBean);
 			//model.addAttribute("collectionBean", service.modifyBean(collectionBean));
 			model.addAttribute("collectionChildBean", new CollectionChildBean(collectionBean));
@@ -105,7 +118,7 @@ public class CollectionController {
 		return "redirect:/collection/detail";
 	}
 	
-	@RequestMapping(value = "/unsortedEdit", method = RequestMethod.GET)
+	@RequestMapping(value = "/unsorted", method = RequestMethod.GET)
 	public String unsortedEdit(Model model) {
 		//List<CollectionParentBean> list = service.findAll();
         List<CollectionParentBean> list = service.findUnsortedItems();

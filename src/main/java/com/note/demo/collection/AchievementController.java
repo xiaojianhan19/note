@@ -63,6 +63,7 @@ public class AchievementController {
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
 		service.find(itemId).ifPresent( collectionBean -> {
+			service.sortByIndex(collectionBean);
 			model.addAttribute("collectionBean", collectionBean);
 			//model.addAttribute("collectionBean", service.modifyBean(collectionBean));
 			model.addAttribute("collectionChildBean", new CollectionChildBean(collectionBean));
@@ -76,5 +77,13 @@ public class AchievementController {
 	public String add(@ModelAttribute("collectionBean") CollectionParentBean collectionBean, Model model) {
 		service.save(collectionBean);
 		return "redirect:/achievement/";
+	}
+
+	@RequestMapping(value = "/unsorted", method = RequestMethod.GET)
+	public String unsortedEdit(Model model) {
+		//List<CollectionParentBean> list = service.findAll();
+        List<CollectionParentBean> list = service.findUnsortedItems();
+		model.addAttribute("colList", list);
+		return "collection_edit";
 	}
 }

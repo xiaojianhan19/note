@@ -24,4 +24,9 @@ public class DemoController {
 		} catch(Exception e) {}
 		return "index";
 	}	
+
+	@RequestMapping(value = "/sample", method = RequestMethod.GET)
+	public String sampleGragh() {
+		return "sampleGragh";
+    }	
 }

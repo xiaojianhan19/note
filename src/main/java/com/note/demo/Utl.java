@@ -18,6 +18,7 @@ public class Utl {
         EV2_CURRENT("Current"),
         EV3_FINISHED("Finished"),
         EV4_GIVEUP("GiveUp"),
+        EV5_PLANNING("Planning"),
         EV6_LOOKBACK("LookBack"),
         EV7_COMPLETE("Complete"),
         EV9_REGULAR("Regular"),

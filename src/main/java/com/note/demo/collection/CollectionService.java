@@ -128,7 +128,7 @@ public class CollectionService {
     {
       CollectionParentBean c = new CollectionParentBean();
       c.setName(vBean.getName());
-      c.setCategory(vBean.getCategory());
+      c.setCategory(vBean.getSortedCategory());
       c.setStatus(vBean.getStatus());
       c.setMemo("");
       if(vBean.getMemo() != null)
@@ -206,5 +206,15 @@ public class CollectionService {
   public Optional<CollectionChildBean> findChild(String id) {
     return itemRepository.findById(Utl.parseInt(id));
   }
+
+  public void sortByIndex(CollectionParentBean p)
+  {
+    p.getItems().sort( (a,b)-> {
+      if(!a.getType().equals(b.getType())) {
+        return a.getType().compareTo(b.getType());
+      }
+      return new Integer(a.getIndex()).compareTo(b.getIndex());
+    });
+  }  
 
 }

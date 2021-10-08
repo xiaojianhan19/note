@@ -160,7 +160,7 @@ public class PersonService {
     {
       PersonParentBean p = new PersonParentBean();
       p.setName(vBean.getName());
-      p.setCategory("Unsorted");
+      p.setCategory(vBean.getSortedCategory());
       p.setStatus("");
       p.setName2("");
       p.setName3("");

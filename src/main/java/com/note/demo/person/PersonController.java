@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpSession;
+
 import com.note.demo.Utl;
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
@@ -28,6 +30,9 @@ public class PersonController {
 	String PName = "Person";
 
 	@Autowired
+	HttpSession session;
+
+	@Autowired
 	PersonService service;
 
 	@Autowired
@@ -39,6 +44,7 @@ public class PersonController {
 
 		String catName = "Circle";
 		model.addAttribute("targetCat", catName);
+		session.setAttribute("recentCat", catName);
 
         CategoryViewBean group = service.findAllInGroup(PName, catName, date );
 		model.addAttribute("group", group);
@@ -50,7 +56,13 @@ public class PersonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String add(@ModelAttribute("personBean") PersonParentBean personBean, @ModelAttribute("targetCat") String targetCat, Model model) {
 		service.save(personBean);
-		return readPersons(targetCat, model);
+		//session.setAttribute("recentCat", "unsorted");
+		Object rc = session.getAttribute("recentCat");
+		if(rc == null || ("unsorted").equals(rc)) {
+			return readUnsorted(model);
+		} else {
+			return readPersonsByGroup(model, rc.toString());
+		}
 	}
 
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
@@ -80,7 +92,7 @@ public class PersonController {
 
         CategoryViewBean group = service.findAllInGroup(PName, groupName, date);
 		model.addAttribute("group", group);
-
+		session.setAttribute("recentCat", groupName);
         model.addAttribute("personBean", new PersonParentBean());
 		return "person";
 	}
@@ -119,8 +131,8 @@ public class PersonController {
 			}
 		}
 		model.addAttribute("DataList", items);
-
+		session.setAttribute("recentCat", "unsorted");
 		return "person_unsorted";
-	}	
+	}
 
 }

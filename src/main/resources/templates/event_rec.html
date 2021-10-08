@@ -8,10 +8,11 @@
 </head>
 <body>
 
-<div th:fragment="frag" th:if="${child}">
+<div th:fragment="frag" th:if="${child}" th:with="floor=${floor}+'1'">
 	<span> 
 		<b th:text="${child.name}"></b> <b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} " ></b>
-		<input type="button" value="+" th:data-cat="${child.name}" th:onclick="addEventByCat(this.getAttribute('data-cat'));"
+		<!-- b th:text="${floor}"></b> -->
+		<input type="button" value="+" th:unless="${floor} == '1'" th:data-cat="${child.name}" th:onclick="addEventByCat(this.getAttribute('data-cat'));"
 		style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>
 	</span>
 	<div th:unless="${#lists.isEmpty(child.items)}">
@@ -37,7 +38,7 @@
 				</td>
 				<td>
 					<input th:name="|items[${item.getIndex()}].memo|" th:value="${item.getMemo()}" />
-				</td>
+				</td>			
 				<td hidden="">
 					<input th:name="|items[${item.getIndex()}].date|" th:value="${date}" readonly="true" />
 				</td>

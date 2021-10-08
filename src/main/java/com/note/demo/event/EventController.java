@@ -125,9 +125,7 @@ public class EventController {
 		model.addAttribute("date", date);
 		
 		EventViewBean v = new EventViewBean(date);
-		v.setCategory(targetCat);
-		v.setStatus(Utl.Status.COL1_ONPROCESS.getValue());
-		v.setSorted("Event");
+		service.updateNewEventByCategory(v, targetCat);
 		model.addAttribute("eventViewBean", v);
 
 		List<EventViewBean> refEvents = service.findRefEventsByCat(targetCat, date);
