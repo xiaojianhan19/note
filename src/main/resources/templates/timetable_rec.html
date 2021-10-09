@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+
+<div th:fragment="frag" th:if="${child}" th:with="floor=${floor}+'1'">
+	<span> 
+		<b th:text="${child.name}"></b> <b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} " ></b>
+		<!-- b th:text="${floor}"></b> -->
+		<input type="button" value="+" th:unless="${floor} == '1'" th:data-cat="${child.name}" th:onclick="addEventByCat(this.getAttribute('data-cat'));"
+		style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>
+	</span>
+	<div th:unless="${#lists.isEmpty(child.items)}">
+		<th:block th:each="item, itemStat : ${child.items}">
+			<a th:text="${item.getName()}"></a>				
+			<input hidden="true" th:name="|items[${item.getIndex()}].id|" th:value="${item.getId()}" readonly="true"/>
+			<input hidden="true" th:name="|items[${item.getIndex()}].name|" th:value="${item.getName()}" />
+			<input hidden="true" th:name="|items[${item.getIndex()}].category|" th:value="${item.getCategory()}" class="category"/>
+			<input hidden="true" th:name="|items[${item.getIndex()}].status|" th:value="${item.getStatus()}" class="status"  />
+			<input hidden="true" th:name="|items[${item.getIndex()}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
+			<input hidden="true" th:name="|items[${item.getIndex()}].date|" th:value="${date}" readonly="true" />
+			<input th:name="|items[${item.getIndex()}].time|" th:value="${item.getTime()}" class="time" style="width:50px;" />
+			<input th:name="|items[${item.getIndex()}].memo|" th:value="${item.getMemo()}" />
+			<th:block th:if="${itemStat.index} % 2 eq 1" >
+				<br/>
+			</th:block>
+		</th:block>
+	</div>
+
+	<ul class="wtree">
+		<li th:each="child, childStat : ${child.children}">
+			<div th:replace="timetable_rec :: frag">(sub-nodes here)</div>
+		</li>
+	</ul>
+</div>
+	
+</body>

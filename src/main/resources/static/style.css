@@ -1,9 +1,14 @@
 
 body {
-  padding: 50px;
+  padding: 10px;
   padding-top: 90px;
   font-family: helvetica, arial,sans-serif;
   background-color: rgb(220, 250, 224);
+}
+
+.container{
+  max-width:100%;
+  width:100%;
 }
 
 .table th, .table td {
@@ -171,3 +176,20 @@ ul {
   word-break: break-all;
   font-size: 18px;
 }
+
+.bg-box{
+  margin: auto;
+  width: 100%;/*父容器不写高度由自容器撑开*/
+  overflow: hidden;/*浮动隐藏*/
+  border: 2px solid #aaa;
+  }
+  .left-box{
+  float: left;
+  width: 50%;
+  /* background-color: hsl(184, 100%, 50%); */
+  }
+  .right-box{
+  float: right;/*有浮动*/
+  width: 50%;
+  /* background-color: hsl(59, 100%, 50%); */
+  }

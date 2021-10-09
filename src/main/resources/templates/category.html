@@ -12,6 +12,10 @@ function editItem(id) {
     document.getElementById("itemId").value = id;
 	editForm.submit();
 }
+function deleteItem(id) {
+    document.getElementById("delId").value = id;
+	deleteForm.submit();
+}
 /*]]>*/
 </script>
 </head>
@@ -38,12 +42,16 @@ function editItem(id) {
           <td th:text="${current.inputDate}"></td>
           <td th:text="${current.item.id}"></td>
           <td ><input type="button" value="Edit" th:data-id="${current.item.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
+          <td ><input type="button" value="Del" th:data-id="${current.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input></td>          
       </tr>
   </table>
 </div>
 
 <form name="editForm" method="GET" action="#" th:action="@{/category/detail}" >
   <input type="hidden" id="itemId" name="itemId" value=""></input>
+</form>
+<form name="deleteForm" method="GET" action="#" th:action="@{/category/delete}" >
+  <input type="hidden" id="delId" name="delId" value=""></input>
 </form>
 <hr/>
 

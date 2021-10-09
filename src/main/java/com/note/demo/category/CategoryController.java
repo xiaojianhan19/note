@@ -68,5 +68,16 @@ public class CategoryController {
 
 	}
 
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	public String delete(Model model, @RequestParam(value = "delId") String delId) {
+		// CategoryChildBean child = service.findChild(itemId).get();
+		// service.deleteItem(child);
+		// CategoryParentBean parent = service.find(delId).get();
+		// service.delete(parent);
+		service.find(delId).ifPresent( item -> {
+			service.delete(item);		
+		});
+		return read(model);
+	}
 
 }

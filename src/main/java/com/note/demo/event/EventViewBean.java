@@ -19,7 +19,10 @@ public class EventViewBean {
     private String percent;
     private int index;
     private String lastDate;
-
+    private String shortName;
+    private String topic;
+    private String topicBind;
+    private Boolean isBinded;
     public EventViewBean(){}
 
     public String getId() {
@@ -83,10 +86,13 @@ public class EventViewBean {
         this.name = event.getName();
         this.category = event.getCategory();
         this.status = event.getStatus();
-        this.sorted = event.getSorted();        
+        this.sorted = event.getSorted();
         if(event.getItems() != null && event.getItems().size() != 0) {
             this.lastDate = event.getItems().get(event.getItems().size() - 1).getDate();
         }
+        this.shortName = this.name.substring(0, 1);
+        this.topic = event.getTopic();
+        this.isBinded = false;
     }
 
     public EventViewBean(EventParentBean event, String date){
@@ -97,6 +103,7 @@ public class EventViewBean {
             {
                 this.time = Utl.parseTimeToString(item.getTime());
                 this.memo = item.getMemo();
+                this.topic = Utl.check(event.getTopic()) ? event.getTopic() : item.getTopic();
             }
         }
     }
@@ -112,9 +119,10 @@ public class EventViewBean {
         this.sorted = event.getSorted();
         this.date = item.getDate();
         this.time = Utl.parseTimeToString(item.getTime());
-
-
         this.memo = item.getMemo();
+        this.topic = Utl.check(event.getTopic()) ? event.getTopic() : item.getTopic();
+        this.shortName = this.name.substring(0, 1);
+        this.isBinded = false;
     }
 
     public EventViewBean(String date)
@@ -147,6 +155,7 @@ public class EventViewBean {
         this.category = event.getCategory();
         this.status = event.getStatus();
         this.sorted = event.getSorted();
+        this.topic = event.getTopic();
         String inputDate = "";
         double totalTime = 0.0;
         int totalDuration = 0;
@@ -165,6 +174,7 @@ public class EventViewBean {
         this.time = Utl.parseTimeToString(totalTime);
         this.duration = Utl.parseIdToString(totalDuration);
         this.date = inputDate;
+        this.shortName = this.name.substring(0, 1);
     }
 
     public String getPercent() {
@@ -175,7 +185,8 @@ public class EventViewBean {
         this.percent = parcent;
     }
 
-    public EventViewBean(String name, String category, String status, String sorted, String date, String time, String memo){
+    public EventViewBean(String name, String category, String status, String sorted, 
+                        String date, String time, String memo, String topic, String topicBind){
         this.name = name;
         this.category = category;
         this.status = status;
@@ -183,6 +194,9 @@ public class EventViewBean {
         this.date = date;
         this.time = time;
         this.memo = memo;
+        this.shortName = this.name.substring(0, 1);
+        this.topic = topic;
+        this.topicBind = topicBind;
     }
 
     public int getIndex() {
@@ -207,6 +221,38 @@ public class EventViewBean {
 
     public void setSortedCategory(String sortedCategory) {
         this.sortedCategory = sortedCategory;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getTopicBind() {
+        return topicBind;
+    }
+
+    public void setTopicBind(String topicBind) {
+        this.topicBind = topicBind;
+    }
+
+    public Boolean getIsBinded() {
+        return isBinded;
+    }
+
+    public void setIsBinded(Boolean isBinded) {
+        this.isBinded = isBinded;
     }
 
 }

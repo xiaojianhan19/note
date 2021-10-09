@@ -105,7 +105,7 @@ public class PersonService {
       if(res.size() == 0)
       {
         String inputDate = ("").equals(p.getInputDate()) ? LocalDate.now().toString() : p.getInputDate();
-        EventViewBean v = new EventViewBean(p.getName(), "Communicate", p.getStatus(), "Person", inputDate, "0.1", "");
+        EventViewBean v = new EventViewBean(p.getName(), "Communicate", p.getStatus(), "Person", inputDate, "0.1", "", "", "");
         eventService.save(v);
       }
     }

@@ -14,6 +14,8 @@
 		<!-- b th:text="${floor}"></b> -->
 		<input type="button" value="+" th:unless="${floor} == '1'" th:data-cat="${child.name}" th:onclick="addEventByCat(this.getAttribute('data-cat'));"
 		style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>
+		<input type="button" value="T" th:if="${floor} == '1'" th:data-cat="${child.name}" th:onclick="addTopicByCat(this.getAttribute('data-cat'));"
+		style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>		
 	</span>
 	<div th:unless="${#lists.isEmpty(child.items)}">
 		<table class="table table-bordered noborder headline">
@@ -51,6 +53,7 @@
 			<div th:replace="event_rec :: frag">(sub-nodes here)</div>
 		</li>
 	</ul>
+
 </div>
 	
 </body>

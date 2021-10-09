@@ -15,11 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.note.demo.Utl;
-
-import org.springframework.data.annotation.Transient;
-
-
 @Entity
 @Table(name = "category_item")
 public class CategoryChildBean {

@@ -35,6 +35,7 @@ public class EventParentBean {
     private String category;
     private String status;
     private String sorted;
+    private String topic;
 
     @OneToMany(mappedBy = "parent", cascade= {CascadeType.DETACH})
     private List<EventChildBean> items;
@@ -87,6 +88,9 @@ public class EventParentBean {
         this.category = vBean.getCategory();
         this.status = vBean.getStatus();
         this.sorted = vBean.getSorted();
+        if(Utl.check(vBean.getTopicBind())) {
+            this.topic = vBean.getTopic();
+        }
     }
 
     public String getSorted() {
@@ -95,6 +99,14 @@ public class EventParentBean {
 
     public void setSorted(String sorted) {
         this.sorted = sorted;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
     
 }

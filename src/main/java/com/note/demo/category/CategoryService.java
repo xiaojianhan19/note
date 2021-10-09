@@ -26,6 +26,8 @@ public class CategoryService extends Node {
   @Autowired
   CategoryChildRepository itemRepository;
 
+  @Autowired
+  TopicRepository topicRepository;
   
   public List<CategoryParentBean> findAll(){
     return repository.findAll();
@@ -33,6 +35,29 @@ public class CategoryService extends Node {
 
   public Optional<CategoryParentBean> find(String id){
     return repository.findById(Utl.parseInt(id));
+  }
+
+  
+  public CategoryParentBean findByName(String name){
+    return repository.findByName(name).get(0);
+  }  
+
+  public void delete(CategoryParentBean item){
+    repository.delete(item);
+  }
+
+  public void deleteItem(CategoryChildBean item){
+    deleteFromBottom(item);
+  }
+
+  public void deleteFromBottom(CategoryChildBean item){
+    List<CategoryChildBean> children = item.getChildren();
+    for(CategoryChildBean child : children) {
+      deleteFromBottom(child);
+    }
+    if(item.getParent() != null) {
+      itemRepository.delete(item);
+    }
   }
 
   public void save(CategoryParentBean p) {
@@ -93,31 +118,38 @@ public class CategoryService extends Node {
   }
 
 
-  public CategoryParentBean findByNameAndDate(String name, String date) {
-    List<CategoryParentBean> res = repository.findByName(name);
-    for(CategoryParentBean p : res)
-    {
-      if( date.compareTo(p.getStartDate()) >= 0 && date.compareTo(p.getEndDate()) < 0)
-      {
-        return p;
-      }
+  public CategoryViewBean findByNameWithTopic(String name) {
+    CategoryParentBean p = repository.findByName(name).get(0);
+    CategoryViewBean cat = new CategoryViewBean(p.getItem());
+    List<TopicBean> topicOnp = topicRepository.findByStatus("OnProcess");
+    for(TopicBean t : topicOnp) {
+      TopicViewBean tv = new TopicViewBean(t);
+      String topicCat = (name.equals("Event")) ? t.getEveCategory() :
+                        (name.equals("Person")) ? t.getPerCategory() :
+                        (name.equals("Collection")) ? t.getColCategory() :
+                        (name.equals("Achievement")) ? t.getAchCategory() :
+                        t.getEveCategory();
+
+      addTopicToCat(tv, cat, topicCat);
     }
-    if(res.size() > 0)
-      return res.get(0);
-    return new CategoryParentBean();
+
+    return cat;
+  }
+
+  public void addTopicToCat(TopicViewBean t, CategoryViewBean cat, String topicCat) {
+    if(cat.getName().equals(topicCat)) {
+      cat.getChildren().add(new CategoryViewBean(t));
+      return;
+    }
+    for(CategoryViewBean child : cat.getChildren()) {
+      addTopicToCat(t, child, topicCat);
+    }
   }
 
   public CategoryChildBean findByParentAndNameAndDate(String pName, String name, String date) {
     List<CategoryParentBean> res = repository.findByName(pName);
     CategoryChildBean root = null;
-    for(CategoryParentBean p : res)
-    {
-      if( date.compareTo(p.getStartDate()) >= 0 && date.compareTo(p.getEndDate()) < 0)
-      {
-        root = p.getItem();
-      }
-    }
-    if(root == null && res.size() > 0) {
+    if(res.size() > 0) {
       root = res.get(0).getItem();
     }
     
@@ -217,7 +249,7 @@ public class CategoryService extends Node {
   {
     Map<String, String> catList = new TreeMap<String, String>();
 
-    CategoryParentBean p = this.findByNameAndDate(name, date);
+    CategoryParentBean p = this.findByName(name);
     this.AddToMap(p.getItem(), 0, catList);
     return catList;
   }
@@ -238,5 +270,9 @@ public class CategoryService extends Node {
     }	
 	}
 
+  public void saveTopic(TopicViewBean topic) {
+    TopicBean b = new TopicBean(topic);
+    topicRepository.save(b);
+  } 
 
 }

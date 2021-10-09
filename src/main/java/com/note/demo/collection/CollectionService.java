@@ -82,7 +82,7 @@ public class CollectionService {
       List<EventViewBean> res = eventService.findByName(p.getName());
       if(res.size() == 0)
       {
-        EventViewBean v = new EventViewBean(p.getName(), p.getCategory(), p.getStatus(), "Collection", LocalDate.now().toString(), "0.1", "");
+        EventViewBean v = new EventViewBean(p.getName(), p.getCategory(), p.getStatus(), "Collection", LocalDate.now().toString(), "0.1", "", "", "");
         eventService.save(v);
       }
       if(p.getInputDate().isEmpty())
@@ -146,17 +146,14 @@ public class CollectionService {
 /*     CategoryParentBean p = catService.findByNameAndDate(category, date);
     CategoryViewBean group = new CategoryViewBean(p.getItem());
     AddPersonToGroup(group); */
-    CategoryParentBean p = catService.findByNameAndDate(CName, date);
-    CategoryChildBean c = p.getItem();
-    for(CategoryChildBean cat : c.getChildren()) {
+    CategoryViewBean c = catService.findByNameWithTopic(CName);
+    for(CategoryViewBean cat : c.getChildren()) {
       if(cat.getName().equals(category)) {
-        CategoryViewBean group = new 	CategoryViewBean(cat);
-        AddPersonToGroup(group);
-        return group;
+        AddPersonToGroup(cat);
+        return cat;
       }
     }
-    CategoryViewBean groupNull = new 	CategoryViewBean(p.getItem());
-    return groupNull;
+    return c;
   }
 
   public void AddPersonToGroup(CategoryViewBean group)

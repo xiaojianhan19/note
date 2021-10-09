@@ -12,6 +12,7 @@ import com.note.demo.category.CategoryChildBean;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
+import com.note.demo.category.TopicViewBean;
 import com.note.demo.collection.CollectionService;
 import com.note.demo.person.PersonService;
 
@@ -50,8 +51,7 @@ public class EventController {
     public void initBinder(WebDataBinder binder) {  
         binder.setAutoGrowNestedPaths(true);
         //给这个controller配置接收list的长度100000，仅在这个controller有效
-        binder.setAutoGrowCollectionLimit(10000); 
-
+        binder.setAutoGrowCollectionLimit(10000);
     }
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
@@ -73,6 +73,20 @@ public class EventController {
 		}
 		return "event";
 	}
+
+	@RequestMapping(value = "/timetable", method = RequestMethod.GET)
+	public String loadTimetable(@RequestParam(value = "targetDate", required = false) String chgDate ,Model model, Device device) {
+		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+		model.addAttribute("date", date);
+
+		CategoryViewBean cat = service.loadCatViewBeanByDate(date);
+		model.addAttribute("cat", cat);
+		
+        if (device.isMobile()) {
+            return "event_mobile";
+		}
+		return "timetable";
+	}	
 
 	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
 	public String saveAddList(RedirectAttributes redirectAttributes, @ModelAttribute EventViewForm recform, Model model) {
@@ -197,6 +211,44 @@ public class EventController {
 		CategoryViewBean cat = service.loadCatViewBeanByPeriod(date, start, end);
 		model.addAttribute("cat", cat);
 		return "event_view";
+	}
+
+	@RequestMapping(value = "/addTopicByCat", method = RequestMethod.GET)
+	public String addTopicByCat(@ModelAttribute("topicCat") String topicCat, @ModelAttribute("topicDate") String topicDate, Model model, Device device) {
+		String date = topicDate;
+		model.addAttribute("date", date);
+		
+		TopicViewBean v = new TopicViewBean();
+		v.setStartDate(date);
+		service.updateNewTopicByCategory(v, topicCat);
+		model.addAttribute("topicViewBean", v);
+
+		// List<EventViewBean> refEvents = service.findRefTopicByCat(targetCat, date);
+		// for(EventViewBean bean : refEvents)
+		// {
+		// 	bean.setDate(targetDate);
+		// }
+		// model.addAttribute("refEvents", refEvents);
+		return "topic_add";
+	}
+
+	@RequestMapping(value = "/topicAdd", method = RequestMethod.POST)
+	public String addTopicViewBean(RedirectAttributes redirectAttributes, @ModelAttribute("topicViewBean") TopicViewBean topicViewBean, Model model) {
+		catService.saveTopic(topicViewBean);
+		EventViewBean ev = new EventViewBean(topicViewBean.getName(), topicViewBean.getEveCategory(), 
+											topicViewBean.getStatus(), "Topic", topicViewBean.getStartDate(), 
+											topicViewBean.getTime(), "", topicViewBean.getName(), "Self");
+		service.save(ev);
+		// if(Utl.Sorted.ST2_PERSON.getValue().equals(eventViewBean.getSorted()))
+		// {
+		// 	perService.createByEvent(eventViewBean);
+		// }
+		// else if(Utl.Sorted.ST3_COLLECTION.getValue().equals(eventViewBean.getSorted()) || Utl.Sorted.ST4_ACHIEVEMENT.getValue().equals(eventViewBean.getSorted()))
+		// {
+		// 	colService.createByEvent(eventViewBean);
+		// }
+		redirectAttributes.addAttribute("targetDate", topicViewBean.getStartDate());
+		return "redirect:/event/chgDate";
 	}
 
 }

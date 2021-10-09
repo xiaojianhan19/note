@@ -29,7 +29,8 @@ public class CategoryViewBean {
     private String percent;
     private List<Object> items;
     private int count;
-    private Boolean isBlank;
+    private Boolean isBlank;        
+    private List<TopicViewBean> topics;
     
     public CategoryViewBean(){}
 
@@ -37,6 +38,7 @@ public class CategoryViewBean {
     {
         this.name = name;
         this.items = new ArrayList<Object>();
+        this.topics = new ArrayList<TopicViewBean>();
     }
 
     public CategoryViewBean(CategoryChildBean category)
@@ -50,6 +52,23 @@ public class CategoryViewBean {
         {
             this.children.add(new CategoryViewBean(child));
         }
+        this.topics = new ArrayList<TopicViewBean>();
+    }
+
+    public CategoryViewBean(TopicViewBean tv)
+    {
+        this.id = tv.getId();
+        this.name = tv.getName();
+        this.items = new ArrayList<Object>();
+        if(this.children == null)
+            this.children = new ArrayList<CategoryViewBean>();
+        if(tv.getChildren() != null) {
+            for(TopicViewBean child : tv.getChildren())
+            {
+                this.children.add(new CategoryViewBean(child));
+            }
+        }
+        this.topics = new ArrayList<TopicViewBean>();
     }
 
     public int getId() {
@@ -172,6 +191,14 @@ public class CategoryViewBean {
 
     public void setIsBlank(Boolean isBlank) {
         this.isBlank = isBlank;
+    }
+
+    public List<TopicViewBean> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(List<TopicViewBean> topics) {
+        this.topics = topics;
     }
 
 }

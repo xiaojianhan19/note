@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function insertItem(id, time) {
+    document.getElementById("insertId").value = id;
+    if(time != 0.0) {
+      document.getElementById("targetTime").value = time;
+    }
+	insertForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<form name="addForm" method="POST" action="#" th:action="@{/event/topicAdd}" th:object="${topicViewBean}">
+	<table class="table table-bordered inputbox noborder fcol">
+	  <tr>
+        <td width="15%">id</td>
+        <td ><input th:field="*{id}" id="inputId" /></td>
+	  </tr>
+	  <tr>
+        <td >name</td>
+        <td ><input th:field="*{name}" id="inputName" /></td>
+	  </tr>
+      <tr>
+        <td >status</td>
+        <td ><input th:field="*{status}" id="inputStatus" class="status" /></td>
+      </tr>
+      <tr>
+        <td >eveCategory</td>
+        <td ><input th:field="*{eveCategory}" id="eveCategory" class="eveCategory" /></td>
+      </tr>      
+      <tr>
+        <td >perCategory</td>
+        <td ><input th:field="*{perCategory}" id="perCategory" class="perCategory" /></td>
+      </tr>
+      <tr>
+        <td >colCategory</td>
+        <td ><input th:field="*{colCategory}" id="colCategory" class="colCategory" /></td>
+      </tr>
+      <tr>
+        <td >achCategory</td>
+        <td ><input th:field="*{achCategory}" id="achCategory" class="achCategory" /></td>
+    </tr>
+    <tr>
+      <td >time</td>
+      <td ><input th:field="*{time}" id="inputTime" class="time" /></td>
+    </tr>        
+      <tr >
+        <td >startDate</td>
+        <td ><input th:field="*{startDate}" id="startDate" readonly="true" /></td>
+    </tr>
+    <tr>
+      <td >endDate</td>
+      <td ><input th:field="*{endDate}" id="endDate" readonly="true" /></td>
+    </tr>    
+    </table>
+	    <input type="submit" value="Add" />
+</form>
+
+<hr/>
+<h3>Search by Name</h3>
+<form name="findForm" action="#" th:action="@{/event/find}" method="GET">
+    <input type="hidden" name="targetDate" id="targetDate" th:value="${date}" readonly="true" />
+    <input type="text" name="targetName" id="targetName" class="textbox"/>
+    <input type="submit" value="search"></input>
+</form>
+
+<div th:unless="${#lists.isEmpty(refEvents)}">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>      
+            <th>Name</th>        
+            <th>Category</th>      
+            <th>Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${refEvents}">
+            <td th:text="${current.id}"></td>
+            <td th:text="${current.name}"></td>
+            <td th:text="${current.category}"></td>
+            <td >
+              <input type="button" value="Select" 
+                th:data-id="${current.id}"
+                th:data-nm="${current.name}"
+                th:data-ct="${current.category}"
+                th:data-st="${current.status}"
+                th:data-so="${current.sorted}"
+                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'),this.getAttribute('data-so'));" ></input>
+              <input type="button" value="0.25" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.25);" ></input>
+              <input type="button" value="0.5" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.5);" ></input>
+              <input type="button" value="1.0" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 1.0);" ></input>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<form name="insertForm" method="POST" action="#" th:action="@{/event/insert}">
+    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" id="targetTime" name="targetTime" th:value="0.5" readonly="true" />
+    <input type="hidden" id="insertId" name="insertId" value=""></input>
+</form>
+
+</div>
+</body>
+</html>

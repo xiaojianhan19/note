@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+$(function () {
+    totalCalc();
+});
+function addEventByCat(cat) {
+      document.getElementById("targetCat").value = cat;
+      addByCatForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div>
+        <form name="chgDateForm" action="#" th:action="@{/event/chgDate}" method="GET" >
+            <input type="text" id="targetDate" name="targetDate" th:value="${date}" class="textbox"/>
+            <input type="button" value="Change" th:onclick="chgDate(0)" class="btn-comn"></input>
+            <input type="button" value="prev" th:onclick="chgDate(-1)" class="btn-comn"></input>
+            <input type="button" value="next" th:onclick="chgDate(1)" class="btn-comn"></input>
+        </form>
+    </div>
+
+    <form name="addByCatForm" action="#" th:action="@{/event/addByCat}" method="GET">
+        <input type="hidden" name="targetDate" id="targetDate" th:value="${date}" readonly="true" />
+        <input type="hidden" name="targetCat" id="targetCat"/>
+    </form>
+
+        <div style="text-align: right;">
+            <span><a th:href="@{/event/eventView}">EventView</a></span>
+            <input type="submit" id="submitButton" th:value="Save" style="margin: 10px;"/>
+            <span style="font-size:20px;margin: 10px;">Total Time :<span  id="totaltime">00.00</span></span>
+        </div>
+        <div class="bg-box">
+            <div class="left-box">
+                <ul class="wtree" th:with="floor=''">
+                    <li th:each="child, childStat : ${cat.children}">
+                        <div th:if="${childStat.index} == 0" style="background:orange">
+                            <div th:replace="timetable_rec :: frag">(sub-nodes here)</div>
+                        </div>
+                        <div th:if="${childStat.index} == 2" style="background:lightgreen">
+                            <div th:replace="timetable_rec :: frag">(sub-nodes here)</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="right-box"> 
+                <ul class="wtree" th:with="floor=''">
+                    <li th:each="child, childStat : ${cat.children}">
+                        <div th:if="${childStat.index} == 1" style="background:yellow">
+                            <div th:replace="timetable_rec :: frag">(sub-nodes here)</div>
+                        </div>
+                        <div th:if="${childStat.index} == 3" style="background:rgb(37, 231, 245)">
+                            <div th:replace="timetable_rec :: frag">(sub-nodes here)</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+</div>
+</body>
+</html>

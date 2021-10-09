@@ -19,6 +19,7 @@ import com.note.demo.Utl;
 import com.note.demo.category.CategoryParentBean;
 import com.note.demo.category.CategoryService;
 import com.note.demo.category.CategoryViewBean;
+import com.note.demo.category.TopicViewBean;
 
 import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -403,14 +404,55 @@ public class EventService {
         return;
     if(cat.getName().equals(ev.getCategory())) {
       cat.getItems().add(ev);
+      ev.setIsBinded(true);
+      return;
     }
     else {
       for(CategoryViewBean child : cat.getChildren()) {
         AddEventToCategory(child, ev);
       }
     }
-  }  
-   
+  }
+
+  // public void AddEventToTopic(CategoryViewBean cat, EventViewBean ev, boolean isAdd)
+  // {
+  //   if(cat == null)
+  //     return;
+  //   if(cat.getTopics() != null) {
+  //     for(TopicViewBean t : cat.getTopics()) {
+  //       if(t.getName().equals(ev.getTopic())) {
+  //         t.getItems().add(ev);
+  //         isAdd = true;
+  //         return;
+  //       }
+  //       if(t.getChildren() != null) {
+  //         for(TopicViewBean ct : t.getChildren()) {
+  //           AddEventToTopic(ct, ev, isAdd);
+  //         }
+  //       }
+  //     }
+  //   }
+    
+  //   for(CategoryViewBean child : cat.getChildren()) {
+  //     AddEventToTopic(child, ev, isAdd);
+  //   }
+  // }  
+
+  public void AddEventToTopic(CategoryViewBean cat, EventViewBean ev)
+  {
+    if(ev.getTopic() == null || cat == null)
+        return;
+    if(ev.getTopic().equals(cat.getName())) {
+      cat.getItems().add(ev);
+      ev.setIsBinded(true);
+      return;
+    }
+    for(CategoryViewBean child : cat.getChildren()) {
+      AddEventToTopic(child, ev);
+    }
+  }     
+
+
   public CategoryViewBean loadCatViewBeanByDate(String date) {
     List<EventChildBean> events = findByDate(date);
 
@@ -431,14 +473,16 @@ public class EventService {
       list.add(newBean);
     }
     
-		CategoryParentBean catP = catService.findByNameAndDate("Event", date);
-		CategoryViewBean cat = new CategoryViewBean(catP.getItem());
+		CategoryViewBean cat = catService.findByNameWithTopic("Event");
 		if(cat != null)
 		{
 			for(EventViewBean ev : list)
 			{
-				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
-				this.AddEventToCategory(cat, ev);
+        cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
+        this.AddEventToTopic(cat, ev);
+        if(!ev.getIsBinded()) {
+          this.AddEventToCategory(cat, ev);
+        }
 			}
       cat.updateTotal(total);
       
@@ -481,14 +525,16 @@ public class EventService {
 			}
 		}
 
-		CategoryParentBean catP = catService.findByNameAndDate("Event", date);
-		CategoryViewBean cat = new CategoryViewBean(catP.getItem());
+		CategoryViewBean cat = catService.findByNameWithTopic("Event");
 		if(cat != null)
 		{
 			for(EventViewBean ev : list)
 			{
 				cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
-				this.AddEventToCategory(cat, ev);
+        this.AddEventToTopic(cat, ev);
+        if(!ev.getIsBinded()) {
+          this.AddEventToCategory(cat, ev);
+        }
 			}
 			cat.updateTotal(total);
 			//cat.clearChild();
@@ -515,4 +561,11 @@ public class EventService {
     }
   }
 
+  public TopicViewBean updateNewTopicByCategory(TopicViewBean v, String cat)
+  {
+    v.setEveCategory(cat);
+    v.setStatus(Utl.Status.EV1_ONPROCESS.getValue());
+    return v;
+  }
+  
 }

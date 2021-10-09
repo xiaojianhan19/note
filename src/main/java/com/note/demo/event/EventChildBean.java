@@ -32,6 +32,7 @@ public class EventChildBean {
     private String date;
     private double time;
     private String memo;
+    private String topic;
 
     public EventChildBean(){}
 
@@ -88,6 +89,10 @@ public class EventChildBean {
         this.time = Utl.parseDouble(vBean.getTime());
         this.memo = vBean.getMemo();
         this.parent = p;
+
+        if(!Utl.check(vBean.getTopicBind())) {
+            this.topic = vBean.getTopic();
+        }
     }
 
     public EventChildBean(String date, EventParentBean p) {
@@ -103,6 +108,14 @@ public class EventChildBean {
         this.time = item.getTime();
         this.memo = item.getMemo();
         this.parent = parent;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
     
 
