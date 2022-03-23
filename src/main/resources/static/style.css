@@ -1,7 +1,7 @@
 
 body {
   padding: 10px;
-  padding-top: 90px;
+  padding-top: 50px;
   font-family: helvetica, arial,sans-serif;
   background-color: rgb(220, 250, 224);
 }
@@ -9,6 +9,16 @@ body {
 .container{
   max-width:100%;
   width:100%;
+}
+
+.navbar {
+  height: 40px;
+}
+.nav > li > a {
+  padding: 8px 15px;
+}
+.navbar-brand {
+  padding: 8px 15px;
 }
 
 .table th, .table td {
@@ -174,7 +184,6 @@ ul {
 #article {
   white-space: pre-wrap;
   word-break: break-all;
-  font-size: 18px;
 }
 
 .bg-box{
@@ -182,14 +191,135 @@ ul {
   width: 100%;/*父容器不写高度由自容器撑开*/
   overflow: hidden;/*浮动隐藏*/
   border: 2px solid #aaa;
-  }
-  .left-box{
-  float: left;
-  width: 50%;
-  /* background-color: hsl(184, 100%, 50%); */
-  }
-  .right-box{
-  float: right;/*有浮动*/
-  width: 50%;
-  /* background-color: hsl(59, 100%, 50%); */
-  }
+}
+.left-box{
+float: left;
+width: 50%;
+/* background-color: hsl(184, 100%, 50%); */
+}
+.right-box{
+float: right;/*有浮动*/
+width: 50%;
+/* background-color: hsl(59, 100%, 50%); */
+}
+
+.bg-box2{
+  margin: auto;
+  width: 100%;/*父容器不写高度由自容器撑开*/
+  overflow: hidden;/*浮动隐藏*/
+  border: 2px solid #aaa;
+}
+.left-box2{
+float: left;
+width: 50%;
+/* background-color: hsl(184, 100%, 50%); */
+}
+.right-box2{
+float: right;/*有浮动*/
+width: 50%;
+/* background-color: hsl(59, 100%, 50%); */
+}
+
+.nitem {
+  display: inline-block;
+}
+
+.bgbox.div0 {
+  background-color: rgb(205, 255, 205);
+}
+.bgbox.div1 {
+  background-color: rgb(248, 255, 205);
+}
+.bgbox.div2 {
+  background-color: #cdf3ff;
+}
+.bgbox.div3 {
+  background-color: rgb(205, 223, 255);
+}
+.bgbox.div4 {
+  background-color: rgb(233, 219, 219);
+}
+.bgbox.div5 {
+  background-color: rgb(174, 235, 174);
+}
+.bgbox.div6 {
+  background-color: rgb(247, 247, 129);
+}
+.bgbox.div7 {
+  background-color: rgb(142, 238, 245);
+}
+
+.bgbox.div8 {
+  background-color: rgb(205, 255, 205);
+}
+.bgbox.div9 {
+  background-color: rgb(248, 255, 205);
+}
+.bgbox.div10 {
+  background-color: #cdf3ff;
+}
+.bgbox.div11 {
+  background-color: rgb(205, 223, 255);
+}
+.bgbox.div12 {
+  background-color: rgb(233, 219, 219);
+}
+.bgbox.div13 {
+  background-color: rgb(174, 235, 174);
+}
+.bgbox.div14 {
+  background-color: rgb(247, 247, 129);
+}
+.bgbox.div15 {
+  background-color: rgb(142, 238, 245);
+}
+
+
+.itemlabel.label-1 {
+  color: rgb(200, 200, 200);
+}
+.itemlabel.label0 {
+  color: rgb(0, 0, 0);
+}
+.itemlabel.label1 {
+  color: rgb(0, 0, 0);
+}
+.itemlabel.label2 {
+  color: rgb(0, 128, 0);
+}
+.itemlabel.label3 {
+  color: rgb(0, 180, 180);
+}
+.itemlabel.label4 {
+  color: rgb(0, 128, 255);
+}
+.itemlabel.label5 {
+  color: rgb(255, 128, 0);
+}
+.itemlabel.label6 {
+  color: rgb(255, 0, 255);
+}
+.itemlabel.label7 {
+  color: rgb(255, 0, 0);
+}
+
+.catName {
+  color:rgb(0, 51, 190);
+}
+
+img {
+  max-width: 400px;
+}
+
+.button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 8px;
+  margin: 2px 2px;
+  padding: 2px 2px;
+  cursor: pointer;
+}

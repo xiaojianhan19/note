@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xml:lang="ja" lang="ja">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body>
+
+	<div th:fragment="frag" th:if="${child}">
+		<span class="bgbox" th:classappend="'div' + ${idx} % 8">
+			<b class="catName" th:text="${child.name}"></b>
+			<b th:text="${child.startDate}"></b>~<b th:text="${child.endDate}"></b>
+
+			<b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} "></b>
+
+			<div th:unless="${#lists.isEmpty(child.items)}">
+			<table class="table table-bordered noborder headline">
+				<tr th:each="item, itemStat : ${child.items}">
+					<td width="30%" th:text="${item.getDate()}"></td>
+					<td th:text="${item.getName()}"></td>
+					<td width="10%" th:text="${item.getTime()}"></td>
+					<td width="10%" th:text="${item.getDuration()}"></td>
+				</tr>
+				</table>
+		</div>
+	</span>
+
+	<ul class="wtree">
+		<li th:each="child, childStat : ${child.children}">
+			<div th:replace="event_view_rec :: frag">(sub-nodes here)</div>
+		</li>
+	</ul>
+
+</div>
+	
+</body>

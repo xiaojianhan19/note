@@ -10,8 +10,10 @@
 $(function () {
     totalCalc();
 });
-function addEventByCat(cat) {
+function addEventByCat(cat, topic, relatedId) {
       document.getElementById("targetCat").value = cat;
+      document.getElementById("topic").value = topic;
+      document.getElementById("relatedId").value = relatedId;
       addByCatForm.submit();
 }
 function addTopicByCat(cat) {
@@ -35,6 +37,8 @@ function addTopicByCat(cat) {
     <form name="addByCatForm" action="#" th:action="@{/event/addByCat}" method="GET">
         <input type="hidden" name="targetDate" id="targetDate" th:value="${date}" readonly="true" />
         <input type="hidden" name="targetCat" id="targetCat"/>
+        <input type="hidden" name="topic" id="topic"/>
+        <input type="hidden" name="relatedId" id="relatedId"/>        
     </form>
 
     <form name="addTopicForm" action="#" th:action="@{/event/addTopicByCat}" method="GET">
@@ -45,36 +49,66 @@ function addTopicByCat(cat) {
 
     <form name="saveForm" action="#" th:action="@{/event/saveList}" th:object="${form}" method="post">
         <div style="text-align: right;">
+            <span><a th:href="@{/event/lifeLine}">LifeLine</a></span>
             <span><a th:href="@{/event/eventView}">EventView</a></span>
             <input type="submit" id="submitButton" th:value="Save" style="margin: 10px;"/>
             <span style="font-size:20px;margin: 10px;">Total Time :<span  id="totaltime">00.00</span></span>
         </div>
+
+        <th:block th:if=${session.ispc}>
         <div class="bg-box">
             <div class="left-box">
-                <ul class="wtree" th:with="floor=''">
-                    <li th:each="child, childStat : ${cat.children}">
-                        <div th:if="${childStat.index} == 0" style="background:rgb(252, 201, 107)">
-                            <div th:replace="event_rec :: frag">(sub-nodes here)</div>
-                        </div>
-                        <div th:if="${childStat.index} == 2" style="background:rgb(174, 235, 174)">
-                            <div th:replace="event_rec :: frag">(sub-nodes here)</div>
-                        </div>
-                    </li>
-                </ul>
+                <div class="left-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} == 0" th:with="idx=${childStat.index}">
+                                <div th:replace="event_rec :: frag">(sub-nodes here)</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="right-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} == 2" th:with="idx=${childStat.index}">
+                                <div th:replace="event_rec :: frag">(sub-nodes here)</div>
+                            </div>
+                        </li>
+                    </ul> 
+                </div>
             </div>
             <div class="right-box"> 
-                <ul class="wtree" th:with="floor=''">
-                    <li th:each="child, childStat : ${cat.children}">
-                        <div th:if="${childStat.index} == 1" style="background:rgb(247, 247, 129)">
-                            <div th:replace="event_rec :: frag">(sub-nodes here)</div>
-                        </div>
-                        <div th:if="${childStat.index} == 3" style="background:rgb(142, 238, 245)">
-                            <div th:replace="event_rec :: frag">(sub-nodes here)</div>
-                        </div>
-                    </li>
-                </ul>
+                <div class="left-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} == 1" th:with="idx=${childStat.index}">
+                                <div th:replace="event_rec :: frag">(sub-nodes here)</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="right-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} == 3" th:with="idx=${childStat.index}">
+                                <div th:replace="event_rec :: frag">(sub-nodes here)</div>
+                            </div>
+                        </li>
+                    </ul> 
+                </div>
             </div>
         </div>
+        </th:block>
+
+        <th:block th:unless=${session.ispc}>
+            <ul class="wtree" th:with="floor=''">
+                <li th:each="child, childStat : ${cat.children}">
+                    <div th:with="idx=${childStat.index}">
+                        <div th:replace="event_rec :: frag">(sub-nodes here)</div>
+                    </div>
+                </li>
+            </ul> 
+        </th:block>
     </form>
 </div>
 </body>

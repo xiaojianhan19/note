@@ -10,7 +10,7 @@
 
 <div th:fragment="frag" th:if="${child}" th:with="floor=${floor}+'1'">
 	<span> 
-		<b th:text="${child.name}"></b> <b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} " ></b>
+		<b class="catName" th:text="${child.name}"></b> <b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} " ></b>
 		<!-- b th:text="${floor}"></b> -->
 		<input type="button" value="+" th:unless="${floor} == '1'" th:data-cat="${child.name}" th:onclick="addEventByCat(this.getAttribute('data-cat'));"
 		style="float:right;font-size:small;height:20px;padding-top:0px;text-align: top;"></input>

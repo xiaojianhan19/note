@@ -7,13 +7,23 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
-	
-	<div th:fragment="item" th:if="${item}">
-		<span th:text="${item.id} + ' ' +${item.name}">
-			(item's content here.)</span> 
+	<div th:fragment="frag" th:if="${child}">
+		<span class="bgbox" th:classappend="'div' + ${idx}">
+			<b><a th:text="${child.id} + ' ' +${child.name}" th:href="'/item/group?group='+${child.name} + '&category=' + ${item.name}"></a></b>
+
+			<a th:text="Del" th:href="'/category/delitem?id='+${child.id}"
+			style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 5px;text-align: top;"></a>
+
+			<a th:text="Add" th:href="'/category/detail?itemId='+${child.root} + '&parentId=' + ${child.name}"
+			style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 5px;text-align: top;"></a>
+
+			<a th:text="Edit" th:href="'/category/edit?id='+${child.id}"
+			style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 5px;text-align: top;"></a>
+			
+			</span> 
 		<ul class="wtree">
-			<li th:each="item : ${item.children}">
-				<div th:replace="category_rec :: item">
+			<li th:each="child : ${child.children}">
+				<div th:replace="category_rec :: frag">
 				(sub-nodes here)</div>
 			</li>
 		</ul>

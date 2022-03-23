@@ -14,7 +14,6 @@ function inputClear() {
     document.getElementById("inputStatus").value = "";
     document.getElementById("inputDate").value = document.getElementById("targetDate").value;
     document.getElementById("inputTime").value = "";
-	document.getElementById("inputMemo").value = "";
 }
 function insertItem(id, time) {
     document.getElementById("insertId").value = id;
@@ -22,18 +21,6 @@ function insertItem(id, time) {
       document.getElementById("targetTime").value = time;
     }
 	insertForm.submit();
-}
-
-function selectItem(id, nm, ct, st, so) {
-    inputClear();
-    document.getElementById("inputId").value = id;
-    document.getElementById("inputName").value = nm
-    document.getElementById("inputCategory").value = ct;
-    document.getElementById("inputStatus").value = st;
-    document.getElementById("inputSorted").value = so;
-    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
-    document.getElementById("inputTime").value = "";
-	document.getElementById("inputMemo").value = "";
 }
 
 $(function () {
@@ -59,19 +46,23 @@ $(function () {
       <tr>
         <td >category</td>
         <td ><input th:field="*{category}" id="inputCategory" class="category" /></td>
-      </tr>
+      </tr>     
       <tr>
         <td >status</td>
         <td ><input th:field="*{status}" id="inputStatus" class="status" /></td>
       </tr>
       <tr>
-        <td >sorted</td>
-        <td ><input th:field="*{sorted}" id="inputSorted" class="sorted" /></td>
+        <td >topic</td>
+        <td ><input th:field="*{topic}" id="topic" class="topic" /></td>
+      </tr>       
+      <tr>
+        <td >relatedId</td>
+        <td ><input th:field="*{relatedId}" /></td>
       </tr>
       <tr>
-        <td >sortedCategory</td>
-        <td ><input th:field="*{sortedCategory}" id="inputSorted" class="sortedCategory" /></td>
-      </tr>
+        <td >relatedCategory</td>
+        <td ><input th:field="*{relatedCategory}" /></td>
+      </tr>      
       <tr>
         <td >time</td>
         <td ><input th:field="*{time}" id="inputTime" class="time" /></td>
@@ -80,10 +71,14 @@ $(function () {
         <td >memo</td>
         <td ><input th:field="*{memo}" id="inputMemo" /></td>
       </tr>
-      <tr hidden="">
+      <tr>
         <td >date</td>
-        <td ><input th:field="*{date}" id="inputDate" readonly="true" /></td>
-	  </tr>
+        <td ><input th:field="*{date}" id="inputDate" /></td>
+      </tr>
+      <tr>
+        <td >changeToDate</td>
+        <td ><input th:field="*{changeToDate}" /></td>
+	    </tr>      
     </table>
 	    <input type="submit" value="Add" />
 	    <input type="button" value="Clear" onclick="inputClear()" />
@@ -118,8 +113,7 @@ $(function () {
                 th:data-nm="${current.name}"
                 th:data-ct="${current.category}"
                 th:data-st="${current.status}"
-                th:data-so="${current.sorted}"
-                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'),this.getAttribute('data-so'));" ></input>
+                th:onclick="selectItem(this.getAttribute('data-id'),this.getAttribute('data-nm'),this.getAttribute('data-ct'),this.getAttribute('data-st'));" ></input>
               <input type="button" value="0.25" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.25);" ></input>
               <input type="button" value="0.5" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 0.5);" ></input>
               <input type="button" value="1.0" th:data-id="${current.id}"	th:onclick="insertItem(this.getAttribute('data-id'), 1.0);" ></input>

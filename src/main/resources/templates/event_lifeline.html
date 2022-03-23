@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div>
+        <form name="chgDateForm" action="#" th:action="@{/event/lifeLine}" method="GET" >
+            <!-- <span>Date</span> --> <input type="hidden" id="targetDate" name="targetDate" th:value="${date}" class="textbox"/>
+            <span>Start</span><input type="text" id="startDate" name="startDate" th:value="${start}" class="textbox"/>
+            <span>End</span><input type="text" id="endDate" name="endDate" th:value="${end}" class="textbox"/>
+            <input type="submit" value="Change" class="btn-comn"></input>
+            <input type="button" value="prev" th:onclick="chgMonth(-1)" class="btn-comn"></input>
+            <input type="button" value="next" th:onclick="chgMonth(1)" class="btn-comn"></input>
+        </form>
+    </div>
+
+    <th:block th:if=${session.ispc}>
+        <div class="bg-box">
+            <div class="left-box">
+                <div class="left-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} % 4 == 0" th:with="idx=${childStat.index}">
+                                <div th:replace="event_lifeline_rec :: frag">(sub-nodes here)</div>
+                            </div>                 
+                        </li>
+                    </ul>
+                </div>
+                <div class="right-box">
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} % 4 == 1" th:with="idx=${childStat.index}">
+                                <div th:replace="event_lifeline_rec :: frag">(sub-nodes here)</div>
+                            </div>                 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-box">
+                <div class="left-box"> 
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} % 4 == 2" th:with="idx=${childStat.index}">
+                                <div th:replace="event_lifeline_rec :: frag">(sub-nodes here)</div>
+                            </div>                 
+                        </li>
+                    </ul>
+                </div>
+                <div class="right-box"> 
+                    <ul class="wtree" th:with="floor=''">
+                        <li th:each="child, childStat : ${cat.children}">
+                            <div th:if="${childStat.index} % 4 == 3" th:with="idx=${childStat.index}">
+                                <div th:replace="event_lifeline_rec :: frag">(sub-nodes here)</div>
+                            </div>                 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block th:unless=${session.ispc}>
+        <ul class="wtree" th:with="floor=''">
+            <li th:each="child, childStat : ${cat.children}">
+                <div th:with="idx=${childStat.index}">
+                    <div th:replace="event_lifeline_rec :: frag">(sub-nodes here)</div>
+                </div>
+            </li>
+        </ul> 
+    </th:block>
+
+    <hr/>
+    <h3>Event Options</h3>
+    <span><a th:href="@{/event/eventEdit}">EditAllEvent</a></span>
+
+</div>
+</body>
+</html>

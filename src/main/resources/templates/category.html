@@ -16,6 +16,11 @@ function deleteItem(id) {
     document.getElementById("delId").value = id;
 	deleteForm.submit();
 }
+function radioCh(id) {
+    document.getElementById("delIfd").value = id;
+	
+}
+
 /*]]>*/
 </script>
 </head>
@@ -28,21 +33,22 @@ function deleteItem(id) {
       <tr>
           <th>id</th>
           <th>name</th>
-          <th>start</th>
-          <th>end</th>
-          <th>input</th>
           <th>root</th>
           <th>op</th>
       </tr>
       <tr th:each="current : ${categoryList}">
+        <!--
+          <td><input type="checkbox" th:checked="${current.name == 'Collection'}" /></td>
+        -->
           <td th:text="${current.id}"></td>
           <td th:text="${current.name}"></td>
-          <td th:text="${current.startDate}"></td>
-          <td th:text="${current.endDate}"></td>
-          <td th:text="${current.inputDate}"></td>
           <td th:text="${current.item.id}"></td>
           <td ><input type="button" value="Edit" th:data-id="${current.item.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
-          <td ><input type="button" value="Del" th:data-id="${current.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input></td>          
+          
+          <!--
+          <td ><input type="button" value="Del" th:data-id="${current.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input></td>
+              -->
+
       </tr>
   </table>
 </div>
@@ -56,7 +62,7 @@ function deleteItem(id) {
 <hr/>
 
 <h3>Add a Category</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/category/add}" th:object="${categoryBean}"> 
+<form name="addForm" method="POST" action="#" th:action="@{/category/save}" th:object="${categoryBean}"> 
 	<table>
 	  <tr>
       <td>id</td><td ><input type="text" th:field="*{id}" /></td>
@@ -64,12 +70,6 @@ function deleteItem(id) {
 	  <tr>
       <td>name</td><td ><input type="text" th:field="*{name}" /></td>
     </tr>  
-    <tr>
-      <td>start</td><td ><input type="text" th:field="*{startDate}" /></td>
-    </tr>
-    <tr>
-      <td>end</td><td ><input type="text" th:field="*{endDate}" /></td>
-    </tr>
     <tr>
       <td>date</td><td ><input type="text" th:field="*{inputDate}" /></td>
     </tr>

@@ -143,20 +143,21 @@ function convertTime(str) {
     // });
     var time = 0.0;
     var cnt = 1.0;
+    var subStr = str;
     if(str.length == 2)
     {
         cnt = parseFloat(str.substr(0,1));
-        str = str.substr(1,1);
+        subStr = str.substr(1,1);
     }
-    if (str == "h" || str == "H")
+    if (subStr == "h" || subStr == "H")
     {
         time = 0.5 * cnt;
     }
-    else if (str == "q" || str == "Q")
+    else if (subStr == "q" || subStr == "Q")
     {
         time = 0.25 * cnt;
     }
-    else if (str == "t" || str == "T")
+    else if (subStr == "t" || subStr == "T")
     {
         time = 0.1 * cnt;
     }
@@ -206,3 +207,5 @@ $(document).ready(function(e) {
         return false;
     });
 });
+
+
