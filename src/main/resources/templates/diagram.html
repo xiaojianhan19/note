@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+function convertCat(str) {
+    var catList = [[${catList}]];
+    var tmp = catList[str];
+    if(typeof(tmp) != "undefined") {
+        return tmp;
+    } else {
+        return str;
+    }
+}
+$(function() {
+    $('.category').on('blur', function() {
+        var str = $(this).val();
+        $(this).val(convertCat(str));
+    });
+});
+
+function delItems() {
+    document.getElementById("deleteFlg").value = "true";
+	updateAllForm.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content" th:with="floor=1">
+
+    <th:block th:unless="${diagram.id}=='10000000'">
+        <nav class="navbar-expand" role="navigation">
+            <div id="navbar">
+                <ul class="navbar-nav" style="width: 100%;overflow: auto;display:inline-block;">
+                    <li th:each="guide,guideStat : ${guides}" class="nav-item nitem">
+                        <a th:unless="${guide.childCategoryId==0}" class="nav-link" th:href="@{'/item/?catId=' + ${guide.childCategoryId}}" th:text="${guide.name}"></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </th:block>
+
+    <form name="updateAllForm" action="#" th:action="@{/item/updateItemList}" method="post">
+        
+        <div style="padding-bottom: 15px;border: 2px solid #aaa;">
+            <div class="title bgbox" th:classappend="div0" style="padding:8px;border: 1px solid #aaa;"> 
+
+                <div style="border: 0px;">
+                    <FONT style="FONT-SIZE: 15pt; FILTER: shadow(color=green); COLOR: rgb(0, 0, 0);FONT-FAMILY: 华文彩云"><B th:text="${diagram.name}"></B></FONT>
+                    <a th:href="'/category/edit?id=0&parentId=' + ${diagram.id}" style="font-weight: bold;margin-left:20px;">  C</a>
+
+                    <th:block th:unless="${#lists.isEmpty(diagram.items)} and (${editFlag} == null or ${editFlag} == false)">
+                        <span style="float:right;">
+                        <b>Cat</b><input name="changeCatId" class="category textbox"/>
+                        <b>Lv</b><input name="changeLevel" class="shortbox"/>
+                        <b>Par</b><input name="changeParentId" class="textbox"/>
+                        <input type="submit" id="submitButton" th:value="Save" >
+                        <input type="hidden" id="parentCategory" name="parentCategory" th:value="${diagram.name}" />
+                        <input type="hidden" id="deleteFlg" name="deleteFlg" value="false" />
+                        <input type="button" id="deleteButton" th:value="Del" th:onclick="delItems()"/>
+                        </span>
+                        <div style="clear:both;border: 0px;"></div>
+                    </th:block>
+                </div>
+
+                <ul th:unless="${#lists.isEmpty(diagram.items)}">
+                    <li th:each="gItem,gStat : ${diagram.items}" 
+                    th:style="${session.ispc==false}?'width:45%;float: left;display: block;':'width:16%;float: left;display: block;'">
+                        <input type="checkbox" name="changeList" th:value="${gItem.id}"/>
+                        <b><a th:text="${gItem.name}" th:href="@{'/item/view?id=' + ${gItem.id}}" class="itemlabel" th:classappend="'label' + ${gItem.level}" ></a></b>
+                    </li>
+                </ul>
+                <div style="clear:both;border:0px;"></div>
+            </div>
+            
+            <ul class="wtree">
+                <li th:each="diagram,diagramStat : ${diagram.children}" 
+                th:with="idx=${diagramStat.index}" th:style="${session.ispc==false}?'':'width:23%;float: left;display: block;margin: 5px 15px 0px 5px;'">
+                    <div th:replace="diagram_rec :: item">(sub-nodes here)</div>
+                </li>
+            </ul>
+            <div style="clear:both;border:0px;"></div>
+        </div>
+
+    </form>
+
+    <hr/>
+    <a th:href="'/category/?id=' + ${diagram.id}">EditCategory</a>
+    <a th:href="'/category/editDiagram?id=' + ${diagram.id}">EditDiagram</a>
+
+</div>
+</body>
+</html>

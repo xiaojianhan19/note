@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h3>Add Text</h3>
+<form name="saveResourceForm" method="POST" action="#" th:action="@{/item/saveResource}" th:object="${resource}">
+	<table class="table table-bordered noborder">
+	  <tr>
+      <td >index</td><td ><input th:field="*{index}" /></td>
+      <input type="hidden" th:field="*{id}" /></td>
+      <td >parentId</td><td ><input th:field="*{parentId}" /></td>
+    </tr>
+	  <tr>
+      <td >name</td><td ><input th:field="*{name}" /></td>
+      <input type="hidden" th:field="*{type}" />
+    </tr>
+    <tr>
+      <td >date</td><td><input th:field="*{date}" /></td>
+      <td >update</td><td><input th:field="*{updateDate}" /></td>
+    </tr>
+    <tr>
+      <td colspan="4"><textarea th:field="*{text}" th:value="${text}" ></textarea></td>
+    </tr>
+  </table>
+
+  <input type="submit" value="Save" />
+  <a th:if="${resource.id!=0}" th:href="'/item/delResource?id=' + ${resource.id}" value="Delete" style="float: right;"></a>
+</form>
+
+<hr>
+<h3>Upload File</h3>
+<p th:text="${item?.url}"></p>
+<form name="fileForm" method="POST" action="#" th:action="@{/file/upload}" enctype="multipart/form-data">
+    <input type="radio" name="resType" value="Image" th:text="Image" checked>
+    <input type="radio" name="resType" value="File" th:text="File" ><br>
+    <input type="file" name="files">
+    <input type="hidden" name="itemId" th:value="${item?.id}"></p>
+    <p><input type="submit" value="submit"></p>
+</form>
+
+
+
+</div>
+</body>
+</html>

@@ -1,11 +1,16 @@
 package com.note.myvision;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,160 +25,189 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/category")
 public class CategoryController {
 
+    private Integer RootCatId = 10000001;
+
 	@Autowired
 	CategoryService service;
 
 	@Autowired
-	CategoryChildRepository itemRepository;
+	CategoryRepository repository;
 
 	@Autowired
 	HttpSession session;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String read(Model model) {
-		//CategoryChildBean category = service.findByNameAndDate("");
-		//model.addAttribute("category", category);
-		List<CategoryParentBean> categoryList = service.findAll();
-		model.addAttribute("categoryList", categoryList);
+	public String read(Model model, Device device, Integer id) {
+		if(!Utl.check(id)) {
+			id = RootCatId;
+		}
+		session.setAttribute("catId", id);
 
-		model.addAttribute("categoryBean", new CategoryParentBean());   
-		return "category";
-	}
-
-	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String add(@ModelAttribute("categoryBean") CategoryParentBean categoryBean, Model model) {
-		service.save(categoryBean);
-		
-		//service.save(categoryBean);
-		return "redirect:/category/";
-	}
-
-	@RequestMapping(value = "/detail", method = RequestMethod.GET)
-	public String detail(Model model, Device device, @RequestParam(value = "itemId") String itemId, @ModelAttribute("parentId") String parentId) {
-		service.findChild(itemId).ifPresent( item -> {						
-			service.sortCategoryChildBean(item);
-			model.addAttribute("item", item);
-			CategoryChildBean c = new CategoryChildBean();
-			c.setRoot(item.getId());
-			model.addAttribute("categoryChildBean", c);
-			if(!parentId.equals("")) {
-				model.addAttribute("parentId", parentId);
-			}
-			else {
-				model.addAttribute("parentId", item.getName());
-			}
-			session.setAttribute("CategoryName", item.getName());
+		repository.findById(id).ifPresent( cat -> {
+			service.sortCategory(cat);
+			model.addAttribute("cat", cat);
 		});
 		if (!device.isMobile()) {
             session.setAttribute("ispc", true);
+		} else {
+			session.setAttribute("ispc", false);
 		}
-		return "category_child";
+		session.setAttribute("saveByCat", true);
+		return "category";
 	}
 	
-	@RequestMapping(value = "/saveChild", method = RequestMethod.POST)
-	public String addChild(@ModelAttribute("categoryChildBean") CategoryChildBean categoryChildBean, @ModelAttribute("parentId") String parentId, Model model, RedirectAttributes redirectAttributes) {
-		service.saveChild(categoryChildBean, parentId.trim());
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public String save(Category catBean, Model model, RedirectAttributes redirectAttributes) {
+		repository.save(catBean);
 
-		//service.save(categoryBean);
-		String itemId = String.valueOf(categoryChildBean.getRoot());
-		redirectAttributes.addAttribute("itemId", itemId);
-		redirectAttributes.addAttribute("parentId", parentId);
-		return "redirect:/category/detail";
+		String catId = RootCatId.toString();
+		Object rc = session.getAttribute("catId");
+		if(rc != null) {
+			catId = rc.toString();
+		}
 
+		Object flg = session.getAttribute("saveByCat");
+		if(flg == null || false == (boolean)flg) {
+			redirectAttributes.addAttribute("catId", catId);
+			return "redirect:/item/";
+		} else {
+			redirectAttributes.addAttribute("id", catId);
+			if(catBean.getParent() != null) {
+				redirectAttributes.addAttribute("parentId", catBean.getParent().getId());
+			}
+			return "redirect:/category/";
+		}
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	public String delete(Model model, @RequestParam(value = "delId") String delId) {
-		// CategoryChildBean child = service.findChild(itemId).get();
-		// service.deleteItem(child);
-		// CategoryParentBean parent = service.find(delId).get();
-		// service.delete(parent);
-		service.find(delId).ifPresent( item -> {
-			service.delete(item);		
-		});
-		return read(model);
+	public String delete(Model model, Integer id, RedirectAttributes redirectAttributes) {
+		if(Utl.check(id)) {
+			repository.findById(id).ifPresent( cat -> {
+				repository.delete(cat);
+			});
+		}
+
+		String catId = RootCatId.toString();
+		Object rc = session.getAttribute("catId");
+		if(rc != null) {
+			catId = rc.toString();
+		}
+		redirectAttributes.addAttribute("id", catId);
+		return "redirect:/category/";
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String edit(Model model, Device device, @RequestParam(value = "id") String id, RedirectAttributes redirectAttributes) {
+	public String edit(Model model, Device device, Integer id, Integer parentId) {
 
-		redirectAttributes.addAttribute("itemId", "");
-		redirectAttributes.addAttribute("parentId", "");
-		int itemId = Utl.parseInt(id);
-		if(Utl.check(itemId)) {
-			itemRepository.findById(itemId).ifPresent( item -> {
-				redirectAttributes.addAttribute("itemId", item.getRoot());	
-				model.addAttribute("categoryChildBean", item);
-				model.addAttribute("parentId", item.getParent().getId());
-
-				int rootId = item.getRoot();
-				service.findChild(Utl.parseIdToString(rootId)).ifPresent( root -> {						
-					service.sortCategoryChildBean(root);
-					model.addAttribute("item", root);
-					CategoryChildBean c = new CategoryChildBean();
-					c.setRoot(root.getId());
-					session.setAttribute("CategoryName", root.getName());
-				});
+		if(Utl.check(id)) {
+			repository.findById(id).ifPresent( cat -> {
+				model.addAttribute("catBean", cat);
+				model.addAttribute("parentName", cat.getParent().getName());
 			});
+		} else {
+			Category c = new Category();		
+			if(Utl.check(parentId)) {
+				repository.findById(parentId).ifPresent( p -> {
+					c.setParent(p);
+					c.setType(p.getType());
+					model.addAttribute("parentName", p.getName());
+				});
+			}
+			c.setDate(LocalDate.now().toString());
+			model.addAttribute("catBean", c);
 		}
 
+		return "category_edit";
+	}
+
+	@RequestMapping(value = "/editDiagram", method = RequestMethod.GET)
+	public String editDiagram(Model model, Device device, Integer id) {
+
+		if(!Utl.check(id)) {
+			id = RootCatId;
+		}
+		session.setAttribute("catId", id);
+
+		repository.findById(id).ifPresent( cat -> {
+			service.sortCategory(cat);
+			CategoryView cv = new CategoryView(cat);
+			service.createIndex(cv, 0);
+			model.addAttribute("cat", cv);
+		});
 		if (!device.isMobile()) {
             session.setAttribute("ispc", true);
+		} else {
+			session.setAttribute("ispc", false);
 		}
-		return "category_child";
+		model.addAttribute("form", new CategoryForm());
+		return "category_group";
 	}
 
-	@RequestMapping(value = "/delitem", method = RequestMethod.GET)
-	public String deleteItem(Model model, @RequestParam(value = "id") String id, RedirectAttributes redirectAttributes) {
-		// CategoryChildBean child = service.findChild(itemId).get();
-		// service.deleteItem(child);
-		// CategoryParentBean parent = service.find(delId).get();
-		// service.delete(parent);
-		redirectAttributes.addAttribute("itemId", "");
-		redirectAttributes.addAttribute("parentId", "");
-		int itemId = Utl.parseInt(id);
-		if(Utl.check(itemId)) {
-			itemRepository.findById(itemId).ifPresent( item -> {
-				redirectAttributes.addAttribute("itemId", item.getRoot());				
-				itemRepository.delete(item);
-			});
-		}
+	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
+	public String saveList(CategoryForm form, Model model, RedirectAttributes redirectAttributes) {
 
-		return "redirect:/category/detail";
-	}
-	
+		for(CategoryView cv : form.getItems()) {
+			if(cv.getIsUpdate()) {
 
-	@RequestMapping(value = "/updateroot", method = RequestMethod.GET)
-	public String updateRoot(Model model) {
-		//CategoryChildBean category = service.findByNameAndDate("");
-		//model.addAttribute("category", category);
-		List<CategoryParentBean> categoryList = service.findAll();
-		for(CategoryParentBean p : categoryList) {
-			String itemId = Utl.parseIdToString(p.getItem().getId());
-			Optional<CategoryChildBean> res = service.findChild(itemId);
-			if(res.isPresent()) {
-				CategoryChildBean item = res.get();
-				service.updateroot(item, p.getItem().getId());
+				Category c = new Category();
+				if(Utl.check(cv.getId())) {
+					Optional<Category> opt = repository.findById(cv.getId());
+					if(opt.isPresent()) {
+						c = opt.get();
+					}
+				}
+
+				if(!Utl.check(cv.getName())) {
+					continue;
+				}				
+				c.setName(cv.getName());
+				c.setOrderNo(cv.getOrderNo());
+				if(Utl.check(cv.getRelatedId())) {
+					c.setRelatedId(cv.getRelatedId());
+				}
+				
+				int parentId = cv.getParentId();
+				if(Utl.check(parentId)) {
+					// when parentId -> index
+					if(parentId < RootCatId) {
+						parentId = form.getItems().get(parentId).getId();
+						if(parentId < RootCatId) {
+							continue;
+						}
+					}
+					Optional<Category> p = repository.findById(parentId);
+					if(p.isPresent()) {
+						c.setParent(p.get());
+						repository.save(c);
+						if(!Utl.check(cv.getId())) {
+							cv.setId(c.getId());
+						}
+					}					
+				}
 			}
 		}
 
-		model.addAttribute("categoryList", categoryList);
-		model.addAttribute("categoryBean", new CategoryParentBean());   
-		return "category";
+		String catId = RootCatId.toString();
+		Object rc = session.getAttribute("catId");
+		if(rc != null) {
+			catId = rc.toString();
+		}
+		redirectAttributes.addAttribute("id", catId);
+		return "redirect:/category/";
 	}
 
-	@RequestMapping(value = "/addByCat", method = RequestMethod.GET)
-	public String addByCat(@ModelAttribute("parentId") Integer parentId, 
-					@ModelAttribute("root") Integer root, Model model, Device device) {
+	@RequestMapping(value = "/createRoot", method = RequestMethod.GET)
+	public String rootCatInsert(Model model, RedirectAttributes redirectAttributes) {
 
-		CategoryChildBean c = new CategoryChildBean();
-		itemRepository.findById(parentId).ifPresent( p -> {
-			c.setParent(p);
-		});		
-		c.setRoot(root);
-		model.addAttribute("categoryChildBean", c);
-		
-		return "category_add";
-	}	
+		Optional<Category> opt = repository.findById(RootCatId);
+		if(!opt.isPresent()) {
+			Category cat = new Category();
+			cat.setId(RootCatId);
+			cat.setName("Category");
+			repository.save(cat);
+		}
+
+		return "redirect:/category/";
+	}
 
 }

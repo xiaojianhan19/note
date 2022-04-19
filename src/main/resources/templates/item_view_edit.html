@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+  <FONT style="FONT-SIZE: 15pt; FILTER: shadow(color=green); COLOR: rgb(0, 0, 0);FONT-FAMILY: 华文彩云">
+    <B th:text="${item.name}"></B>
+  </FONT>
+  <B th:if="${item.name2}!=null and ${item.name2}!=''" th:text="' / ' + ${item.name2}"></B>
+  <a th:text="ItemView" th:href="@{'/item/view?id=' + ${item.id}}" class="addbtn"></a>
+  <a th:text="EditUrl" th:href="@{'/item/edit?id=' + ${item.id}}" class="addbtn"></a>
+  <a th:text="AddItem" th:href="@{'/item/edit?parentId=' + ${item.id}}" class="addbtn"></a>  
+  <a th:text="AddRes" th:href="@{'/item/resourceEdit?itemId=' + ${item.id}}" class="addbtn"></a>  
+  <div id="article" th:text="${item.memo}"></div>
+
+  <div th:unless="${#lists.isEmpty(item.items)}">
+    <hr/>
+    <h3>Items</h3>
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+          <th th:if=${session.ispc}>Id</th>
+          <th>Name</th>
+          <th th:if=${session.ispc}>Name2</th>
+          <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${item.items}">          
+          <td th:if=${session.ispc} th:text="${current.id}"></td>
+          <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/view?id=' + ${current.id}}"></td>
+          <td th:if=${session.ispc} th:text="${current.name2}"></td>
+          <td th:text="${current.date}"></td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+
+  <div th:unless="${#lists.isEmpty(item.resources)}">
+    <hr/>
+    <h3>Resources</h3>
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+          <th>Idx</th>
+          <th>Name</th>
+          <th>UpdateDate</th>
+          <th>Option</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="current : ${item.resources}">
+          <td th:text="${current.index}"></td>
+          <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/resource?id=' + ${current.id}}"></td>
+          <td th:text="${current.updateDate}"></td>
+          <td><a style="color:blue;" th:text="Edit" th:href="@{'/item/resourceEdit?id=' + ${current.id}}"></td>
+          <td><a style="color:blue;" th:text="Convert" th:href="@{'/item/convertToItem?resourceId=' + ${current.id}}"></td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

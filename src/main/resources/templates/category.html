@@ -8,79 +8,71 @@
 <link rel="stylesheet" th:href="@{/style.css}"></link>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function editItem(id) {
-    document.getElementById("itemId").value = id;
-	editForm.submit();
-}
-function deleteItem(id) {
-    document.getElementById("delId").value = id;
-	deleteForm.submit();
-}
-function radioCh(id) {
-    document.getElementById("delIfd").value = id;
-	
-}
-
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
 
-<h3>Category View</h3>
-<div th:unless="${#lists.isEmpty(categoryList)}">
-  <table class="table table-bordered table-hover table-striped">
-      <tr>
-          <th>id</th>
-          <th>name</th>
-          <th>root</th>
-          <th>op</th>
-      </tr>
-      <tr th:each="current : ${categoryList}">
-        <!--
-          <td><input type="checkbox" th:checked="${current.name == 'Collection'}" /></td>
-        -->
-          <td th:text="${current.id}"></td>
-          <td th:text="${current.name}"></td>
-          <td th:text="${current.item.id}"></td>
-          <td ><input type="button" value="Edit" th:data-id="${current.item.id}" th:onclick="editItem(this.getAttribute('data-id'));" ></input></td>
-          
-          <!--
-          <td ><input type="button" value="Del" th:data-id="${current.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input></td>
-              -->
+    <span th:text="${cat.id} + ' ' +${cat.name}">
+        (item's content here.)</span>
+    <a th:href="'/category/editDiagram?id=' + ${cat.id}" style="float: right;">EditDiagram</a>
+    <a th:text="Edit" th:href="'/category/edit?id='+${cat.id}"></a>
 
-      </tr>
-  </table>
-</div>
+  <th:block th:if=${session.ispc}>
+    <div class="bg-box">
+      <div class="left-box">
+        <div class="left-box">
+            <ul class="wtree">
+                <li th:each="child, childStat : ${cat.children}">
+                    <div th:if="${childStat.index} % 4 == 0" th:with="idx=${childStat.index}">
+                        <div th:replace="category_rec :: frag">(sub-nodes here)</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="right-box">
+            <ul class="wtree">
+                <li th:each="child, childStat : ${cat.children}">
+                    <div th:if="${childStat.index} % 4 == 1" th:with="idx=${childStat.index}">
+                        <div th:replace="category_rec :: frag">(sub-nodes here)</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+      </div>
+      <div class="right-box">
+        <div class="left-box">
+            <ul class="wtree">
+                <li th:each="child, childStat : ${cat.children}">
+                    <div th:if="${childStat.index} % 4 == 2" th:with="idx=${childStat.index}">
+                        <div th:replace="category_rec :: frag">(sub-nodes here)</div>
+                    </div>
+                </li>
+            </ul>    
+        </div>
+        <div class="right-box"> 
+            <ul class="wtree">
+                <li th:each="child, childStat : ${cat.children}">
+                    <div th:if="${childStat.index} % 4 == 3" th:with="idx=${childStat.index}">
+                        <div th:replace="category_rec :: frag">(sub-nodes here)</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+      </div>
+    </div> 
+  </th:block>
 
-<form name="editForm" method="GET" action="#" th:action="@{/category/detail}" >
-  <input type="hidden" id="itemId" name="itemId" value=""></input>
-</form>
-<form name="deleteForm" method="GET" action="#" th:action="@{/category/delete}" >
-  <input type="hidden" id="delId" name="delId" value=""></input>
-</form>
-<hr/>
-
-<h3>Add a Category</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/category/save}" th:object="${categoryBean}"> 
-	<table>
-	  <tr>
-      <td>id</td><td ><input type="text" th:field="*{id}" /></td>
-	  </tr>
-	  <tr>
-      <td>name</td><td ><input type="text" th:field="*{name}" /></td>
-    </tr>  
-    <tr>
-      <td>date</td><td ><input type="text" th:field="*{inputDate}" /></td>
-    </tr>
-    <tr>
-      <td>item</td><td ><input type="text" th:field="*{item}" /></td>
-    </tr>    
-  </table>
-  <br/>
-    <input type="submit" value="Add" />
-</form>
-
+  <th:block th:unless=${session.ispc}>
+    <ul class="wtree">
+        <li th:each="child, childStat : ${cat.children}">
+            <div th:with="idx=${childStat.index}">
+                <div th:replace="category_rec :: frag">(sub-nodes here)</div>
+            </div>
+        </li>
+    </ul>
+  </th:block>
 </div>
 </body>
 </html>

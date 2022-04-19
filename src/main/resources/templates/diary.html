@@ -10,47 +10,34 @@
         th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function formatDate(date, format) {
-  format = format.replace(/yyyy/g, date.getFullYear());
-  format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2));
-  format = format.replace(/dd/g, ('0' + date.getDate()).slice(-2));
-  return format;
-}
-function chgDate(days) {
-	var date = new Date(document.getElementById("targetDate").value);
-    date.setDate(date.getDate() + days);
-    var formatedDate = formatDate(date, "yyyy-MM-dd");
-    //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-    document.getElementById("targetDate").value = formatedDate;
-	chgDateForm.submit();
-}
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
-<form name="chgDateForm" action="#" th:action="@{/diary/}" method="GET">
-    <input type="text" id="targetDate" name="targetDate" th:value="${date}" readonly="true" class="textbox"/>
-    <input type="button" value="prev" th:onclick="chgDate(-1)" class="btn-comn"></input>
-    <input type="button" value="next" th:onclick="chgDate(1)" class="btn-comn"></input>
-</form>
 
-<h3>Add a DiaryBean</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/diary/add}" th:object="${diaryBean}">
-	<table class="table table-bordered inputbox noborder" style="font-size:1rem;">
-        <tr>
-            <td >date</td>
-            <td ><input type="text" th:field="*{date}" th:value="${date}" id="inputDate" readonly="true" /></td>
-        </tr>
-        <tr>
-            <td >memo</td>
-            <td ><textarea th:field="*{memo}" th:value="${memo}" id="inputMemo" class="longtextarea" /></td>
-        </tr>
-    </table>
-    <br/>
-	    <input type="submit" value="Add" />
-	    <input type="button" value="Clear" onclick="inputClear()" />
-</form>
+    <form name="chgDateForm" action="#" th:action="@{/diary/}" method="GET">
+        <input type="text" id="date" name="date" th:value="${date}" readonly="true" class="datebox"/>
+        <input type="button" value="prev" th:onclick="chgDate(-1)" class="btn-comn"></input>
+        <input type="button" value="next" th:onclick="chgDate(1)" class="btn-comn"></input>
+    </form>
+
+    <form name="addForm" method="POST" action="#" th:action="@{/diary/save}" th:object="${diary}">
+        <table class="table table-bordered inputbox noborder" style="font-size:1rem;">
+            <tr>
+                <td >Title <font color="red">*</font>
+                    <input type="text" th:field="*{name}" />
+                </td>
+                <td hidden=""><input type="text" th:field="*{id}" /></td>
+                <td hidden=""><input type="text" th:field="*{date}" th:value="${date}"/></td>
+            </tr>
+            <tr>
+                <td>Text<textarea th:field="*{text}" class="longtextarea" /></td>
+            </tr>
+        </table>
+        <input type="submit" value="Save" />
+        <a href="/diary/readByPeriod" style="float:right;">Reading</a>
+    </form>
 
 
 </div>

@@ -19,7 +19,7 @@
 <hr/>
 
 <h3>Add a Category</h3>
-<form name="addForm" method="POST" action="#" th:action="@{/category/addChild}" th:object="${categoryChildBean}" > 
+<form name="addForm" method="POST" action="#" th:action="@{/category/addChild}" th:object="${category}" > 
 	<table class="table table-bordered noborder headline">
 	  <tr>
       <td>id</td><td ><input th:field="*{id}" /></td>

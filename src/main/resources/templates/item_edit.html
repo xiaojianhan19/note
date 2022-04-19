@@ -10,162 +10,52 @@
         th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function convertType(str) {
-    var s = "";
-    switch(str)
-    {
-        case "1": 
-            s = "Resource";
-            break;
-        case "2":
-            s = "Item";
-            break;
-        case "3": 
-            s = "Picture";
-            break;
-        case "4": 
-            s = "File";
-            break;            
-    }
-
-    return s;
+function editItem(id) {
+    document.getElementById("itemId").value = id;
+	editForm.submit();
 }
-$(function() {
-    $('.type').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertType(str));
-    });
+
+$(document).ready(function()
+{
+$("#mymenu ul li").next("ul").hide();
+$("#mymenu ul li").click(function()
+{
+$(this).next("ul").toggle();
 });
+});
+function deleteItem(id) {
+    document.getElementById("delId").value = id;
+	deleteForm.submit();
+}
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
 
+    <form name="deleteForm" method="POST" action="#" th:action="@{/item/delete}" >
+        <input type="hidden" id="delId" name="delId" value=""></input>
+    </form>
 
-<form name="addForm" method="POST" action="#" th:action="@{/item/save}" th:object="${itemBean}">
-	<table class="table table-bordered noborder fcol">
-	  <tr>
-        <td >id</td><td ><input th:field="*{id}" /></td>
-        <td >parentId</td><td ><input th:field="*{parentId}" /></td>
-      </tr>      
-      <tr>
-        <td >name</td><td ><input th:field="*{name}" /></td>
-        <td >name2</td><td ><input th:field="*{name2}" /></td>
-      </tr>      
-      <tr>
-        <td >name3</td><td ><input th:field="*{name3}" /></td>
-        <td >status</td><td ><input th:field="*{status}"  id="inputStatus" class="status" /></td>
-	    </tr>      
-      <tr>
-        <td >categoryId</td><td ><input th:field="*{categoryId}" /></td>
-        <td >category</td><td ><input th:field="*{category}"  id="inputCategory" class="category" /></td>
-	    </tr>      
-      <tr>
-        <td >level</td><td ><input th:field="*{level}"  id="inputTime" /></td>
-      </tr>      
-      <tr>
-        <td >date</td><td ><input th:field="*{date}"  id="date" /></td>
-        <td >releaseDate</td><td ><input th:field="*{releaseDate}"  id="releaseDate" /></td>
-      </tr>
-      <tr>
-        <td>memo</td><td colspan="3"><textarea th:field="*{memo}" ></textarea></td>
-      </tr>
-    </table>
-	    <input type="submit" value="Update" />
-</form>
-
-<div th:unless="${#lists.isEmpty(itemBean.items)}">
-  <hr/>
-  <h3>Items</h3>
-  <table class="table table-bordered table-hover table-striped">
-      <thead>
-      <tr>
-        <th>Id</th>
-        <th>Type</th>
-        <th>Category</th>
-        <th>Name</th>
-        <th>Name2</th>
-        <th>Name3</th>
-        <th>UpdateDate</th>
-        <th width="40%">Memo</th>
-        <th>Option</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="current : ${itemBean.items}">
-        <td th:text="${current.id}"></td>
-        <td th:text="${current.type}"></td>
-        <td th:text="${current.category}"></td>
-        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/item?itemId=' + ${current.id}}"></td>
-        <td th:text="${current.name2}"></td>
-        <td th:text="${current.name3}"></td>
-        <td><a style="color:blue;" th:text="Edit" th:href="@{'/item/itemEdit?itemId=' + ${current.id}}"></td>
-      </tr>
-      </tbody>
-  </table>
-</div>
-
-<div th:unless="${#lists.isEmpty(itemBean.resources)}">
-  <hr/>
-  <h3>Resources</h3>
-  <table class="table table-bordered table-hover table-striped">
-      <thead>
-      <tr>
-        <th>Idx</th>
-        <th>Name</th>
-        <th>UpdateDate</th>
-        <th>Option</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="current : ${itemBean.resources}">
-        <td th:text="${current.index}"></td>
-        <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/resource?resourceId=' + ${current.id}}"></td>
-        <td th:text="${current.updateDate}"></td>
-        <td><a style="color:blue;" th:text="Edit" th:href="@{'/item/resourceEdit?resourceId=' + ${current.id}}"></td>
-        <td><a style="color:blue;" th:text="Convert" th:href="@{'/item/convertToItem?resourceId=' + ${current.id}}"></td>
-      </tr>
-      </tbody>
-  </table>
-</div>
-
-<hr>
-<h3>Add a Resource</h3>
-<form name="saveResourceForm" method="POST" action="#" th:action="@{/item/saveResource}" th:object="${resourceBean}">
-	<table class="table table-bordered noborder fcol">
-	  <tr>
-      <td >index</td><td ><input th:field="*{index}" id="cindex"/></td>
-      <td >id</td><td ><input th:field="*{id}" id="cid"/></td>      
-    </tr>
-	  <tr>
-      <td >name</td><td ><input th:field="*{name}" id="cname"/></td>
-      <td >type</td><td ><input th:field="*{type}" id="ctype" class="type"/></td>      
-	  </tr>
-    <tr>
-      <td>text</td><td colspan="3"><textarea th:field="*{text}" th:value="${text}" ></textarea></td>
-    </tr>
-    <tr>
-      <td >date</td><td ><input th:field="*{date}"  id="cdate" /></td>
-      <!-- <td >date</td> --><input type="hidden" th:field="*{updateDate}"  id="cupdateDate" />
-      <td >parentId</td><td ><input th:field="*{parentId}"  id="parentId" /></td>
-    </tr>
-  </table>
-
-	<input type="submit" value="Save" />
-</form>
-
-<hr>
-<h3>Add a Picture</h3>
-<p th:text="${itemBean.url}"></p>
-<form name="fileForm" method="POST" action="#" th:action="@{/file/upload}" enctype="multipart/form-data">
-    <input type="text" name="type" value="Picture" class="type">
-    <input type="file" name="files">
-    <input type="hidden" name="itemId" th:value="${itemBean.id}"></p>
-    <p><input type="submit" value="submit"></p>
-</form>
-
-
+    <form name="addForm" method="POST" action="#" th:action="@{/item/save}" th:object="${item}">
+        <table class="table table-bordered inputbox noborder">
+            <tr><td width="10%">name <FONT color="red">*</FONT></td><td colspan="3"><input th:field="*{name}" /></td></tr>
+            <tr><td>level</td><td><input th:field="*{level}" /></td>
+                <td width="10%">id</td><td><input th:field="*{id}" class="textbox"/></td></tr>
+            <tr><td>order</td><td><input th:field="*{orderNo}" /></td>
+                <td>cat</td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></tr>
+            <tr><td>name2</td><td><input th:field="*{name2}" /></td>
+                <td>parent</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
+            <tr><td>type</td><td><input th:field="*{type}" class="type" /></td>
+                <td>date</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
+            <tr><td>memo</td><td colspan="3"><textarea th:field="*{memo}" th:value="${memo}" /></td></tr>
+            <tr><td>url</td><td><input th:field="*{url}" /></td></tr>
+            <tr><td>diagram</td><td><input th:field="*{childCategoryId}" style="width:90%;" class="textbox"/><input type="checkbox" th:name="createCat" style="width:5%;"/></td>
+                <td>sysUrl</td><td><input th:field="*{systemUrl}" class="textbox"/></td></tr>
+        </table>
+          <input type="submit" value="Save" />
+          <input th:unless="${item.id==0}" type="button" value="Delete" th:data-id="${item.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>
+    </form>
 
 </div>
 </body>

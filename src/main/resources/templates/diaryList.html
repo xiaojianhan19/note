@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+        th:src="@{/webjars/jquery/1.12.4/jquery.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div>
+        <form name="chgDateForm" action="#" th:action="@{/diary/readByPeriod}" method="GET" >
+            <input type="hidden" id="date" name="date" th:value="${date}" class="datebox"/>
+            <span>Start</span><input type="text" id="start" name="start" th:value="${start}" class="datebox"/>
+            <span>End</span><input type="text" id="end" name="end" th:value="${end}" class="datebox"/>
+            <input type="submit" value="Change" class="btn-comn"></input>
+            <input type="button" value="prev" th:onclick="chgMonth(-1)" class="btn-comn"></input>
+            <input type="button" value="next" th:onclick="chgMonth(1)" class="btn-comn"></input>
+        </form>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(diaryList)}" class="table table-bordered inputbox noborder" style="font-size:1rem;">
+        <th:block th:each="current,stat : ${diaryList}"> 
+            <tr>
+                <td class="bgbox" th:classappend="'div' + ${stat.index} % 8">
+                    <b th:text="${current.name}"></b> 
+                    <a th:href="'/diary/edit?id=' + ${current.id}" style="float: right;">Edit</a>
+                    <span th:text="${current.date}" style="float: right;margin-right: 20px;"></span>
+                    <br>
+                    <span th:text="${current.text}"></span>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+
+</div>
+</body>
+</html>

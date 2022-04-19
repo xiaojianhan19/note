@@ -7,72 +7,66 @@
 <meta charset="UTF-8"></meta>
 <script th:inline="javascript">
 /*<![CDATA[*/
+function insertItem(id, time) {
+    document.getElementById("insertId").value = id;
+    if(time != 0.0) {
+      document.getElementById("targetTime").value = time;
+    }
+	insertForm.submit();
+}
+
+$(function () {
+    totalCalc();
+});
+
 /*]]>*/
 </script>
 </head>
 <body>
 <div layout:fragment="content">
-<form name="saveForm" action="#" th:action="@{/event/saveEdit}" th:object="${form}" method="post">
-    <input type="submit" id="submitButton" th:value="Update" >
-    <table class="table table-bordered noborder headline">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th width="20%">name</th>
-                <th>category</th>
-                <th>status</th>
-                <th>sorted</th>
-                <th>time</th>
-                <th>duration</th>
-            </tr>
-        </thead>
-        <tbody>
-            <th:block th:each="item, itemStat : ${form.items}">
-            <tr>
-                <td>
-                    <input th:name="|items[${itemStat.index}].id|" th:value="${item.getId()}" readonly="true"/>
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].name|" th:value="${item.getName()}" />
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].category|" th:value="${item.getCategory()}" class="category"/>
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].status|" th:value="${item.getStatus()}" class="status"  />
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].sorted|" th:value="${item.getSorted()}" class="sorted"  />
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].time|" th:value="${item.getTime()}" class="time" readonly="true"/>
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].duration|" th:value="${item.getDuration()}" class="duration" readonly="true"/>
-                </td>
-                <td>
-                    <input th:name="|items[${itemStat.index}].date|" th:value="${item.getDate()}" readonly="true" />
-                </td>
-            </tr>
-            </th:block>
-        </tbody>
-    </table>
-</form>
 
-<div th:unless="${#lists.isEmpty(catList)}">
-    <hr/>
-    <h3>CategoryList</h3>
-    <table class="table table-bordered table-hover table-striped headline">
-        <tr>
-            <th>id</th>
-            <th>category</th>
-        </tr>
-        <tr th:each="current : ${catList}">
-            <td th:text="${current.key}"></td>
-            <td th:text="${current.value}" th:id="${current.key}" ></td>
-        </tr>
-    </table>
-</div>
+  <form name="addForm" method="POST" action="#" th:action="@{/event/save}" th:object="${itemView}">
+      <table class="table table-bordered inputbox noborder">
+          <tr><td width="10%">name <FONT color="red">*</FONT></td><td colspan="3"><input th:field="*{name}" /></td></tr>
+          <tr><td>name2</td><td><input th:field="*{name2}" /></td><td width="10%">id</td><td><input th:field="*{id}" class="textbox"/></td></tr>
+          <tr><td>level</td><td><input th:field="*{level}" /></td>
+              <td>cat</td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></tr>
+          <tr><td>order</td><td><input th:field="*{orderNo}" /></td>
+              <td>parent</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
+          <tr><td>type</td><td><input th:field="*{type}" class="type" /></td>
+            <td>date</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
+          <tr><td>event</td><td><input th:field="*{event.name}" /></td><td>id</td><td><input th:field="*{event.id}" class="textbox"/></tr>
+          <tr><td>time <FONT color="red">*</FONT></td><td><input th:field="*{event.time}" /></td><td>status</td><td><input th:field="*{status}" class="status textbox"/></td></tr>
+          <tr><td>date</td><td><input th:field="*{event.date}" class="textbox"/></td><td>changeTo</td><td><input th:field="*{changeToDate}" class="textbox"/></td></tr>
+          <tr hidden=""><td>parent</td><td><input th:field="*{event.parentId}" class="textbox"/></td></tr>
+          <tr>
+            <td>eventCat</td><td><input th:field="*{eventCategory}" style="width:50%;" class="textbox"/><input th:field="*{eventCategoryId}" style="width:50%;" class="textbox"/>
+            <td>topicCat</td><td><input th:field="*{topicCategory}" style="width:50%;" class="textbox"/><input th:field="*{topicCategoryId}" style="width:50%;" class="textbox"/></td></tr>
+          <tr><td>memo</td><td colspan="3"><input th:field="*{event.memo}" /></td></tr>
+      </table>
+      <input type="submit" value="Save" />
+  </form>
+
+  <hr/>
+  <h3>Search by Name</h3>
+  <form name="findForm" action="#" th:action="@{/event/find}" method="GET">
+      <input type="hidden" name="date" th:value="${date}" readonly="true" />
+      <input type="text" name="name" class="textbox"/>
+      <input type="submit" value="search"></input>
+  </form>
+
+  <ul th:unless="${#lists.isEmpty(refEvents)}">
+    <li th:each="current : ${refEvents}" th:style="${session.ispc==false}?'':'width:30%;float: left;display: block;margin: 5px 15px 0px 5px;'">
+      <b th:if="${current.name}==''" th:text="${current.parentName}"></b>
+      <b th:if="${current.name}!=''" th:text="${current.parentName} + ' / ' + ${current.name}"></b>
+      <b th:if="${current.eventCategory}!=null and ${current.eventCategory}!=''" th:text="' / ' + ${current.eventCategory}"></b>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=1.00'" class="addbtn"><input type="button" value="1.00" /></a>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.50'" class="addbtn"><input type="button" value="0.50" /></a>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.25'" class="addbtn"><input type="button" value="0.25" /></a>
+    </li>
+  </ul>
+  <div style="clear:both;border:0px;"></div>
+
 
 </div>
 </body>

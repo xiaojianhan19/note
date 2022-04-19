@@ -6,6 +6,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
@@ -27,9 +28,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/event")
 public class EventController {
 	//private static final Logger log = LoggerFactory.getLogger(EventController.class);
+	private static Integer EventCatId = 10000002;
+
+	@Autowired
+	ItemRepository repository;
+
+	@Autowired
+	EventRepository eventRepository;
 
 	@Autowired
 	EventService service;
+
+	@Autowired
+	CategoryRepository catRepository;
 
 	@Autowired
 	CategoryService catService;	
@@ -38,7 +49,7 @@ public class EventController {
 	ItemService perService;	
 
 	@Autowired
-	ItemService colService;	
+	ItemService itemService;	
 
 	@Autowired
 	HttpSession session;
@@ -46,217 +57,226 @@ public class EventController {
 	@InitBinder  //类初始化是调用的方法注解
     public void initBinder(WebDataBinder binder) {  
         binder.setAutoGrowNestedPaths(true);
-        //给这个controller配置接收list的长度100000，仅在这个controller有效
+        //给这个controller配置接收list的长度10000，仅在这个controller有效
         binder.setAutoGrowCollectionLimit(10000);
     }
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String readEvents(Model model, Device device) {
-		String date = LocalDate.now().toString();
-		return readByDate(date, model, device);
-	}
-
-	@RequestMapping(value = "/chgDate", method = RequestMethod.GET)
-	public String readByDate(@RequestParam(value = "targetDate", required = false) String chgDate ,Model model, Device device) {
-		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+	public String read(String date, Model model, Device device) {
+		if(!Utl.check(date)) {
+			date = LocalDate.now().toString();
+		}
 		model.addAttribute("date", date);
 
-		CategoryViewBean cat = service.loadCatViewBeanByDate(date);
+		CategoryView cat = service.loadCatViewBeanByDate(date, EventCatId);
 		model.addAttribute("cat", cat);
 
         if (!device.isMobile()) {
             session.setAttribute("ispc", true);
+		} else {
+			session.setAttribute("ispc", false);
 		}
 		return "event";
 	}
 
-	@RequestMapping(value = "/timetable", method = RequestMethod.GET)
-	public String loadTimetable(@RequestParam(value = "targetDate", required = false) String chgDate ,Model model, Device device) {
-		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
-		model.addAttribute("date", date);
+	// @RequestMapping(value = "/timetable", method = RequestMethod.GET)
+	// public String loadTimetable(@RequestParam(value = "date", required = false) String chgDate ,Model model, Device device) {
+	// 	String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+	// 	model.addAttribute("date", date);
 
-		CategoryViewBean cat = service.loadCatViewBeanByDate(date);
-		model.addAttribute("cat", cat);
+	// 	CategoryView cat = service.loadCatViewBeanByDate(date);
+	// 	model.addAttribute("cat", cat);
 		
-		return "timetable";
-	}	
+	// 	return "timetable";
+	// }	
 
 	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
-	public String saveAddList(RedirectAttributes redirectAttributes, @ModelAttribute EventViewForm recform, Model model) {
-		List<EventViewBean> items = recform.getItems();
+	public String saveAddList(RedirectAttributes redirectAttributes, @ModelAttribute EventForm recform, Model model) {
+		List<EventView> items = recform.getItems();
 		service.save(items);
 		LocalDate date = (items.size() > 0) ? Utl.convertDate(items.get(0).getDate()) : LocalDate.now();
-		redirectAttributes.addAttribute("targetDate", date.toString());
-		return "redirect:/event/chgDate";
+		redirectAttributes.addAttribute("date", date.toString());
+		return "redirect:/event/";
 	}
 
-	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String addEventViewBean(RedirectAttributes redirectAttributes, @ModelAttribute("eventViewBean") EventViewBean eventViewBean, Model model) {
-		service.save(eventViewBean);
-		if(Utl.check(eventViewBean.getRelatedId()))
-		{
-			colService.createByEvent(eventViewBean);
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public String addEventView(RedirectAttributes redirectAttributes, ItemView itemView, Model model) {
+		service.save(itemView);
+		redirectAttributes.addAttribute("date", itemView.getEvent().getDate());
+		return "redirect:/event/";
+	}
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public String edit(String date, Integer id, Integer eventCatId, Integer topicCatId, Integer itemCatId, String type, Model model, Device device) {
+
+		if(!Utl.check(date)) {
+			date = LocalDate.now().toString();
 		}
-		redirectAttributes.addAttribute("targetDate", eventViewBean.getDate());
-		return "redirect:/event/chgDate";
-	}
-
-	@RequestMapping(value = "/find", method = RequestMethod.GET)
-	public String addEventViewBean(@ModelAttribute("targetName") String targetName, @ModelAttribute("targetDate") String targetDate, Model model, Device device) {
-		String date = targetDate;
-
 		model.addAttribute("date", date);
-		
-		EventViewBean v = new EventViewBean(date);
-		v.setStatus(Utl.Status.COL1_ONPROCESS.getValue());
-		model.addAttribute("eventViewBean", v);
 
-		List<EventViewBean> refEvents = service.findTargets(targetName);
-		for(EventViewBean bean : refEvents)
-		{
-			bean.setDate(targetDate);
+		if(Utl.check(id)) {
+			ItemView v = service.getSingleEvent(id);
+			model.addAttribute("itemView", v);
+			session.setAttribute("tmpItemView", v);
+		} else {
+			ItemView v = new ItemView();
+			v.setDate(date);
+			v.setReleaseDate(date);
+			v.setStatus(Utl.Status.EV3_FINISHED.getValue());
+			if(Utl.check(eventCatId)) {
+				v.setEventCategoryId(eventCatId);
+				v.setEventCategory(catRepository.findCatName(eventCatId));
+			}
+			if(Utl.check(topicCatId)) {
+				v.setTopicCategoryId(topicCatId);
+				v.setTopicCategory(catRepository.findCatName(topicCatId));
+			}
+			if(Utl.check(itemCatId)) {
+				v.setItemCategoryId(itemCatId);
+				v.setItemCategory(catService.findCatName(itemCatId));
+			}
+			if(Utl.check(type)) {
+				v.setType(type);
+			}
+			Event ne = new Event();
+			ne.setDate(date);
+			ne.setTime(1.0);
+			v.setEvent(ne);
+			model.addAttribute("itemView", v);
+			session.setAttribute("tmpItemView", v);
 		}
-		model.addAttribute("refEvents", refEvents);
-		return "event_add";
-	}
-
-	@RequestMapping(value = "/addByCat", method = RequestMethod.GET)
-	public String addByCat(@ModelAttribute("targetCat") String targetCat, @ModelAttribute("targetDate") String targetDate, 
-							@ModelAttribute("topic") String topic, 
-							@ModelAttribute("relatedId") int relatedId, Model model, Device device) {
-		String date = targetDate;
-
-		model.addAttribute("date", date);
 		
-		EventViewBean v = new EventViewBean(date);
-		service.updateNewEventByCategory(v, relatedId, targetCat, topic);
-		model.addAttribute("eventViewBean", v);
-
-		if(Utl.check(topic)) 
+		if(Utl.check(topicCatId)) 
 		 {
-			List<EventViewBean> refEvents = service.findRefEventsByTopic(topic);
-			for(EventViewBean bean : refEvents)
+			List<EventView> refEvents = service.findRefEventsByTopic(topicCatId, date);
+			for(EventView bean : refEvents)
 			{
-				bean.setDate(targetDate);
+				bean.setDate(date);
 			}
 			model.addAttribute("refEvents", refEvents);			
 		}		
-		else {
-			List<EventViewBean> refEvents = service.findRefEventsByCat(targetCat, date);
-			for(EventViewBean bean : refEvents)
+		else if(Utl.check(eventCatId)) {
+			List<EventView> refEvents = service.findRefEventsByEvent(eventCatId, date);
+			for(EventView bean : refEvents)
 			{
-				bean.setDate(targetDate);
+				bean.setDate(date);
 			}
 			model.addAttribute("refEvents", refEvents);
 		}
 
-		return "event_add";
-	}
-
-	@RequestMapping(value = "/insert", method = RequestMethod.POST)
-	public String insertEventById(RedirectAttributes redirectAttributes, @ModelAttribute("insertId") String insertId,
-					@ModelAttribute("targetDate") String targetDate, @ModelAttribute("targetTime") String targetTime, Model model) {
-		service.insert(insertId, targetDate, targetTime);
-		redirectAttributes.addAttribute("targetDate", targetDate);
-		return "redirect:/event/chgDate";
-	}
-
-	@RequestMapping(value = "/editSingleEvent", method = RequestMethod.GET)
-	public String editSingleEvent(@ModelAttribute("id") int id, @ModelAttribute("date") String date, Model model) {
-		EventViewBean ev = service.getSingleEvent(id, date);
-	
-		model.addAttribute("date", date);
-		model.addAttribute("eventViewBean", ev);
-
-		return "event_add";
-	}	
-
-	@RequestMapping(value = "/eventEdit", method = RequestMethod.GET)
-	public String readForEdit(Model model) {
-		Map<String, String> catList = catService.GetCategoryMapByName("Event");
-		model.addAttribute("catList", catList);
-
-		EventViewForm form = new EventViewForm();
-		List<EventParentBean> events = service.findAll();
-		for ( EventParentBean item : events) {
-			form.add(new EventViewBean(item, "0000-01-01", "9999-12-31"));
-		}
-		service.sortByCategory(form.getItems(), catList);
-		model.addAttribute("form", form);
-
 		return "event_edit";
 	}
 
-	@RequestMapping(value = "/saveEdit", method = RequestMethod.POST)
-	public String saveEditList(@ModelAttribute EventViewForm recform, Model model) {
-		List<EventViewBean> items = recform.getItems();
-		service.saveParent(items);
-		return "redirect:/event/eventEdit";
+	@RequestMapping(value = "/find", method = RequestMethod.GET)
+	public String addEventView(@ModelAttribute("name") String name, @ModelAttribute("date") String date, Model model, Device device) {
+
+		if(!Utl.check(date)) {
+			date = LocalDate.now().toString();
+		}
+		model.addAttribute("date", date);
+
+		Object rc = session.getAttribute("tmpItemView");
+		if(rc != null) {
+			model.addAttribute("itemView", rc);
+		} else {
+			// error
+			ItemView v = new ItemView();
+			model.addAttribute("itemView", v);
+		}
+
+		List<EventView> refEvents = service.findRefEventsByName(name);
+		for(EventView bean : refEvents)
+		{
+			bean.setDate(date);
+		}
+		model.addAttribute("refEvents", refEvents);
+		return "event_edit";
+	}
+
+	@RequestMapping(value = "/insert", method = RequestMethod.GET)
+	public String insertEventById(Integer parentId, String date, String name, String time, String eventCategoryId, String topicCategoryId,
+						Model model, RedirectAttributes redirectAttributes) {
+		service.insert(parentId, date, name, time, eventCategoryId, topicCategoryId);
+		redirectAttributes.addAttribute("date", date);
+		return "redirect:/event/";
 	}
 	
 	@RequestMapping(value = "/eventView", method = RequestMethod.GET)
-	public String readForView(@RequestParam(value = "targetDate", required = false) String chgDate , @RequestParam(value = "startDate", required = false) String startDate, @RequestParam(value = "endDate", required = false) String endDate, Model model) {
-		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+	public String readForView(String date , String start, String end, Model model) {
+		if(!Utl.check(date)) {
+			date = LocalDate.now().toString();
+		}
 		model.addAttribute("date", date);
-
 		LocalDate curDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		String start = (startDate != null) ? startDate : curDate.with(TemporalAdjusters.firstDayOfMonth()).toString();
-		String end = (endDate != null) ? endDate : curDate.with(TemporalAdjusters.lastDayOfMonth()).toString();
+		if(!Utl.check(start)) {
+			start = curDate.with(TemporalAdjusters.firstDayOfMonth()).toString();
+		}
 		model.addAttribute("start", start);
+		if(!Utl.check(end)) {
+			end = curDate.with(TemporalAdjusters.lastDayOfMonth()).toString();
+		}
 		model.addAttribute("end", end);
-
-		Map<String, String> catList = catService.GetCategoryMapByName("Event");
-		model.addAttribute("catList", catList);	
 		
-		CategoryViewBean cat = service.loadCatViewBeanByPeriod(date, start, end);
+		CategoryView cat = service.loadCatViewBeanByPeriod(date, start, end, EventCatId);
 		model.addAttribute("cat", cat);
 		return "event_view";
 	}
 
-	@RequestMapping(value = "/addTopicByCat", method = RequestMethod.GET)
-	public String addTopicByCat(@ModelAttribute("topicCat") String topicCat, @ModelAttribute("topicDate") String topicDate, Model model, Device device) {
-		String date = topicDate;
-		model.addAttribute("date", date);
+	// @RequestMapping(value = "/eventEdit", method = RequestMethod.GET)
+	// public String readForEdit(Model model) {
+	// 	Map<String, String> catList = catService.GetCategoryMapByName("Event");
+	// 	model.addAttribute("catList", catList);
+
+	// 	EventForm form = new EventForm();
+	// 	List<EventParentBean> events = service.findAll();
+	// 	for ( EventParentBean item : events) {
+	// 		form.add(new EventView(item, "0000-01-01", "9999-12-31"));
+	// 	}
+	// 	service.sortByCategory(form.getItems(), catList);
+	// 	model.addAttribute("form", form);
+
+	// 	return "event_edit";
+	// }
+
+	// @RequestMapping(value = "/saveEdit", method = RequestMethod.POST)
+	// public String saveEditList(@ModelAttribute EventForm recform, Model model) {
+	// 	List<EventView> items = recform.getItems();
+	// 	service.saveParent(items);
+	// 	return "redirect:/event/eventEdit";
+	// }
+
+	// @RequestMapping(value = "/lifeLine", method = RequestMethod.GET)
+	// public String readLifeLineView(@RequestParam(value = "date", required = false) String chgDate , @RequestParam(value = "startDate", required = false) String startDate, @RequestParam(value = "endDate", required = false) String endDate, Model model) {
+	// 	String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+	// 	model.addAttribute("date", date);
+
+	// 	LocalDate curDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+	// 	String start = (startDate != null) ? startDate : curDate.with(TemporalAdjusters.firstDayOfYear()).toString();
+	// 	String end = (endDate != null) ? endDate : curDate.with(TemporalAdjusters.lastDayOfMonth()).toString();
+	// 	model.addAttribute("start", start);
+	// 	model.addAttribute("end", end);
 		
-		TopicViewBean v = new TopicViewBean();
-		v.setStartDate(date);
-		service.updateNewTopicByCategory(v, topicCat);
-		model.addAttribute("topicViewBean", v);
+	// 	CategoryView cat = service.loadLifeLineView(date, start, end);
+	// 	model.addAttribute("cat", cat);
+	// 	return "event_lifeline";
+	// }
 
-		List<TopicViewBean> refTopics= catService.findRefTopicByCat();
-		model.addAttribute("refTopics", refTopics);
-		return "topic_add";
-	}
-
-	@RequestMapping(value = "/topicAdd", method = RequestMethod.POST)
-	public String addTopicViewBean(RedirectAttributes redirectAttributes, @ModelAttribute("topicViewBean") TopicViewBean topicViewBean, Model model) {
-		catService.saveTopic(topicViewBean);
-		if(Utl.check(topicViewBean.getTime())) {
-			EventViewBean ev = new EventViewBean(topicViewBean.getName(), topicViewBean.getEveCategory(), 
-												topicViewBean.getStatus(), "Topic", topicViewBean.getStartDate(), 
-												topicViewBean.getTime(), "", topicViewBean.getName());
-			service.save(ev);
-		}
+	// @RequestMapping(value = "/test", method = RequestMethod.GET)
+	// public String test(String date, Model model, Device device) {
+	// 	if(!Utl.check(date)) {
+	// 		date = LocalDate.now().toString();
+	// 	}
+	// 	model.addAttribute("date", date);
 		
-		redirectAttributes.addAttribute("targetDate", topicViewBean.getStartDate());
-		return "redirect:/event/chgDate";
-	}
+	// 	List<EventView> evs = repository.findEventViewToday(date);
 
-	@RequestMapping(value = "/lifeLine", method = RequestMethod.GET)
-	public String readLifeLineView(@RequestParam(value = "targetDate", required = false) String chgDate , @RequestParam(value = "startDate", required = false) String startDate, @RequestParam(value = "endDate", required = false) String endDate, Model model) {
-		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
-		model.addAttribute("date", date);
-
-		LocalDate curDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		String start = (startDate != null) ? startDate : curDate.with(TemporalAdjusters.firstDayOfYear()).toString();
-		String end = (endDate != null) ? endDate : curDate.with(TemporalAdjusters.lastDayOfMonth()).toString();
-		model.addAttribute("start", start);
-		model.addAttribute("end", end);
-		
-		CategoryViewBean cat = service.loadLifeLineView(date, start, end);
-		model.addAttribute("cat", cat);
-		return "event_lifeline";
-	}
+	// 	List<EventView> evList = new ArrayList<EventView>();
+	// 	List<Event> events = repository.findEventToday(date);
+	// 	for(Event e : events) {
+	// 		EventView ev = new EventView(e, date);
+	// 		evList.add(ev);
+	// 	}
+	// 	return read(date, model, device);
+	// }
 	
-
 }

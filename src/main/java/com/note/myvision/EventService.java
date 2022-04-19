@@ -12,10 +12,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.transaction.Transactional;
+
+import com.alibaba.fastjson.JSON;
+
 import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import ch.qos.logback.core.joran.conditional.ElseAction;
@@ -26,490 +30,449 @@ import ch.qos.logback.core.joran.conditional.ElseAction;
 public class EventService {
 
   @Autowired
-  EventParentRepository repository;
+  ItemRepository itemRepository;
 
   @Autowired
-  EventChildRepository itemRepository;
+  EventRepository repository;
 
   @Autowired
   CategoryService catService;
 
   public static int showMode = 0;
-  Map<String, String> catToTypeMap = new HashMap<String, String>();
 
   public EventService() {
-
-    //PropertiesUtils pFile = new PropertiesUtils("static/application-map.properties");
-    //for (Map.Entry<Object, Object> entry : pFile.properties.entrySet()) {
-    //  catToTypeMap.put( entry.getKey().toString() , entry.getValue().toString() );
-    //}
-    catToTypeMap.put( "Project" , "Achievement" );
-    catToTypeMap.put( "Language" , "Person" );
-    catToTypeMap.put( "Note" , "Achievement" );
-    catToTypeMap.put( "Fantasy" , "Achievement" );
-    catToTypeMap.put( "Discipline" , "Achievement" );
-    catToTypeMap.put( "Exercise" , "Achievement" );
-    catToTypeMap.put( "Animation" , "Collection" );
-    catToTypeMap.put( "Book" , "Collection" );
-    catToTypeMap.put( "Game" , "Collection" );
-    catToTypeMap.put( "Movie" , "Collection" );
-    catToTypeMap.put( "Music" , "Collection" );
-    catToTypeMap.put( "Communicate" , "Person" );
-    catToTypeMap.put( "TSSummit" , "Achievement" );
-    catToTypeMap.put( "Learn" , "Achievement" );
-    catToTypeMap.put( "Play" , "Collection" );
-    catToTypeMap.put( "Work" , "Achievement" );
-    catToTypeMap.put( "Life" , "Achievement" );
-    catToTypeMap.put( "Programmer" , "Achievement" );
-    catToTypeMap.put( "Social" , "Achievement" );
-    catToTypeMap.put( "" , "" );
   }
 
-  public List<EventParentBean> findAll(){
-    return repository.findAll(Sort.by(Direction.ASC, "category"));
-  }
+  // public List<Event> findAll(){
+  //   return repository.findAll(Sort.by(Direction.ASC, "category"));
+  // }
 
-  public Optional<EventParentBean> find(String id){
-    return repository.findById(Utl.parseInt(id));
-  }
+  // public Optional<Event> find(String id){
+  //   return repository.findById(Utl.parseInt(id));
+  // }
 
-  public List<EventChildBean> findByDate(String date) {
-    List<EventChildBean> list = itemRepository.findByDateOrderByParent(date);
-    if(showMode == 0 && LocalDate.now().plusDays(-3).toString().compareTo(date) < 0)
-    {
-      List<String> targetStatus = new ArrayList<String>(Arrays.asList(
-        Utl.Status.EV1_ONPROCESS.getValue(),
-        Utl.Status.EV2_CURRENT.getValue(),
-        Utl.Status.EV6_LOOKBACK.getValue(),
-        Utl.Status.EV9_REGULAR.getValue()
-         ));
-      for(String status : targetStatus)
-      {
-        List<EventParentBean> tmpList = repository.findByStatus(status);
-        for(EventParentBean p : tmpList)
-        {
-          boolean isFound = false;
-          for(EventChildBean c : list)
-          {
-            if(c.getParent().getId() == p.getId()
-              || (c.getParent().getName().equals(p.getName()) && c.getParent().getCategory().equals(p.getCategory())))
-            {
-              isFound = true;
-              break;
-            }
-          }
-          if(!isFound)
-          {
-            list.add( new EventChildBean(date, p));
-          }
-        }
-      }
-    }
+  // public List<Event> findByDate(String date) {
+  //   List<Event> list = repository.findByDateWithOnprocess(date);
 
-    return list;
-  }
+  //   // oprocess
+  //   if(showMode == 0 && LocalDate.now().plusDays(-3).toString().compareTo(date) < 0) {
+  //     List<String> statusList = new ArrayList<String>(Arrays.asList(
+  //       Utl.Status.EV1_ONPROCESS.getValue(),
+  //       Utl.Status.EV2_CURRENT.getValue(),
+  //       Utl.Status.EV6_LOOKBACK.getValue(),
+  //       Utl.Status.EV9_REGULAR.getValue()
+  //        ));
 
-  public List<EventParentBean> findByPeriod(String start, String end) {
-    List<EventChildBean> list = itemRepository.findByDateBetweenOrderByParent(start, end);
-    List<EventParentBean> pList = new ArrayList<EventParentBean>();
-    for(EventChildBean ch : list)
-    {
-      if(!pList.contains(ch.getParent()))
-        pList.add(ch.getParent());
-    }
+  //     List<Item> tmpList = repository.findByStatusIn(statusList);
+  //     for(Item p : tmpList) {
+  //       boolean isFound = false;
+  //       for(Event c : list) {
+  //         if(c.getParentId() == p.getId()) {
+  //           isFound = true;
+  //           break;
+  //         }
+  //       }
+  //       if(!isFound) {
+  //         Event nt = new Event(date, p);
+  //         nt.setName("");
+  //         list.add(nt);
+  //       }
+  //     }
+  //   }
 
-    return pList;
-  }
+  //   return list;
+  // }
 
-  public List<EventViewBean> findByName(String name)
-  {
-   List<EventViewBean> list = new ArrayList<EventViewBean>();
-   List<EventParentBean> events = repository.findByNameContaining(name);
-   for(EventParentBean ev : events)
-   {
-     for(EventChildBean ch : ev.getItems())
-     {
-       list.add(new EventViewBean(ch));
-     }
-   }
-   return list;
-  }
+  // public List<Event> findByPeriod(String start, String end) {
+  //   List<Time> list = repository.findByDateBetweenOrderByParent(start, end);
+  //   List<Event> pList = new ArrayList<Event>();
+  //   for(Time ch : list)
+  //   {
+  //     if(!pList.contains(ch.getParent()))
+  //       pList.add(ch.getParent());
+  //   }
 
-  public void save(List<EventViewBean> list) {
-    for(EventViewBean p : list)
+  //   return pList;
+  // }
+
+  // public List<EventView> findByName(String name)
+  // {
+  //  List<EventView> list = new ArrayList<EventView>();
+  //  List<Event> events = repository.findByNameContaining(name);
+  //  for(Event ev : events)
+  //  {
+  //    for(Time ch : ev.getItems())
+  //    {
+  //      list.add(new EventView(ch));
+  //    }
+  //  }
+  //  return list;
+  // }
+
+  public void save(List<EventView> list) {
+    for(EventView p : list)
     {
         this.save(p);
     }
   }
 
-  public void saveAll(List<EventParentBean> list) {
-    for(EventParentBean p : list)
-    {
-        repository.save(p);
+  public void save(EventView vBean) {
+
+    Event event = null;
+    if(vBean != null && Utl.check(vBean.getId())) {
+      Optional<Event> res = repository.findById(vBean.getId());
+      if(res.isPresent()) {
+        // update
+        event = res.get();
+        Utl.copyPropertiesIgnoreNull(vBean, event);
+        event.setTime(Utl.parseDouble(vBean.getTime()));
+      } else {
+        return;
+      }
+    } else {
+      // add
+      event = new Event();
+      Utl.copyPropertiesIgnoreNull(vBean, event);
+      event.setTime(Utl.parseDouble(vBean.getTime()));
+    }
+
+    if(Utl.check(event.getTime())) {
+      if(event.getTime() == -1.0) {
+        if(Utl.check(event.getId()))
+          repository.delete(event);
+      } else {
+        repository.save(event);
+      }
     }
   }
 
-  public void save(EventViewBean vBean)
+  // public void saveAll(List<Event> list) {
+  //   for(Event p : list)
+  //   {
+  //       repository.save(p);
+  //   }
+  // }
+
+  public void save(ItemView vBean)
   {
     // Update EventParent
-    EventParentBean newEv = new EventParentBean(vBean);
-    EventParentBean event = null;
-    Boolean exist = false;
-    if(Utl.check(vBean.getId()))
-    {
-      Optional<EventParentBean> res = repository.findById( Utl.parseInt(vBean.getId()));
-      if(res.isPresent())
-      {
-        event = res.get();
+    Item item = null;
+    if(Utl.check(vBean.getId())) {
+      Optional<Item> res = itemRepository.findById(vBean.getId());
+      if(res.isPresent()) {
+        // update
+        item = res.get();
+        Utl.copyPropertiesIgnoreNull(vBean, item);
+      } else {
+        return;
       }
-    }
-    else if(Utl.check(vBean.getName()) && Utl.check(vBean.getCategory()))
-    {
-      List<EventParentBean> res = repository.findByNameAndCategory(vBean.getName(), vBean.getCategory());
-      if(res.size() > 0)
-      {
-        event = res.get(0);
-      }
-    }
-    if(event != null)
-    {
-      exist = true;
-      // update
-      Utl.copyPropertiesIgnoreNull(newEv, event);
-    }
-    else
-    {
+    } else {
       // add  
-      event = newEv;
+      item = new Item();
+      Utl.copyPropertiesIgnoreNull(vBean, item);
     }
 
-    if(Utl.check(event.getName()) && Utl.check(event.getCategory()))
-    {
-      repository.save(event);
+    if(Utl.check(vBean.getChangeToDate()) && vBean.getChangeToDate().compareTo(item.getDate()) < 0) {
+      item.setDate(vBean.getChangeToDate());
+    }
+
+    if(Utl.check(item.getName())) {
+      itemRepository.save(item);
     }
     
     // Update EventChild
-    EventChildBean newCh = new EventChildBean(vBean, event);
-    EventChildBean child = null;
-    if(exist)
-    {
-      for(EventChildBean ev : event.getItems())
-      {
-        if(vBean.getDate().equals(ev.getDate()))
-        {
-          child = new EventChildBean(ev);
-          Utl.copyPropertiesIgnoreNull(newCh, child);
-          if(Utl.check(vBean.getChangeToDate())) {
-            child.setDate(vBean.getChangeToDate());
-          }
-          break;
-        }
+    Event event = null;
+    Event newEv = vBean.getEvent();
+    if(newEv != null && Utl.check(newEv.getId())) {
+      Optional<Event> res = repository.findById(newEv.getId());
+      if(res.isPresent()) {
+        // update
+        event = res.get();
+        Utl.copyPropertiesIgnoreNull(newEv, event);
+      } else {
+        return;
       }
-    }
-    if(child == null)
-    {
-      child = newCh;
+    } else {
+      // add  
+      event = newEv;
+      event.setParentId(item.getId());
     }
 
-    if(Utl.check(child.getTime()) || Utl.check(child.getMemo()))
+    if(Utl.check(vBean.getChangeToDate())) {
+      event.setDate(vBean.getChangeToDate());
+    }
+
+    if(Utl.check(event.getTime()) || Utl.check(event.getMemo()))
     {
-      if(child.getTime() == -1.0)
+      if(event.getTime() == -1.0)
       {
-        if(Utl.check(child.getId()))
-          itemRepository.delete(child);
+        if(Utl.check(event.getId()))
+          repository.delete(event);
       }
       else
       {
-        itemRepository.save(child);
+        repository.save(event);
       }
     }
   }
 
-  public List<EventViewBean> findTargets(String name)
+  public List<EventView> findRefEventsByName(String name)
   {
-    List<EventViewBean> refEvents = new ArrayList<EventViewBean>();
-
-    List<EventParentBean> events = repository.findByNameContaining(name);
-    for(EventParentBean ev : events)
-    {
-      refEvents.add(new EventViewBean(ev));
-    }
-    sortByLastDate(refEvents);
+    List<Map<String, Object>> ret = repository.findEventViewByNameContaining(name);
+    String js = JSON.toJSONString(ret);
+    List<EventView> refEvents = JSON.parseArray(js, EventView.class);
     return refEvents;
   }
 
-  public List<EventViewBean> findRefEventsByCat(String cat, String date)
+  public List<EventView> findRefEventsByEvent(Integer catId, String date)
   {
     String start = LocalDate.now().plusMonths(-1).toString();
-    List<EventViewBean> refEvents = new ArrayList<EventViewBean>();
-
-    List<EventParentBean> events = repository.findByCategory(cat);    
-    for(EventParentBean ev : events)
-    {
-      for(EventChildBean ch : ev.getItems()) {
-        if(ch.getDate().compareTo(start) > 0 ) {
-          refEvents.add(new EventViewBean(ev));
-          break;
-        }
-      }      
-    }
-    sortByLastDate(refEvents);
+    List<Map<String, Object>> ret = repository.findEventViewByEventCategoryIdAndDate(catId, start);
+    String js = JSON.toJSONString(ret);
+    List<EventView> refEvents = JSON.parseArray(js, EventView.class);
     return refEvents;
   }  
 
-  public List<EventViewBean> findRefEventsByTopic(String cat)
+  public List<EventView> findRefEventsByTopic(Integer topicId, String date)
   {
-    List<EventViewBean> refEvents = new ArrayList<EventViewBean>();
-
-    List<EventParentBean> events = repository.findByTopic(cat);    
-    for(EventParentBean ev : events)
-    {
-      refEvents.add(new EventViewBean(ev));  
-    }
-    // List<EventChildBean> eventItems = itemRepository.findByTopic(cat);
-    // for(EventChildBean ch : eventItems) {
-    //   if(ch.getDate().compareTo(start) > 0 ) {
-    //     refEvents.add(new EventViewBean(ch));
-    //     break;
-    //   }
-    // }    
-
-    sortByLastDate(refEvents);
+    String start = LocalDate.now().plusMonths(-1).toString();
+    List<Map<String, Object>> ret = repository.findEventViewByTopicCategoryIdAndDate(topicId, start);
+    String js = JSON.toJSONString(ret);
+    List<EventView> refEvents = JSON.parseArray(js, EventView.class);
     return refEvents;
-  }    
+  }
 
-  public void insert(String id, String date, String time)
+  public void insert(Integer parentId, String date, String name, String time, String eventCategoryId, String topicCategoryId)
   {
-    Optional<EventParentBean> res = repository.findById(Utl.parseInt(id));
-    if(res.isPresent())
-    {
-      EventParentBean event = res.get();
-      EventChildBean child = new EventChildBean(date, event);
+    List<Event> res = repository.findByDateAndParentId(date, parentId);
+    if(res.size() == 0)
+    {      
+      Event newEv = new Event();
+      newEv.setId(0);
+      newEv.setName(name);
+      newEv.setDate(date);
+      newEv.setType("Event");
       double t = Utl.parseDouble(time);
       t = (Utl.check(t)) ? t : 0.5;
-      child.setTime(t);
-      itemRepository.save(child);
+      newEv.setTime(t);
+      newEv.setMemo("");
+      newEv.setParentId(parentId);
+      repository.save(newEv);
     }
   }
 
-  public void sortByCategory(List<EventViewBean> list, Map<String, String> catList)
-  {
-    list.sort( (a,b)-> {
-      if(!a.getCategory().equals(b.getCategory()))
-      {
-        String keyA = Utl.getMapKeyByValue(catList, a.getCategory());
-        String keyB = Utl.getMapKeyByValue(catList, b.getCategory());
-        return keyA.compareTo(keyB);
-      }
-      return a.getName().compareTo(b.getName());
-    });
-  }
+  // public void sortByCategory(List<EventView> list, Map<String, String> catList)
+  // {
+  //   list.sort( (a,b)-> {
+  //     if(!a.getCategory().equals(b.getCategory()))
+  //     {
+  //       String keyA = Utl.getMapKeyByValue(catList, a.getCategory());
+  //       String keyB = Utl.getMapKeyByValue(catList, b.getCategory());
+  //       return keyA.compareTo(keyB);
+  //     }
+  //     return a.getName().compareTo(b.getName());
+  //   });
+  // }
 
-  public void sortByDate(List<EventViewBean> list)
-  {
-    list.sort( (a,b)-> {
-      if(!a.getDate().equals(b.getDate()))
-      {
-        return a.getDate().compareTo(b.getDate());
-      }
-      return a.getName().compareTo(b.getName());
-    });
-  }
+  // public void sortByDate(List<EventView> list)
+  // {
+  //   list.sort( (a,b)-> {
+  //     if(!a.getDate().equals(b.getDate()))
+  //     {
+  //       return a.getDate().compareTo(b.getDate());
+  //     }
+  //     return a.getName().compareTo(b.getName());
+  //   });
+  // }
 
-  public void sortByLastDate(List<EventViewBean> list)
-  {
-    list.sort( (a,b)-> {
-      if(!Utl.check(a.getLastDate()) || !Utl.check(a.getLastDate()))
-        return a.getName().compareTo(b.getName());
+  // public void sortByLastDate(List<EventView> list)
+  // {
+  //   list.sort( (a,b)-> {
+  //     if(!Utl.check(a.getLastDate()) || !Utl.check(a.getLastDate()))
+  //       return a.getName().compareTo(b.getName());
 
-      if(!a.getLastDate().equals(b.getLastDate()))
-      {
-        return b.getLastDate().compareTo(a.getLastDate());
-      }
-      return a.getName().compareTo(b.getName());
-    });
-  }  
+  //     if(!a.getLastDate().equals(b.getLastDate()))
+  //     {
+  //       return b.getLastDate().compareTo(a.getLastDate());
+  //     }
+  //     return a.getName().compareTo(b.getName());
+  //   });
+  // }  
 
-  public void saveParent(List<EventViewBean> list) 
-  {
-    for(EventViewBean v : list)
-    {
-      EventParentBean p = new EventParentBean(v);
-      repository.save(p);
-    }
+  // public void saveParent(List<EventView> list) 
+  // {
+  //   for(EventView v : list)
+  //   {
+  //     Event p = new Event(v);
+  //     repository.save(p);
+  //   }
 
-    for(EventViewBean v : list)
-    {
-      List<EventParentBean> res = repository.findByNameAndCategoryOrderById(v.getName(), v.getCategory());
-      if(res.size() > 1)
-      {
-        int orgId = 0;
-        EventParentBean org = null;
-        int maxSize = 0;
-        for(EventParentBean item : res)
-        {
-          if(item.getItems() == null)
-          {
-            item.setItems(itemRepository.findByParent(item));
-          }
-          if(item.getItems().size() > maxSize)
-          {
-            maxSize = item.getItems().size();
-            orgId = item.getId();
-            org = item;
-          }
-        }
+  //   for(EventView v : list)
+  //   {
+  //     List<Event> res = repository.findByNameAndCategoryOrderById(v.getName(), v.getCategory());
+  //     if(res.size() > 1)
+  //     {
+  //       int orgId = 0;
+  //       Event org = null;
+  //       int maxSize = 0;
+  //       for(Event item : res)
+  //       {
+  //         if(item.getItems() == null)
+  //         {
+  //           item.setItems(repository.findByParent(item));
+  //         }
+  //         if(item.getItems().size() > maxSize)
+  //         {
+  //           maxSize = item.getItems().size();
+  //           orgId = item.getId();
+  //           org = item;
+  //         }
+  //       }
 
-        for(int i=0; i < res.size(); i++)
-        {
-          EventParentBean add = res.get(i);
-          if(add.getId() != orgId)
-          {
-            List<EventChildBean> chgItems = add.getItems();
-            int cnt = chgItems.size();
-            for(int j=0; j < cnt; j++)
-            {
-              EventChildBean child = chgItems.get(j);
-              List<EventChildBean> orgList = itemRepository.findByDateAndParent(child.getDate(), org);
-              if(orgList.size() == 0)
-              {
-                EventChildBean newC = new EventChildBean(child, org);
-                itemRepository.save(newC);
-              }
-              else
-              {
-                EventChildBean newC = orgList.get(0);
-                newC.setTime(newC.getTime() + child.getTime());
-                newC.setMemo(newC.getMemo() + child.getMemo());
-                itemRepository.save(newC);
-                itemRepository.delete(child);
-              }
-            }
-            repository.delete(add);
-          }
-        }
-      }
-    }
+  //       for(int i=0; i < res.size(); i++)
+  //       {
+  //         Event add = res.get(i);
+  //         if(add.getId() != orgId)
+  //         {
+  //           List<Time> chgItems = add.getItems();
+  //           int cnt = chgItems.size();
+  //           for(int j=0; j < cnt; j++)
+  //           {
+  //             Time child = chgItems.get(j);
+  //             List<Time> orgList = repository.findByDateAndParent(child.getDate(), org);
+  //             if(orgList.size() == 0)
+  //             {
+  //               Time newC = new Time(child, org);
+  //               repository.save(newC);
+  //             }
+  //             else
+  //             {
+  //               Time newC = orgList.get(0);
+  //               newC.setTime(newC.getTime() + child.getTime());
+  //               newC.setMemo(newC.getMemo() + child.getMemo());
+  //               repository.save(newC);
+  //               repository.delete(child);
+  //             }
+  //           }
+  //           repository.delete(add);
+  //         }
+  //       }
+  //     }
+  //   }
 
-  }
+  // }
 
-   public void delete(EventParentBean p)
-   {
-     for(EventChildBean c : p.getItems())
-     {
-      itemRepository.delete(c);
-     }
-     repository.delete(p);
-   }
+  //  public void delete(Event p)
+  //  {
+  //    for(Time c : p.getItems())
+  //    {
+  //     repository.delete(c);
+  //    }
+  //    repository.delete(p);
+  //  }
 
-   public void deleteItem(EventChildBean ev)
-   {
-     itemRepository.delete(ev);
-   }
+  //  public void deleteItem(Time ev)
+  //  {
+  //    repository.delete(ev);
+  //  }
 
-   public void delete(String id) {
-    repository.deleteById(Utl.parseInt(id));
-  }
+  //  public void delete(String id) {
+  //   repository.deleteById(Utl.parseInt(id));
+  // }
 
-  public void updateEventName(String oldName, String newName)
-  {
-    List<EventParentBean> res = repository.findByName(oldName);
-    if(res.size() > 0)
-    {
-      for(EventParentBean p : res)
-      {
-        p.setName(newName);
-        repository.save(p);
-      }
-    }
-  }
+  // public void updateEventName(String oldName, String newName)
+  // {
+  //   List<Event> res = repository.findByName(oldName);
+  //   if(res.size() > 0)
+  //   {
+  //     for(Event p : res)
+  //     {
+  //       p.setName(newName);
+  //       repository.save(p);
+  //     }
+  //   }
+  // }
 
-  public void AddEventToCategory(CategoryViewBean cat, EventViewBean ev)
+  public void AddEventToCategory(CategoryView cat, EventView ev)
   {
     if(cat == null)
         return;
-    if(cat.getName().equals(ev.getCategory())) {
+    if(cat.getId() == ev.getEventCategoryId()) {
       cat.getItems().add(ev);
-      //ev.setIsBinded(true);
+      ev.setIsBinded(true);
       return;
     }
     else {
-      for(CategoryViewBean child : cat.getChildren()) {
+      for(CategoryView child : cat.getChildren()) {
         AddEventToCategory(child, ev);
       }
     }
   }
 
-  // public void AddEventToTopic(CategoryViewBean cat, EventViewBean ev, boolean isAdd)
-  // {
-  //   if(cat == null)
-  //     return;
-  //   if(cat.getTopics() != null) {
-  //     for(TopicViewBean t : cat.getTopics()) {
-  //       if(t.getName().equals(ev.getTopic())) {
-  //         t.getItems().add(ev);
-  //         isAdd = true;
-  //         return;
-  //       }
-  //       if(t.getChildren() != null) {
-  //         for(TopicViewBean ct : t.getChildren()) {
-  //           AddEventToTopic(ct, ev, isAdd);
-  //         }
-  //       }
-  //     }
-  //   }
-    
-  //   for(CategoryViewBean child : cat.getChildren()) {
-  //     AddEventToTopic(child, ev, isAdd);
-  //   }
-  // }  
-
-  public void AddEventToTopic(CategoryViewBean cat, EventViewBean ev)
+  public void AddEventToTopic(CategoryView cat, EventView ev)
   {
-    if(ev.getTopic() == null || cat == null)
+    if(cat == null)
         return;
-    if(ev.getTopic().equals(cat.getName())) {
+    if(cat.getId() == ev.getTopicCategoryId()) {
       cat.getItems().add(ev);
       ev.setIsBinded(true);
       return;
     }
-    for(CategoryViewBean child : cat.getChildren()) {
+    for(CategoryView child : cat.getChildren()) {
       AddEventToTopic(child, ev);
     }
   }     
 
-
-  public CategoryViewBean loadCatViewBeanByDate(String date) {
-    List<EventChildBean> events = findByDate(date);
-
+  public CategoryView loadCatViewBeanByDate(String date, Integer catId) {
+    List<EventView> events = repository.findByDate(date);
     double total = 0.0;
-		for ( EventChildBean v : events) {
-			total += v.getTime();
-    }
-    List<EventViewBean> list = new ArrayList<EventViewBean>();
     int index = 0;
-    for(EventChildBean v : events) {
-      EventViewBean newBean = new EventViewBean(v);
-      if(Utl.check(total)) {
-        double pt = v.getTime() / total * 100;
-        newBean.setPercent( Utl.parseTimeToString(pt) + "%");
-      }
-      newBean.setIndex(index);
+    Map<Integer, String> mapEv = new HashMap<Integer, String>();
+		for ( EventView v : events) {
+      total += Utl.parseDouble(v.getTime());
+      v.setIndex(index);
       index++;
-      list.add(newBean);
+      mapEv.put(v.getParentId(), v.getName());
     }
-    
-		CategoryViewBean cat = catService.findByNameWithTopic("Event", date);
+
+    List<String> statusList = new ArrayList<String>(Arrays.asList(
+      Utl.Status.EV1_ONPROCESS.getValue(),
+      Utl.Status.EV2_CURRENT.getValue(),
+      Utl.Status.EV6_LOOKBACK.getValue(),
+      Utl.Status.EV9_REGULAR.getValue()));
+    List<Item> tmpList = itemRepository.findByStatusIn(statusList);
+    for(Item itm : tmpList) {
+      if(!mapEv.containsKey(itm.getId())) {
+        events.add(new EventView(itm, date, index++));
+      }
+    }
+
+		CategoryView cat = catService.findByNameWithTopic(catId, date);
 		if(cat != null)
 		{
-			for(EventViewBean ev : list)
+      
+      List<Object> unsortItems = new ArrayList<Object>();
+			for(EventView ev : events)
 			{
-        cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
-        this.AddEventToTopic(cat, ev);
-        if(!ev.getIsBinded()) {
+        cat.updateTime(ev.getEventCategoryId(), Utl.parseDouble(ev.getTime()));
+        if(Utl.check(ev.getTopicCategoryId())) {
+          this.AddEventToTopic(cat, ev);
+        }
+        if(ev.getIsBinded() == null || !ev.getIsBinded()) {
           this.AddEventToCategory(cat, ev);
         }
-			}
+
+        if(ev.getIsBinded() == null || !ev.getIsBinded()) {
+          unsortItems.add(ev);
+          ev.setIsBinded(true);
+        }        
+      }
+      if(unsortItems.size() > 0) {
+        CategoryView unsortCat = new CategoryView();
+        unsortCat.setName("Unsorted");
+        unsortCat.setItems(unsortItems);
+        cat.getChildren().add(unsortCat);
+      }
       cat.updateTotal(total);
       
       if(LocalDate.now().plusDays(-3).toString().compareTo(date) >= 0 
@@ -520,50 +483,36 @@ public class EventService {
 		}
 
     return cat;
-
-    /* 
-    // change value of double
-    try {
-      Field field = Double.class.getDeclaredField("value");
-      field.setAccessible(true);
-      field.set(total, new Double(totalTime));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    // */
-    //return list;
   }
 
-  public CategoryViewBean loadCatViewBeanByPeriod(String date, String start, String end) {
+  public CategoryView loadCatViewBeanByPeriod(String date, String start, String end, Integer catId) {
 
-    List<EventParentBean> events = this.findByPeriod(start, end);
-    List<EventViewBean> list = new ArrayList<EventViewBean>();
-		for ( EventParentBean item : events) {
-			list.add(new EventViewBean(item, start, end));
-		}
+    List<EventView> events = repository.findByPeriod(start, end);
 		double total = 0.0;
-		for ( EventViewBean v : list) {
+		for ( EventView v : events) {
 			total += Utl.parseDouble(v.getTime());
 		}
-		for ( EventViewBean v : list) {
+		for ( EventView v : events) {
 			double pt = Utl.parseDouble(v.getTime()) / total * 100;
 			if(Utl.check(pt)) {
-				v.setPercent( Utl.parseTimeToString(pt) + "%");
+				//v.setPercent( Utl.parseTimeToString(pt) + "%");
 			}
 		}
 
-		CategoryViewBean cat = catService.findByNameWithTopic("Event", date);
+		CategoryView cat = catService.findByNameWithTopic(catId, date);
 		if(cat != null)
 		{
-			for(EventViewBean ev : list)
+			for(EventView ev : events)
 			{
-        this.AddEventToTopic(cat, ev);
+        if(Utl.check(ev.getTopicCategoryId())) {
+          this.AddEventToTopic(cat, ev);
+        }
         if(ev.getIsBinded() == null || !ev.getIsBinded()) {
           this.AddEventToCategory(cat, ev);
-          cat.updateTime(ev.getCategory(), Utl.parseDouble(ev.getTime()));
+          cat.updateTime(ev.getEventCategoryId(), Utl.parseDouble(ev.getTime()));
         }
         else {
-          cat.updateTime(ev.getTopic(), Utl.parseDouble(ev.getTime()));
+          cat.updateTime(ev.getTopicCategoryId(), Utl.parseDouble(ev.getTime()));
         }
 			}
 			cat.updateTotal(total);
@@ -573,92 +522,76 @@ public class EventService {
     return cat;
   }
 
-  public EventViewBean updateNewEventByCategory(EventViewBean v, int relatedId, String cat, String topic)
-  {
-    v.setCategory(cat);
-    if(Utl.check(topic)) {
-      v.setTopic(topic);
-    } else {
-      v.setTopic("");
-    }
+  // public EventView updateNewEventByCategory(EventView v, int relatedId, String cat, String topic)
+  // {
+  //   return v;
+  // }
+
+  // // public TopicViewBean updateNewTopicByCategory(TopicViewBean v, String cat)
+  // // {
+  // //   v.setEveCategory(cat);
+  // //   v.setStatus(Utl.Status.EV1_ONPROCESS.getValue());
+  // //   return v;
+  // // }
+
+  // // public CategoryView loadLifeLineView(String date, String start, String end) {
+
+  // //   List<Event> events = this.findByPeriod(start, end);
+  // //   List<EventView> list = new ArrayList<EventView>();
+	// // 	for ( Event item : events) {
+  // //     EventView nEv = new EventView(item, start, end);
+  // //     //if(Utl.parseDouble(nEv.getTime()) > 10.0) {
+  // //       list.add(nEv);
+  // //     //}
+	// // 	}
+  // //   list.sort( (a,b)-> {
+  // //     if(!a.getDate().equals(b.getDate()))
+  // //     {
+  // //       return a.getDate().compareTo(b.getDate());
+  // //     }
+  // //     return a.getTime().compareTo(b.getTime());
+  // //   });
     
-    v.setStatus(Utl.Status.EV3_FINISHED.getValue());
-    if(Utl.check(relatedId)) {
-      v.setRelatedId(relatedId);
-      v.setRelatedCategory(catService.findCatName(relatedId));
-    }
-
-    return v;
-  }
-
-  public TopicViewBean updateNewTopicByCategory(TopicViewBean v, String cat)
-  {
-    v.setEveCategory(cat);
-    v.setStatus(Utl.Status.EV1_ONPROCESS.getValue());
-    return v;
-  }
-
-  public CategoryViewBean loadLifeLineView(String date, String start, String end) {
-
-    List<EventParentBean> events = this.findByPeriod(start, end);
-    List<EventViewBean> list = new ArrayList<EventViewBean>();
-		for ( EventParentBean item : events) {
-      EventViewBean nEv = new EventViewBean(item, start, end);
-      //if(Utl.parseDouble(nEv.getTime()) > 10.0) {
-        list.add(nEv);
-      //}
-		}
-    list.sort( (a,b)-> {
-      if(!a.getDate().equals(b.getDate()))
-      {
-        return a.getDate().compareTo(b.getDate());
-      }
-      return a.getTime().compareTo(b.getTime());
-    });
-    
-    List<TopicBean> topics = catService.findTopics();
+  // //   List<TopicBean> topics = catService.findTopics();
   
-    CategoryViewBean cat = new CategoryViewBean();
-    cat.setName("LifeLine");
-    cat.setChildren(new ArrayList<CategoryViewBean>());    
-    List<CategoryViewBean> catChildren = cat.getChildren();
-    for(TopicBean t : topics) {
-      if(Utl.check(t.getEndDate()) && start.compareTo(t.getEndDate()) > 0 )
-        continue;
-      CategoryViewBean cv = new CategoryViewBean(t);
-      catChildren.add(cv);
-    }
+  // //   CategoryView cat = new CategoryView();
+  // //   cat.setName("LifeLine");
+  // //   cat.setChildren(new ArrayList<CategoryView>());    
+  // //   List<CategoryView> catChildren = cat.getChildren();
+  // //   for(TopicBean t : topics) {
+  // //     if(Utl.check(t.getEndDate()) && start.compareTo(t.getEndDate()) > 0 )
+  // //       continue;
+  // //     CategoryView cv = new CategoryView(t);
+  // //     catChildren.add(cv);
+  // //   }
 
-    //CategoryViewBean catChild = new CategoryViewBean();
-    //catChild.setName("Rest");
-    //catChild.setItems(new ArrayList<Object>());
+  // //   //CategoryView catChild = new CategoryView();
+  // //   //catChild.setName("Rest");
+  // //   //catChild.setItems(new ArrayList<Object>());
 
-		for ( EventViewBean v : list) {
-      this.AddEventToTopic(cat, v);
-      // if(v.getIsBinded() == null || !v.getIsBinded()) {
-      //   catChild.getItems().add(v);
-      // }
-    }
+	// // 	for ( EventView v : list) {
+  // //     this.AddEventToTopic(cat, v);
+  // //     // if(v.getIsBinded() == null || !v.getIsBinded()) {
+  // //     //   catChild.getItems().add(v);
+  // //     // }
+  // //   }
     
-    //cat.getChildren().add(catChild);
+  // //   //cat.getChildren().add(catChild);
 
-    return cat;
-  }
+  // //   return cat;
+  // // }
 
-  public EventViewBean getSingleEvent(int id, String date) {
-    Optional<EventParentBean> res = repository.findById(id);
+  public ItemView getSingleEvent(int id) {
+    Optional<Event> res = repository.findById(id);
     if(res.isPresent()) {
-      EventParentBean p = res.get();
-      EventViewBean ev = new EventViewBean(p);
-      ev.setDate(date);
-      for(EventChildBean ch : p.getItems()) {
-        if(ch.getDate().equals(date)) {          
-          ev.setTime(Utl.parseTimeToString(ch.getTime()));
-          ev.setMemo(ch.getMemo());
-        }
-      }
-      return ev;
+      Event p = res.get();
+      ItemView iv = new ItemView();      
+      itemRepository.findById(p.getParentId()).ifPresent( item -> {
+        Utl.copyPropertiesIgnoreNull(item, iv);
+      });
+      iv.setEvent(p);
+      return iv;
     }
-    return new EventViewBean();
-  }  
+    return new ItemView();
+  }
 }

@@ -39,7 +39,7 @@ public class FileController {
     ResourceRepository resourceRepository;    
 
     @RequestMapping("/upload")
-    public String httpUpload(@RequestParam("files") MultipartFile files[], @RequestParam("itemId") Integer itemId, @RequestParam("type") String type) {
+    public String httpUpload(MultipartFile files[], Integer itemId, String resType) {
 
         if (files == null) {
             return "redirect:/item/item?itemId="+itemId;
@@ -55,12 +55,12 @@ public class FileController {
             try {
                 files[i].transferTo(dest);
                 itemRepository.findById(itemId).ifPresent(item -> {
-                    if("Picture".equals(type)) {
+                    if("Image".equals(resType)) {
                         item.setUrl(fileName);
                         itemRepository.save(item);
                     } else {
                         // new resource
-                        ResourceBean newRes = new ResourceBean();
+                        Resource newRes = new Resource();
                         newRes.setParentId(item.getId());
                         newRes.setUrl(fileName);
                         newRes.setName(fileName);
@@ -75,7 +75,7 @@ public class FileController {
             }
         }
 
-        return "redirect:/item/item?itemId="+itemId;
+        return "redirect:/item/view?id="+itemId;
     }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)

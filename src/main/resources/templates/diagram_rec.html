@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<div th:fragment="item" th:if="${diagram}" th:with="floor=${floor}+1">
+		<span class="bgbox" th:classappend="'div' + ${idx}"> 
+			<b class="catName" th:text="${diagram.name}"></b>
+			<a th:href="'/item/edit?catId=' + ${diagram.id}" class="addbtn">+</a>
+			<a th:href="'/category/edit?id=0&parentId=' + ${diagram.id}" class="addbtn">C</a>
+
+		<table class="table table-bordered headline">
+			<th:block th:unless="${#lists.isEmpty(diagram.items)}" th:each="gItem,gStat : ${diagram.items}">
+				<th:block th:if="${gStat.index} % 2 eq 0" ><tr></th:block>
+				<td width="50%">
+					<input type="checkbox" th:if="${editFlag}" name="changeList" th:value="${gItem.id}"/>
+					<th:block th:if="${gItem.systemUrl}==null or ${gItem.systemUrl}==''">
+						<th:block th:if="${gItem.childCategoryId}!=0">
+							<img th:src="'/images/maps.png'"/>
+							<b><a th:text="${gItem.name}" th:href="@{'/item/?catId=' + ${gItem.childCategoryId}}" class="itemlabel" th:classappend="'label' + ${gItem.level}" ></a></b>
+							<b><a th:text="__D " th:href="@{'/category/?id=' + ${gItem.childCategoryId}}" ></a></b>
+							<b><a th:text="__E" th:href="@{'/item/edit?id=' + ${gItem.id}}"></a></b>
+						</th:block>
+						<th:block th:if="${gItem.childCategoryId}==0">
+							<img th:if="${gItem.type}=='Person'" th:src="'/images/user.png'"/>
+							<img th:if="${gItem.type}=='Event'" th:src="'/images/clock.png'"/>
+							<b><a th:text="${gItem.name}" th:href="@{'/item/view?id=' + ${gItem.id}}" class="itemlabel" th:classappend="'label' + ${gItem.level}" ></a></b>
+						</th:block>
+					</th:block>
+					<th:block th:unless="${gItem.systemUrl}==null or ${gItem.systemUrl}==''">
+						<b><a th:text="${gItem.name}" th:href="${gItem.systemUrl}" class="itemlabel" th:classappend="'label' + ${gItem.level}" ></a></b>
+						<b><a th:text="__E" th:href="@{'/item/edit?id=' + ${gItem.id}}"></a></b>
+						<th:block th:if="${gItem.childCategoryId}!=0">
+							<b><a th:text="__D " th:href="@{'/category/?id=' + ${gItem.childCategoryId}}" ></a></b>
+						</th:block>				
+					</th:block>
+
+				</td>
+				<th:block th:if="(${gStat.index} % 2 eq 1) or (${gStat.index} == ${#lists.size(diagram.items)} -1)" ></tr></th:block>
+			</th:block>
+		</table>
+		</span>
+		
+		<ul class="wtree">
+			<li th:each="diagram : ${diagram.children}" >
+				<div th:replace="diagram_rec :: item">(sub-nodes here)</div>
+			</li>
+		</ul>
+	</div>
+</body>

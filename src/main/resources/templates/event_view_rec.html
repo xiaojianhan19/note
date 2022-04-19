@@ -16,10 +16,11 @@
 		<div th:unless="${#lists.isEmpty(child.items)}">
 			<table class="table table-bordered noborder headline">
 				<tr th:each="item, itemStat : ${child.items}">					
-					<td th:text="${item.getName()}"></td>
+					<td th:text="${item.parentName}"></td>
 					<td width="10%" th:text="${item.getTime()}"></td>
 					<td width="10%" th:text="${item.getDuration()}"></td>
 					<td width="10%" th:text="${item.getPercent()}"></td>
+					<td width="10px"><a th:href="'/event/'" th:text="D"></a></td>
 				</tr>
 			</table>
 		</div>

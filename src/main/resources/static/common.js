@@ -6,6 +6,7 @@
  /*!
  * Global Variables
  */
+var typeArr = ["Unsorted", "Person", "Event", "Collection", "Diagram"];
 var statusArr = ["Unsorted", "OnProcess", "Current", "Finished", "GiveUp", "", "LookBack", "Complete", "", "Regular"];
 var sortedArr = ["Unsorted", "Event", "Person", "Collection", "Achievement"];
 
@@ -20,16 +21,16 @@ function formatDate(date, format) {
  * Common Functions
  */
 function chgDate(days) {
-      var date = new Date(document.getElementById("targetDate").value);
+      var date = new Date(document.getElementById("date").value);
       date.setDate(date.getDate() + days);
       var formatedDate = formatDate(date, "yyyy-MM-dd");
       //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-      document.getElementById("targetDate").value = formatedDate;
+      document.getElementById("date").value = formatedDate;
       chgDateForm.submit();
 }
 
 function chgMonth(months) {
-    var date = new Date(document.getElementById("targetDate").value);
+    var date = new Date(document.getElementById("date").value);
     date.setMonth(date.getMonth() + months);
     var year = date.getFullYear();
     var mon = date.getMonth();
@@ -39,19 +40,19 @@ function chgMonth(months) {
     var formatedStart = formatDate(new Date(year, mon, 1), "yyyy-MM-dd");
     var formatedEnd = formatDate(new Date(year, mon, end), "yyyy-MM-dd");
     //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-    document.getElementById("targetDate").value = formatedDate;
-    document.getElementById("startDate").value = formatedStart;
-    document.getElementById("endDate").value = formatedEnd;
+    document.getElementById("date").value = formatedDate;
+    document.getElementById("start").value = formatedStart;
+    document.getElementById("end").value = formatedEnd;
     chgDateForm.submit();
 }
 
 function chgPeriod(days) {
-    var start = new Date(document.getElementById("startDate").value);
-    var end = new Date(document.getElementById("endDate").value);
+    var start = new Date(document.getElementById("start").value);
+    var end = new Date(document.getElementById("end").value);
     start.setDate(start.getDate() + days);
     var formatedDate = formatDate(date, "yyyy-MM-dd");
     //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-    document.getElementById("targetDate").value = formatedDate;
+    document.getElementById("date").value = formatedDate;
     chgDateForm.submit();
 }
 
@@ -71,9 +72,18 @@ function totalCalc() {
     document.getElementById("totaltime").innerHTML = total;
 }
 
-function convertCat(str) {
-    var res = document.getElementById(str);
-    return res.innerText;
+function convertType(str) {
+    var s = str;
+    var idx = parseInt(str);
+    try {
+        if(!isNaN(idx)) {
+            var tmp = typeArr[idx];
+            if(typeof(tmp) != "undefined")
+                s = tmp;
+        }
+    } catch (error) {
+    }
+    return s;
 }
 
 function convertStatus(str) {
@@ -90,35 +100,6 @@ function convertStatus(str) {
         }
     } catch (error) {
     }
-
-    // switch(str)
-    // {
-    //     case "1": 
-    //         s = "OnProcess";
-    //         break;
-    //     case "2":
-    //         s = "Current";
-    //         break;
-    //     case "3": 
-    //         s = "Finished";
-    //         break;
-    //     case "4":
-    //         s = "GiveUp";
-    //         break;
-    //     case "6":
-    //         s = "LookBack";
-    //         break;
-    //     case "7": 
-    //         s = "Complete";
-    //         break;
-    //     case "9":
-    //         s = "Regular";
-    //         break;   
-    //     default:
-    //         s = str;
-    //         break;
-    // }
-
     return s;
 }
 
@@ -169,9 +150,9 @@ function convertTime(str) {
 }
 
 $(function() {
-    $('.category').on('blur', function() {
+    $('.type').on('blur', function() {
         var str = $(this).val();
-        $(this).val(convertCat(str));
+        $(this).val(convertType(str));
     });
 });
 

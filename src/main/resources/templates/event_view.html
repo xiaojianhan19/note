@@ -15,9 +15,9 @@
 
     <div>
         <form name="chgDateForm" action="#" th:action="@{/event/eventView}" method="GET" >
-            <!-- <span>Date</span> --> <input type="hidden" id="targetDate" name="targetDate" th:value="${date}" class="textbox"/>
-            <span>Start</span><input type="text" id="startDate" name="startDate" th:value="${start}" class="textbox"/>
-            <span>End</span><input type="text" id="endDate" name="endDate" th:value="${end}" class="textbox"/>
+            <!-- <span>Date</span> --> <input type="hidden" id="date" name="date" th:value="${date}" class="textbox"/>
+            <span>Start</span><input type="text" id="start" name="start" th:value="${start}" class="textbox"/>
+            <span>End</span><input type="text" id="end" name="end" th:value="${end}" class="textbox"/>
             <input type="submit" value="Change" class="btn-comn"></input>
             <input type="button" value="prev" th:onclick="chgMonth(-1)" class="btn-comn"></input>
             <input type="button" value="next" th:onclick="chgMonth(1)" class="btn-comn"></input>

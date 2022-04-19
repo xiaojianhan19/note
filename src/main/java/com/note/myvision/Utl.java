@@ -67,9 +67,11 @@ public class Utl {
             return false;
     }
 
-    public static Boolean isNullOrEmpty(int str)
+    public static Boolean isNullOrEmpty(Integer str)
     {
-        if(str <= 0)
+        if(str == null)
+            return true;
+        if(str == 0)
             return true;
         else
             return false;
@@ -83,7 +85,7 @@ public class Utl {
             return true;
     }
 
-    public static Boolean check(int str)
+    public static Boolean check(Integer str)
     {
         if(isNullOrEmpty(str))
             return false;

@@ -12,55 +12,47 @@
 	<span class="bgbox" th:classappend="'div' + ${idx}"> 
 		<b class="catName" th:text="${child.name}"></b> <b th:if="${child.time} != 0" th:text="'  /  ' + ${child.time} + '  /  ' +${child.percent} " ></b>
 
-		<b><a th:href="'/event/addByCat?targetDate=' + ${date} + '&targetCat=' + ${child.name} + '&topic=' + ${child.topic} + '&relatedId=' + ${child.relatedId}" 
-			style="float:right;padding-top:0px;margin-left: 8px;margin-right: 8px;text-align: top;">+</a></b>
+		<b><a th:href="'/event/edit?date=' + ${date} + '&eventCatId=' + ${child.parentCatId} + '&topicCatId=' + ${child.topicId} + '&itemCatId=' + ${child.relatedId} + '&type=' + ${child.type}" 
+			class="addbtn">+</a></b>
 
-		<b th:if="${floor} == '1'" ><a th:href="'/event/addTopicByCat?topicDate=' + ${date} + '&topicCat=' + ${child.name}" 
-				style="float:right;padding-top:0px;margin-left: 8px;text-align: top;">T</a></b>
-		<!-- b th:text="${floor}"></b> -->
-		<!--
-		<input type="button" value="+" th:data-cat="${child.name}" th:data-topic="${child.topic}" th:data-relatedId="${child.relatedId}"
-		th:onclick="addEventByCat(this.getAttribute('data-cat'), this.getAttribute('data-topic'), this.getAttribute('data-relatedId'));"
-		style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 10px;text-align: top;"></input>
-
-		<input type="button" value="T" th:if="${floor} == '1'" th:data-cat="${child.name}" 
-		th:onclick="addTopicByCat(this.getAttribute('data-cat'));"
-		style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 10px;text-align: top;"></input>
-		-->
-
-		<!--
-		<input type="button" value="A" th:if="${floor} == '1'" th:data-cat="${child.name}" 
-		th:onclick="addTopicByCat(this.getAttribute('data-cat'));"
-		style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 10px;text-align: top;"></input>		
-		-->
+		<b th:if="${floor} == '1'" ><a th:href="'/event/addTopicByCat?topicDate=' + ${date} + '&topicCat=' + ${child.name}" class="addbtn">T</a></b>
+		
 	<div th:unless="${#lists.isEmpty(child.items)}">
 		<table class="table table-bordered noborder headline">
-			<tr th:each="item, itemStat : ${child.items}">
+			<th:block th:each="item, itemStat : ${child.items}">
+			<tr>
 				<td hidden="">
-					<input th:name="|items[${item.getIndex()}].id|" th:value="${item.getId()}" readonly="true"/>
-				</td>
-				<td width="40%">
-					<input th:name="|items[${item.getIndex()}].name|" th:value="${item.getName()}" />
+					<input th:name="|items[${item.getIndex()}].id|" th:value="${item.id}" readonly="true"/>
 				</td>
 				<td hidden="">
-					<input th:name="|items[${item.getIndex()}].category|" th:value="${item.getCategory()}" class="category"/>
-				</td>
-				<td hidden="">
-					<input th:name="|items[${item.getIndex()}].status|" th:value="${item.getStatus()}" class="status"  />
-				</td>
-				<td width="20%">
-					<input th:name="|items[${item.getIndex()}].time|" th:value="${item.getTime()}" class="time" />
+					<input th:name="|items[${item.getIndex()}].parentId|" th:value="${item.parentId}" />
 				</td>
 				<td>
-					<input th:name="|items[${item.getIndex()}].memo|" th:value="${item.getMemo()}" />
-				</td>			
+					<input th:name="|items[${item.getIndex()}].parentName|" th:value="${item.parentName}" class="textbox" readonly="true" />
+				</td>
+				<td>
+					<input th:name="|items[${item.getIndex()}].name|" th:value="${item.name}" />
+				</td>
+				<td width="20%">
+					<input th:name="|items[${item.getIndex()}].time|" th:value="${item.time}" class="time" />
+				</td>
 				<td hidden="">
 					<input th:name="|items[${item.getIndex()}].date|" th:value="${date}" readonly="true" />
 				</td>
 				<td>
-					<a th:href="'/event/editSingleEvent?id=' + ${item.getId()} + '&date=' +${item.getDate()}" th:text="E" ></a>
-				</td>				
+					<a th:href="'/event/edit?id=' + ${item.getId()} + '&date=' +${item.getDate()}" th:text="E" ></a>
+				</td>
 			</tr>
+			<!--
+			<tr>
+				<td colspan="4">
+					<table style="margin-left:20px;">
+						<tr><td><input type="text" value="SubEvent"></td><td witdh="20%">tuijia</td><td>tuijia</td><td>tuijia</td></tr>
+					</table>
+				</td>
+			</tr>
+			-->
+			</th:block>
 		</table>
 	</div>
 	</span>

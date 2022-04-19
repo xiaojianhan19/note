@@ -5,11 +5,11 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -31,10 +31,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/item")
 public class ItemController {
 	//private static final Logger log = LoggerFactory.getLogger(CollectionController.class);
-	String CName = "Item";
-	String catName = "Fantasy";
-	String CatItemId = "41000543";
-	String CatIdFantasy = "41000272";
+
+	Integer RootCatId = 10000001;
+	Integer ItemCatId = 10000005;
 
 	@Autowired
 	HttpSession session;
@@ -51,293 +50,187 @@ public class ItemController {
 	@Autowired
 	CategoryService catService;
 
-	@Resource
+	@Autowired
+	CategoryRepository catRepository;
+
+	@javax.annotation.Resource
     private ResourceLoader resourceLoader;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String readCollections(Model model, Device device) {
-		//String date = LocalDate.now().toString();
-		//session.setAttribute("targetCat", catName);
+	public String read(Model model, Device device, Integer catId) {
 
-		CategoryViewBean itemGroups = service.findGroupByCategoryId(CatItemId);
-		List<Object> guideGroups = new ArrayList<>(); 
-		for(CategoryViewBean chv : itemGroups.getChildren()) {
+		// nav 
+		CategoryView guideCat = service.findGroupByCategoryId(ItemCatId, -9);
+		List<Object> guides = new ArrayList<>(); 
+		for(CategoryView chv : guideCat.getChildren()) {
 			for(Object itv : chv.getItems()) {
-				guideGroups.add(itv);
+				guides.add(itv);
 			}
 		}
-		model.addAttribute("guideGroups", guideGroups);
+		model.addAttribute("guides", guides);
 
-		//CategoryViewBean group = service.findAllInGroup(CName, catName, date);
-		CategoryViewBean group = service.findGroupByCategoryId(CatIdFantasy);
-		model.addAttribute("group", group);
-		session.setAttribute("categoryId", CatIdFantasy);
-		//session.setAttribute("recentCat", catName);
+		// diagram 
+		if(!Utl.check(catId)) {
+			catId = RootCatId;
+		}
+		CategoryView diagram = service.findGroupByCategoryId(catId, -9);
+		model.addAttribute("diagram", diagram);
+		session.setAttribute("catId", catId);
+
+		// catList
+		Map<String, String> catList = new TreeMap<String, String>();
+		catService.AddToMap(diagram, catList);
+		model.addAttribute("catList", catList);
 
         if (!device.isMobile()) {
             session.setAttribute("ispc", true);
+		} else {
+			session.setAttribute("ispc", false);
 		}
-		return "group";
+		session.setAttribute("saveByCat", false);
+		return "diagram";
 	}
 
-	@RequestMapping(value = "/group", method = RequestMethod.GET)
-	public String readCollectionsByCat(@RequestParam(value = "category", required = false) String category, 
-					@RequestParam(value = "group") String groupName, Model model, Device device) {
-		String date = LocalDate.now().toString();
-		session.setAttribute("targetCat", groupName);
-		session.setAttribute("recentCat", groupName);
-		if(category != null) {
-			session.setAttribute("TopCat", category);
-		}
-		String catName = (category==null) ? CName : category;
-        CategoryViewBean group = service.findAllInGroup(catName, groupName, date);
-		model.addAttribute("group", group);
-        if (!device.isMobile()) {
-            session.setAttribute("ispc", true);
-		}
-		return "group";
-	}
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public String itemAdd(Model model, Integer id, Integer parentId, Integer catId) {
 
-	@RequestMapping(value = "/diagramWithItem", method = RequestMethod.GET)
-	public String group(@RequestParam(value = "categoryId", required = false) String categoryId, Model model, Device device) {
+		if(Utl.check(id)) {
+			repository.findById(id).ifPresent( item -> {
+				model.addAttribute("item", item);
+			});
+		} else {
+			Item n = new Item();
+			n.setLevel(1);
+			n.setDate(LocalDate.now().toString());
+			n.setReleaseDate(LocalDate.now().toString());
 
-		CategoryViewBean itemGroups = service.findGroupByCategoryId(CatItemId);
-		List<Object> guideGroups = new ArrayList<>(); 
-		for(CategoryViewBean chv : itemGroups.getChildren()) {
-			for(Object itv : chv.getItems()) {
-				guideGroups.add(itv);
+			if(Utl.check(parentId)) {
+				repository.findById(parentId).ifPresent( item -> {
+					n.setParentId(item.getId());
+				});
 			}
-		}
-		model.addAttribute("guideGroups", guideGroups);
+			if(Utl.check(catId)) {
+				n.setItemCategoryId(catId);
+				n.setItemCategory(catRepository.findCatName(catId));
+				n.setType(catRepository.findCatType(catId));			
+			}
 
-        if (!device.isMobile()) {
-            session.setAttribute("ispc", true);
-		}
-
-		if(Utl.check(categoryId)) {
-			session.setAttribute("categoryId", categoryId);
-			CategoryViewBean group = service.findGroupByCategoryId(categoryId);
-			model.addAttribute("group", group);
-			return "group";
-		} else {
-			return "redirect:/item/group";
-		}		
-	}	
-
-	@RequestMapping(value = "/collectionsAboveLevel", method = RequestMethod.GET)
-	public String readCollectionsAboveL4(@RequestParam(value = "category", required = false) String category, 
-					@RequestParam(value = "level") String level, Model model) {
-		String catName = (category==null) ? CName : category;
-		CategoryViewBean group = service.findAllInGroupAboveLevel(catName, catName, level);
-		group.clearChildNoItem();
-		model.addAttribute("group", group);
-
-        model.addAttribute("itemBean", new ItemBean());        
-		return "group";
-	}
-
-	@RequestMapping(value = "/item", method = RequestMethod.GET)
-	public String detail(Model model, @RequestParam(value = "itemId") String itemId) {
-
-		ItemViewBean item = service.findWithResource(itemId);
-		model.addAttribute("itemBean", item);
-		return "item_detail";
-	}
-
-	@RequestMapping(value = "/resource", method = RequestMethod.GET)
-	public String childDetail(Model model, @RequestParam(value = "resourceId") Integer resourceId) {
-		resRepository.findById(resourceId).ifPresent( resource -> {
-			model.addAttribute("resourceBean", resource);
-		});
-		return "item_resource";
-	}
-
-	@RequestMapping(value = "/itemEdit", method = RequestMethod.GET)
-	public String edit(Model model, @RequestParam(value = "itemId") String itemId) {
-
-		ItemViewBean item = service.findWithResource(itemId);
-		model.addAttribute("itemBean", item);
-
-		ResourceBean resourceBean = new ResourceBean();
-		resourceBean.setType("");
-		resourceBean.setParentId(item.getId());
-		resourceBean.setStatus(Utl.Status.EV3_FINISHED.getValue());
-		resourceBean.setDate(LocalDate.now().toString());
-		resourceBean.setUpdateDate(LocalDate.now().toString());
-		model.addAttribute("resourceBean", resourceBean);
-		return "item_edit";
-	}
-
-	@RequestMapping(value = "/resourceEdit", method = RequestMethod.GET)
-	public String editDetail(Model model, @RequestParam(value = "resourceId") Integer resourceId) {
-		
-		resRepository.findById(resourceId).ifPresent( resource -> {
-			model.addAttribute("resourceBean", resource);
-			ItemViewBean item = service.findWithResource(Utl.parseIdToString(resource.getParentId()));
-			model.addAttribute("itemBean", item);
-		});
-
-		return "item_edit";
-	}
-
-	@RequestMapping(value = "/itemAdd", method = RequestMethod.GET)
-	public String itemAdd(Model model, @RequestParam(value = "itemId") String itemId) {
-
-		model.addAttribute("itemBean", new ItemBean());
-		service.find(itemId).ifPresent( item -> {
-			model.addAttribute("itemBean", item);
-		});
-		
-		return "item_add"; 
-	}
-
-	// @RequestMapping(value = "/addItemByCat", method = RequestMethod.GET)
-	// public String addItemByCat(@ModelAttribute("categooryId") int categoryId, Model model, Device device) {
-
-	// 	ItemBean p = new ItemBean();
-	// 	p.setCategoryId(categoryId);
-	// 	p.setCategory(catService.findCatName(categoryId));
-	// 	p.setStatus(Utl.Status.EV3_FINISHED.getValue());
-	// 	p.setLevel(1);
-	// 	p.setDate(LocalDate.now().toString());
-	// 	p.setReleaseDate(LocalDate.now().toString());
-
-	// 	Object rc = session.getAttribute("recentCat");
-	// 	if(rc != null) {
-	// 		p.setType(rc.toString());
-	// 	} else {
-	// 		p.setType("collection");
-	// 	}
-
-	// 	model.addAttribute("itemBean", p);
-	// 	return "item_add";
-	// }
-
-	@RequestMapping(value = "/addByCat", method = RequestMethod.GET)
-	public String addByCat(@ModelAttribute("targetId") int targetId, @ModelAttribute("targetCat") String targetCat, Model model, Device device) {
-
-		ItemBean p = new ItemBean();
-		p.setCategoryId(targetId);
-		p.setCategory(targetCat);
-		p.setStatus(Utl.Status.EV3_FINISHED.getValue());
-		p.setLevel(1);
-		p.setDate(LocalDate.now().toString());
-		p.setReleaseDate(LocalDate.now().toString());
-
-		Object rc = session.getAttribute("recentCat");
-		if(rc != null) {
-			p.setType(rc.toString());
-		} else {
-			p.setType("collection");
+			model.addAttribute("item", n);
 		}
 
-		model.addAttribute("itemBean", p);
-		return "item_add";
-	}
-
-	@RequestMapping(value = "/addChild", method = RequestMethod.GET)
-	public String addChildItem(@ModelAttribute("parentId") int parentId, Model model, Device device) {
-
-		ItemBean p = new ItemBean();
-		p.setParentId(parentId);
-		p.setCategoryId(0);
-		p.setCategory("");
-		p.setStatus(Utl.Status.EV3_FINISHED.getValue());
-		p.setLevel(1);
-		p.setDate(LocalDate.now().toString());
-		p.setReleaseDate(LocalDate.now().toString());
-
-		Object rc = session.getAttribute("recentCat");
-		if(rc != null) {
-			p.setType(rc.toString());
-		} else {
-			p.setType("collection");
-		}
-
-		model.addAttribute("itemBean", p);
-		
-		return "item_add";
+		return "item_edit"; 
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(@ModelAttribute("itemBean") ItemBean itemBean, Model model, Device device, RedirectAttributes redirectAttributes) {
-		service.save(itemBean);
-		Object rc = session.getAttribute("categoryId");
-		if(rc != null) {
-			redirectAttributes.addAttribute("categoryId", rc.toString());
-			return "redirect:/item/diagramWithItem"; 			
+	public String save(Item item, Boolean createCat, Model model, Device device, RedirectAttributes redirectAttributes) {
+		if(createCat != null) {
+			if(createCat && !Utl.check(item.getChildCategoryId())) {
+				Category nc = new Category();
+				nc.setName(item.getName());
+				nc.setDate(LocalDate.now().toString());
+				catRepository.save(nc);
+				item.setChildCategoryId(nc.getId());
+			}
 		}
-		return "redirect:/item/group"; 
+
+		service.save(item);
+		
+		if(Utl.check(item.getParentId())) {
+			redirectAttributes.addAttribute("id", item.getParentId());
+			return "redirect:/item/viewEdit"; 
+		}
+
+		Object rc = session.getAttribute("catId");
+		if(rc != null) {
+			redirectAttributes.addAttribute("catId", rc.toString());		
+		}
+		return "redirect:/item/"; 
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public String delete(Model model, @RequestParam(value = "delId") String delId, RedirectAttributes redirectAttributes) {
 		service.delete(delId);
-		Object rc = session.getAttribute("categoryId");
+		Object rc = session.getAttribute("catId");
 		if(rc != null) {
-			redirectAttributes.addAttribute("categoryId", rc.toString());
-			return "redirect:/item/diagramWithItem"; 			
+			redirectAttributes.addAttribute("catId", rc.toString());		
 		}
-		return "redirect:/item/group"; 
+		return "redirect:/item/"; 
 	}
 	
-	@RequestMapping(value = "/saveResource", method = RequestMethod.POST)
-	public String saveResource(@ModelAttribute("resourceBean") ResourceBean resourceBean, Model model, RedirectAttributes redirectAttributes) {
+	@RequestMapping(value = "/view", method = RequestMethod.GET)
+	public String view(Model model, Integer id) {
 
-		if("Item".equals(resourceBean.getType())) {
-			ItemBean newItem = new ItemBean();
-			newItem.setName(resourceBean.getName());
-			newItem.setDate(resourceBean.getDate());
-			newItem.setReleaseDate(resourceBean.getDate());
-			newItem.setParentId(resourceBean.getParentId());			
-			newItem.setLevel(1);
-			newItem.setMemo(resourceBean.getText());
-			repository.save(newItem);
+		ItemView iv = service.findWithResource(id);
+		model.addAttribute("item", iv);
+		return "item_view";
+	}
 
-		} else {
-			resRepository.save(resourceBean);
-		}
+	@RequestMapping(value = "/resource", method = RequestMethod.GET)
+	public String childDetail(Model model, Integer id) {
+		resRepository.findById(id).ifPresent( resource -> {
+			model.addAttribute("resourceBean", resource);
+		});
+		return "resource";
+	}
+
+	@RequestMapping(value = "/viewEdit", method = RequestMethod.GET)
+	public String edit(Model model, Integer id) {
+
+		ItemView item = service.findWithResource(id);
+		model.addAttribute("item", item);
+
+		Resource res = new Resource();
+		res.setParentId(item.getId());
+		res.setDate(LocalDate.now().toString());
+		res.setUpdateDate(LocalDate.now().toString());
+		model.addAttribute("resource", res);
+		return "item_view_edit";
+	}
+
+	@RequestMapping(value = "/resourceEdit", method = RequestMethod.GET)
+	public String editDetail(Model model, Integer id, Integer itemId) {
 		
-		redirectAttributes.addAttribute("itemId", resourceBean.getParentId());
-		return "redirect:/item/itemEdit";
-	}
-	
-	@RequestMapping(value = "/unsorted", method = RequestMethod.GET)
-	public String unsortedEdit(Model model) {
-		//List<ItemBean> list = service.findAll();
-        // List<ItemBean> list = service.findUnsortedItems();
-		// model.addAttribute("colList", list);
-		// return "collection_edit";
-		return "redirect:/item/";
+		if(Utl.check(id)) {
+			resRepository.findById(id).ifPresent( res -> {
+				model.addAttribute("resource", res);
+				repository.findById(res.getParentId()).ifPresent(item -> {
+					model.addAttribute("item", item);
+				});
+			});
+		} else {
+			Resource res = new Resource();
+			res.setParentId(itemId);
+			res.setType("Text");
+			res.setDate(LocalDate.now().toString());
+			res.setUpdateDate(LocalDate.now().toString());
+			model.addAttribute("resource", res);
+			repository.findById(res.getParentId()).ifPresent(item -> {
+				model.addAttribute("item", item);
+			});
+		}
+
+		return "resource_edit";
 	}
 
-	@RequestMapping(value = "/updateAll", method = RequestMethod.POST)
-	public String updateAll(Model model, @RequestParam String changeCategory, 
-									@RequestParam String parentCategory,
-									@RequestParam List<String> changeList,
-									@RequestParam String changeLevel,
-									@RequestParam String deleteFlg, RedirectAttributes redirectAttributes) {
-		service.updateAll(changeList, changeCategory, parentCategory, changeLevel, deleteFlg);
-		Object rc = session.getAttribute("categoryId");
+	@RequestMapping(value = "/saveResource", method = RequestMethod.POST)
+	public String saveResource(Resource resource, Model model, RedirectAttributes redirectAttributes) {
+
+		resource.setUpdateDate(LocalDate.now().toString());
+		resRepository.save(resource);		
+		redirectAttributes.addAttribute("id", resource.getParentId());
+		return "redirect:/item/viewEdit";
+	}
+
+	@RequestMapping(value = "/updateItemList", method = RequestMethod.POST)
+	public String updateItemList(Model model, @RequestParam List<Integer> changeList, Integer changeCatId, Integer changeParentId, Integer changeLevel,
+									Boolean deleteFlg, RedirectAttributes redirectAttributes) {
+		service.updateItemList(changeList, changeCatId, changeParentId, changeLevel, deleteFlg);
+		Object rc = session.getAttribute("catId");
 		if(rc != null) {
-			redirectAttributes.addAttribute("categoryId", rc.toString());
-			return "redirect:/item/diagramWithItem"; 			
+			redirectAttributes.addAttribute("catId", rc.toString());		
 		}
-		return "redirect:/item/group"; 
+		return "redirect:/item/"; 
 	}
-
-	/*
-	@RequestMapping(value = "/{filename:.+}")
-	@ResponseBody
-	public ResponseEntity<?> getFile(@PathVariable String filename) {
-		try {
-			return ResponseEntity.ok(resourceLoader.getResource("file:" + Paths.get("/tmp/myvision/" + filename)));
-		} catch (Exception e) {
-			return ResponseEntity.notFound().build();
-		}
-	}
-	*/
-
 	
 	@RequestMapping(value = "/convertToItem", method = RequestMethod.GET)
 	public String convertToItem(@ModelAttribute("resourceId") int resourceId, Model model, RedirectAttributes redirectAttributes) {
@@ -345,14 +238,14 @@ public class ItemController {
 			resRepository.findById(resourceId).ifPresent(resourceBean -> {
 				redirectAttributes.addAttribute("itemId", resourceBean.getParentId());
 
-				ItemBean newItem = new ItemBean();
+				Item newItem = new Item();
 				newItem.setName(resourceBean.getName());
 				newItem.setDate(resourceBean.getDate());
 				newItem.setReleaseDate(resourceBean.getDate());
 				newItem.setParentId(resourceBean.getParentId());
 				newItem.setLevel(1);
 				repository.save(newItem);
-	
+
 				resourceBean.setParentId(newItem.getId());
 				resRepository.save(resourceBean);
 			});			
@@ -362,4 +255,29 @@ public class ItemController {
 		
 		return "redirect:/item/itemEdit";
 	}
+
+	@RequestMapping(value = "/itemAboveLevel", method = RequestMethod.GET)
+	public String readAboveLevel(Integer catId, Integer level, Model model) {
+		if(!Utl.check(catId)) {
+			catId = RootCatId;
+		}
+		if(!Utl.check(level)) {
+			level = 4;
+		}
+		CategoryView diagram = service.findGroupByCategoryId(catId, level);
+		diagram.clearChildNoItem();
+		model.addAttribute("diagram", diagram);
+		session.setAttribute("catId", catId);   
+		return "diagram";
+	}
+
+	// @RequestMapping(value = "/unsorted", method = RequestMethod.GET)
+	// public String unsortedEdit(Model model) {
+	// 	//List<Item> list = service.findAll();
+    //     // List<Item> list = service.findUnsortedItems();
+	// 	// model.addAttribute("colList", list);
+	// 	// return "collection_edit";
+	// 	return "redirect:/item/";
+	// }
+
 }

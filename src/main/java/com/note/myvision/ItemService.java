@@ -21,47 +21,46 @@ public class ItemService {
   @Autowired
   ResourceRepository resRepository;
 
-  @Autowired
-  EventService eventService;
+  // @Autowired
+  // EventService eventService;
 
   @Autowired
   CategoryService catService;
 
-  public List<ItemBean> findAll(){
+  @Autowired
+  CategoryRepository catRepository;  
+
+  public List<Item> findAll(){
     return repository.findAll(Sort.by(Direction.ASC, "category"));
   }
 
-  public Optional<ItemBean> find(String id){
+  public Optional<Item> find(String id){
     return repository.findById(Utl.parseInt(id));
   }
-
-  // public List<ResourceBean> findByDate(String date) {
-  //   return resRepository.findByDateOrderByParent(date);
-  // }
   
-  public ItemViewBean findWithResource(String id){
-    Optional<ItemBean> res = repository.findById(Utl.parseInt(id));
+  public ItemView findWithResource(Integer id){
+    Optional<Item> res = repository.findById(id);
     if(res.isPresent()) { 
-      ItemBean item = res.get();
-      ItemViewBean iv = new ItemViewBean();
+      Item item = res.get();
+      ItemView iv = new ItemView();
       Utl.copyPropertiesIgnoreNull(item, iv);
-      List<ItemBean> is = repository.findByParentId(item.getId());
+      List<Item> is = repository.findByParentId(item.getId());
       iv.setItems(is);
-      List<ResourceBean> rs = resRepository.findByParentIdOrderByIndex(item.getId());
+      List<Resource> rs = resRepository.findByParentIdOrderByIndexAscDateDesc(item.getId());
       iv.setResources(rs);
       return iv;
     }
 
-    return new ItemViewBean();
+    return new ItemView();
   }
 
-  public void save(ItemBean b, ResourceBean c) {
+  public void save(Item b, Resource c) {
     repository.save(b);
     c.setParentId(b.getId());
     resRepository.save(c);
   }
 
-  public void save(ItemBean p)
+  public void save(Item p)
   {
     if(Utl.check(p.getId()))
     {
@@ -72,13 +71,13 @@ public class ItemService {
       //   }
       // });
 
-      Optional<ItemBean> res = repository.findById(p.getId());
+      Optional<Item> res = repository.findById(p.getId());
       if(res.isPresent())
       {
-        ItemBean r = res.get();
+        Item r = res.get();
         Utl.copyPropertiesIgnoreNull(p, r);
         r.setParentId(p.getParentId());
-        r.setCategoryId(p.getCategoryId());
+        r.setItemCategoryId(p.getItemCategoryId());
         if("null".equals(p.getSystemUrl())) r.setSystemUrl(null);
         repository.save(r);
       }
@@ -89,19 +88,27 @@ public class ItemService {
     }
     else
     {
-      // List<EventViewBean> res = eventService.findByName(p.getName());
+      // List<EventView> res = eventService.findByName(p.getName());
       // if(res.size() == 0)
       // {
-      //   EventViewBean v = new EventViewBean(p.getName(), p.getCategory(), p.getStatus(), "Collection", LocalDate.now().toString(), "0.1", "", "", "");
+      //   EventView v = new EventView(p.getName(), p.getCategory(), p.getStatus(), "Collection", LocalDate.now().toString(), "0.1", "", "", "");
       //   eventService.save(v);
       // }
-      if(p.getDate().isEmpty())
-        p.setDate(LocalDate.now().toString());      
+      if(!Utl.check(p.getName())) {
+        return ;
+      }
+
+      if(!Utl.check(p.getDate()))
+        p.setDate(LocalDate.now().toString());
+      if(!Utl.check(p.getReleaseDate())) {
+        p.setReleaseDate(p.getDate());
+      }
+
       repository.save(p);
     }
   }
 
-  public void save(ResourceBean c)
+  public void save(Resource c)
   {
     if(c.getDate().isEmpty())
       c.setDate(LocalDate.now().toString());
@@ -109,14 +116,14 @@ public class ItemService {
     resRepository.save(c);
   }
 
-  public void save(ResourceBean c, ItemBean p)
+  public void save(Resource c, Item p)
   {
     c.setParentId(p.getId());
     resRepository.save(c);
   }
 
-  // public void saveAll(List<ItemBean> list) {
-  //   for(ItemBean p : list)
+  // public void saveAll(List<Item> list) {
+  //   for(Item p : list)
   //   {
   //       repository.save(p);
   //   }
@@ -131,55 +138,55 @@ public class ItemService {
 
   }
 
-  public void createByEvent(EventViewBean vBean)
-  {
-    List<ItemBean> res = repository.findByNameOrName2(vBean.getName(), vBean.getName());
-    if(res.size() == 0)
-    {
-      ItemBean c = new ItemBean();
-      c.setName(vBean.getName());
-      c.setCategory(vBean.getRelatedCategory());      
-      c.setCategoryId(vBean.getRelatedId());
-      c.setStatus(vBean.getStatus());
-      c.setMemo("");
-      if(vBean.getMemo() != null)
-        c.setMemo(vBean.getMemo());
-      c.setName2("");
-      c.setName3("");
-      c.setLevel(1);
-      c.setDate(vBean.getDate());
-      c.setReleaseDate(vBean.getDate());
-      repository.save(c);
-    }    
-  }
+  // public void createByEvent(EventView vBean)
+  // {
+  //   List<Item> res = repository.findByNameOrName2(vBean.getName(), vBean.getName());
+  //   if(res.size() == 0)
+  //   {
+  //     Item c = new Item();
+  //     c.setName(vBean.getName());
+  //     c.setCategory(vBean.getRelatedCatName());      
+  //     c.setCategoryId(vBean.getRelatedCatId());
+  //     c.setMemo("");
+  //     if(vBean.getMemo() != null)
+  //       c.setMemo(vBean.getMemo());
+  //     c.setName2("");
+  //     c.setLevel(1);
+  //     c.setDate(vBean.getDate());
+  //     c.setReleaseDate(vBean.getDate());
+  //     repository.save(c);
+  //     vBean.setRelatedItemId(c.getId());
+  //     vBean.setRelatedItemName(c.getName());
+  //   }    
+  // }
 
-  public CategoryViewBean findAllInGroup(String CName, String category, String date) {
-    CategoryViewBean c = catService.findByNameWithCategory(CName);
-    CategoryViewBean res = findGroup(c, category, -9);
-    if(res == null) 
-      return c;
-    else 
-      return res;
-  }
+  // public CategoryView findAllInGroup(String CName, String category, String date) {
+  //   CategoryView c = catService.findByNameWithCategory(CName);
+  //   CategoryView res = findGroup(c, category, -9);
+  //   if(res == null) 
+  //     return c;
+  //   else 
+  //     return res;
+  // }
 
-  public CategoryViewBean findGroupByCategoryId(String categoryId) {
-    Optional<CategoryChildBean> childOpt = catService.findChild(categoryId);
-    if(childOpt.isPresent()) {
-      catService.sortCategoryChildBean(childOpt.get());
-      CategoryViewBean cat = new CategoryViewBean(childOpt.get());
-      AddItemToGroup(cat, -9);
+  public CategoryView findGroupByCategoryId(int catId, int level) {
+    Optional<Category> opt = catRepository.findById(catId);
+    if(opt.isPresent()) {
+      catService.sortCategory(opt.get());
+      CategoryView cat = new CategoryView(opt.get());
+      AddItemToGroup(cat, level);
       return cat;
     }
     return null;
   }
 
-  public CategoryViewBean findGroup(CategoryViewBean c, String category, int level) {
+  public CategoryView findGroup(CategoryView c, String category, int level) {
     if(c.getName().equals(category)) {
       AddItemToGroup(c, level);
       return c;
     }
-    for(CategoryViewBean cat : c.getChildren()) {
-      CategoryViewBean res = findGroup(cat, category, level);
+    for(CategoryView cat : c.getChildren()) {
+      CategoryView res = findGroup(cat, category, level);
       if(res == null) {
         continue;
       } else {
@@ -189,125 +196,62 @@ public class ItemService {
     return null;
   }
 
-  // public void AddItemToGroup(CategoryViewBean group)
-  // {
-  //   if(group == null)
-  //       return;
-  //   List<ItemBean> list = repository.findByCategoryId(group.getId());
-  //   List<Object> objList = group.getItems();
-  //   for(ItemBean p : list)
-  //   {
-  //     objList.add(p);
-  //   }
-  //   group.setItems(objList);
-  //   if(group.getChildren() != null)
-  //   {
-  //       for(CategoryViewBean child : group.getChildren())
-  //       {
-  //         AddItemToGroup(child);
-  //       }
-  //   }
+  // public CategoryView findAllInGroupAboveLevel(String CName, String category, String level) {
+
+  //   int lv = Utl.parseInt(level);
+  //   CategoryView c = catService.findByNameWithCategory(CName);
+  //   CategoryView res = findGroup(c, category, lv);
+  //   if(res == null) 
+  //     return c;
+  //   else 
+  //     return res;
   // }
 
-  public CategoryViewBean findAllInGroupAboveLevel(String CName, String category, String level) {
-
-    int lv = Utl.parseInt(level);
-    CategoryViewBean c = catService.findByNameWithCategory(CName);
-    CategoryViewBean res = findGroup(c, category, lv);
-    if(res == null) 
-      return c;
-    else 
-      return res;
-  }
-
-  // public CategoryViewBean findTargetCat(CategoryViewBean cat, String targetCat) {
-  //   if(cat.getName().equals(targetCat)) {
-  //     return cat;
-  //   }
-  //   for(CategoryViewBean child : cat.getChildren()) {
-  //     return findTargetCat(child, targetCat);
-  //   }
-  //   return cat;
-  // }
-
-  public void AddItemToGroup(CategoryViewBean group, int level)
+  public void AddItemToGroup(CategoryView group, int level)
   {
     if(group == null)
         return;
-    List<ItemBean> list = repository.findByCategoryIdAndLevelGreaterThan(group.getId(), level);
+    List<Item> list = repository.findByItemCategoryIdAndLevelGreaterThan(group.getId(), level);
     List<Object> objList = group.getItems();
-    for(ItemBean p : list)
+    for(Item p : list)
     {
       objList.add(p);
     }
     group.setItems(objList);
     if(group.getChildren() != null)
     {
-        for(CategoryViewBean child : group.getChildren())
+        for(CategoryView child : group.getChildren())
         {
           AddItemToGroup(child, level);
         }
     }
   }
 
-  public List<ItemBean> findUnsortedItems() {
-    List<String> catList = new ArrayList<String>();
-    Map<String, String> map1 = catService.GetCategoryMapByName("Collection");
-    for(String value : map1.values()){
-      catList.add(value);
-    }
-    Map<String, String> map2 = catService.GetCategoryMapByName("Achievement");
-    for(String value : map2.values()){
-      catList.add(value);
-    }
-    return repository.findByCategoryNotIn(catList);
-  } 
-
-  // public ItemBean modifyBean(ItemBean b) {
-  //   ItemBean newBean = new ItemBean(b);
-  //   for(ResourceBean child : newBean.getItems())
-  //   {
-  //     if(child.getMemo().length() > 50) {
-  //       child.setMemo(child.getMemo().substring(0, 50));
-  //     }
-  //   }
-  //   return newBean;
-  // }
-
-  public Optional<ResourceBean> findChild(String id) {
+  public Optional<Resource> findChild(String id) {
     return resRepository.findById(Utl.parseInt(id));
   }
 
-  // public void sortByIndex(ItemViewBean p)
-  // {
-  //   p.getItems().sort( (a,b)-> {
-  //     if(!a.getType().equals(b.getType())) {
-  //       return a.getType().compareTo(b.getType());
-  //     }
-  //     return new Integer(a.getIndex()).compareTo(b.getIndex());
-  //   });
-  // }  
-
-  public void updateAll(List<String> idList, String changeCategory, String parentCategory, String changeLevel, String deleteFlg) {
-    if(!Utl.check(changeCategory) && !Utl.check(deleteFlg))
+  public void updateItemList(List<Integer> idList, Integer catId, Integer parentId, Integer level, Boolean deleteFlg) {
+    if(!Utl.check(catId) && !Utl.check(parentId) && !deleteFlg)
       return;
 
-    int catId = catService.findItemCategoryIdByName(changeCategory, "");
-    if(!Utl.check(catId) && !Utl.check(deleteFlg))
-      return;
-
-    int level = Utl.parseInt(changeLevel);
-    for(String idStr : idList) {
-      if(Utl.check(idStr)) {
-        int id = Utl.parseInt(idStr);
+    for(Integer id : idList) {
+      if(Utl.check(id)) {
         repository.findById(id).ifPresent( item -> {
 
-          if(Utl.check(deleteFlg)) {
+          if(deleteFlg) {
             repository.delete(item);
           } else {
-            item.setCategoryId(catId);
-            item.setCategory(changeCategory);
-            if(level != 0) {
+            if(Utl.check(catId)) {
+              item.setItemCategoryId(catId);
+              item.setItemCategory(catRepository.findCatName(catId));
+            }
+            if(Utl.check(parentId)) {
+              item.setItemCategoryId(0);
+              item.setParentId(parentId);
+              item.setParentName(repository.findItemName(parentId));
+            }
+            if(level != null) {
               item.setLevel(level);
             }
             repository.save(item);

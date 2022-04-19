@@ -17,11 +17,11 @@ function formatDate(date, format) {
   return format;
 }
 function chgDate(days) {
-	var date = new Date(document.getElementById("targetDate").value);
+	var date = new Date(document.getElementById("date").value);
     date.setDate(date.getDate() + days);
     var formatedDate = formatDate(date, "yyyy-MM-dd");
     //var formatDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
-    document.getElementById("targetDate").value = formatedDate;
+    document.getElementById("date").value = formatedDate;
 	chgDateForm.submit();
 }
 function addParticipant(id) {
@@ -32,7 +32,7 @@ function inputClear() {
     document.getElementById("inputName").value = "";
     document.getElementById("inputCategory").value = "";
     document.getElementById("inputStatus").value = "";
-    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputDate").value = document.getElementById("date").value;
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
 }
@@ -46,7 +46,7 @@ function selectItem(id, nm, ct, st) {
     document.getElementById("inputName").value = nm
     document.getElementById("inputCategory").value = ct;
     document.getElementById("inputStatus").value = st;
-    document.getElementById("inputDate").value = document.getElementById("targetDate").value;
+    document.getElementById("inputDate").value = document.getElementById("date").value;
     document.getElementById("inputTime").value = "";
 	document.getElementById("inputMemo").value = "";
 }
@@ -145,7 +145,7 @@ $(function () {
 <div layout:fragment="content">
     <div>
         <form name="chgDateForm" action="#" th:action="@{/event/chgDate}" method="GET" >
-            <input type="text" id="targetDate" name="targetDate" th:value="${date}" class="textbox"/>
+            <input type="text" id="date" name="date" th:value="${date}" class="textbox"/>
             <input type="button" value="Change" th:onclick="chgDate(0)" class="btn-comn"></input>
             <input type="button" value="prev" th:onclick="chgDate(-1)" class="btn-comn"></input>
             <input type="button" value="next" th:onclick="chgDate(1)" class="btn-comn"></input>
@@ -316,7 +316,7 @@ $(function () {
 <hr/>
 <h3>Search a EventViewBean</h3>
 <form name="findForm" action="#" th:action="@{/event/find}" method="GET">
-    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" name="date" th:value="${date}" readonly="true" />
     <input type="text" name="targetName" class="textbox"/>
     <input type="submit" value="search"></input>
 </form>
@@ -351,7 +351,7 @@ $(function () {
 </div>
 
 <form name="insertForm" method="POST" action="#" th:action="@{/event/insert}">
-    <input type="hidden" name="targetDate" th:value="${date}" readonly="true" />
+    <input type="hidden" name="date" th:value="${date}" readonly="true" />
     <input type="hidden" id="insertId" name="insertId" value=""></input>
 </form>
 

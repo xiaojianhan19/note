@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<link rel="stylesheet" th:href="@{/style.css}"></link>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+  <form name="addForm" method="POST" action="#" th:action="@{/category/save}" th:object="${catBean}" > 
+    <table class="table table-bordered noborder headline">
+      <tr><td>id</td><td ><input th:field="*{id}" /></td></tr>
+      <tr><td>name</td><td ><input th:field="*{name}" /></td></tr>
+      <tr><td>parent</td><td ><input th:field="*{parent.id}" /> <b th:text="${parentName}"></b></td></tr>
+      <tr><td>order</td><td ><input th:field="*{orderNo}" /></td></tr>
+      <tr><td>relatedId</td><td ><input th:field="*{relatedId}" /></td></tr>
+      <tr><td>type</td><td ><input th:field="*{type}" class="type" /></td></tr>
+      <tr><td>date</td><td ><input th:field="*{date}" /></td></tr>
+      <tr><td>start</td><td ><input th:field="*{startDate}" /></td></tr>
+      <tr><td>end</td><td ><input th:field="*{endDate}" /></td></tr>
+    </table>
+      <input type="submit" value="Save" />
+  </form>
+</div>
+</body>
+</html>

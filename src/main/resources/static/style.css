@@ -46,19 +46,6 @@ body {
 } 
 
 /*
-.textbox{
-    padding: 5px 8px;
-    border-radius: 6px;
-    border-top: 1px solid #777;
-    border-left: 1px solid #777;
-    border-right: 2px solid #777;
-    border-bottom: 2px solid #777;
-    background-image: none;
-    background-color: #bbb;
-    font-size: 12px;
-}
-*/
-/*
 input[type="button"], input[type="submit"], input[type="reset"] {
     width: 100px;
     height: 30px;
@@ -74,6 +61,7 @@ input[type="button"], input[type="submit"], input[type="reset"] {
     color: #111;
 }
 */
+
 input[type="button"]:hover{
   background-color:#ccc;
 }
@@ -118,13 +106,22 @@ textarea {
 	table-layout:fixed;/* 只有定义了表格的布局算法为fixed，下面td的定义才能起作用。 */
 }
 .oneline td{
-	width:100%;
-	word-break:keep-all;/* 不换行 */
-	white-space:nowrap;/* 不换行 */
+  width:100%;
+  word-wrap:break-word;
+	word-break:break-all;/* 换行 */
+	white-space:pre-wrap;/* 换行 */
 	overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
 	text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用*/
 }
 
+.title div {
+  display: block;
+  border: 1px solid #aaa;
+  padding: 2px 5px 2px 5px;
+  color: black;
+  text-decoration: none;
+  /* background-color: rgb(231, 248, 255); */
+}
 
 ul {
   margin-left: 5px;
@@ -322,4 +319,35 @@ img {
   margin: 2px 2px;
   padding: 2px 2px;
   cursor: pointer;
+}
+
+.addbtn {
+  font-weight:bold;
+  float:right;
+  margin-right: 8px;
+  text-align: top;
+}
+
+.addbtn2 {
+  font-weight:bold;
+  margin-left: 10px;
+  border: 1px solid black;
+  background-color: #4CAF50;
+}
+
+.shortbox{
+  margin-left: 3px;
+  width: 25px;
+  border: 0px;
+  BACKGROUND-COLOR: transparent;
+}
+
+.textbox {
+  width: 85px;
+  border: 0px;
+  BACKGROUND-COLOR: transparent;
+}
+
+.datebox{
+  width: 85px;
 }

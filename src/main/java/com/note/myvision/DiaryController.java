@@ -1,6 +1,8 @@
 package com.note.myvision;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,37 +21,78 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/diary")
 public class DiaryController {
-	//private static final Logger log = LoggerFactory.getLogger(DiaryController.class);
-
-	// @Autowired
-	// DiaryService service;
 
     @Autowired
     DiaryRepository repository;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String readDiarys(@RequestParam(value = "targetDate", required = false) String chgDate, Model model) {
-		String date = (chgDate != null) ? chgDate : LocalDate.now().toString();
+	public String read(String date, Model model) {
+		if(!Utl.check(date)) { date = LocalDate.now().toString();}
 		model.addAttribute("date", date);
         
-        Optional<DiaryBean> diary = repository.findById(date);
+        List<Diary> diaryList = repository.findByDate(date);
+        if(diaryList.size() == 0)
+        {
+			model.addAttribute("diary", new Diary(date));
+			return "diary";
+        }
+        else if(diaryList.size() == 1)
+        {
+			model.addAttribute("diary", diaryList.get(0));
+			return "diary";
+		}
+		else
+		{
+			model.addAttribute("diaryList", diaryList);
+			return "diaryList";
+		}		
+	}
+
+	@RequestMapping(value = "/readByPeriod", method = RequestMethod.GET)
+	public String readByPeriod(Model model, String date, String start, String end) {
+		
+		if(!Utl.check(date)) { date = LocalDate.now().toString();}
+		model.addAttribute("date", date);
+		if(!Utl.check(start) || !Utl.check(end)) 
+		{
+			LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+			start = localDate.with(TemporalAdjusters.firstDayOfMonth()).toString();
+			end = localDate.with(TemporalAdjusters.lastDayOfMonth()).toString();		
+		}
+		model.addAttribute("start", start);
+		model.addAttribute("end", end);
+
+        List<Diary> diaryList = repository.findByDateBetweenOrderByDateDesc(start, end);
+		model.addAttribute("diaryList", diaryList);
+		return "diaryList";	
+	}
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public String edit(Integer id, Model model) {
+		
+        Optional<Diary> diary = repository.findById(id);
         if(diary.isPresent())
         {
-		    model.addAttribute("diaryBean", diary.get());
+			model.addAttribute("diary", diary.get());
+			model.addAttribute("date", diary.get().getDate());
+			return "diary";
         }
         else
         {
-            model.addAttribute("diaryBean", new DiaryBean(date));
-        }
-		return "diary";
+			String date = LocalDate.now().toString();
+			model.addAttribute("diary", new Diary());
+			model.addAttribute("date", date);
+			return "diary";
+		}
+	
 	}
 
-	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String addDiaryViewBean(RedirectAttributes redirectAttributes, @ModelAttribute("diaryBean") DiaryBean diary, Model model) {
-		//service.save(diary);
-		diary.setLength(diary.getMemo().length());
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public String save(RedirectAttributes redirectAttributes, @ModelAttribute("diary") Diary diary, Model model) {
+
+		diary.setLength(diary.getText().length());
         repository.save(diary);
-		redirectAttributes.addAttribute("targetDate", diary.getDate());
+		redirectAttributes.addAttribute("date", diary.getDate());
 		return "redirect:/diary/";
 	}
 
