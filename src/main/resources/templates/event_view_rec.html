@@ -19,8 +19,8 @@
 					<td th:text="${item.parentName}"></td>
 					<td width="10%" th:text="${item.getTime()}"></td>
 					<td width="10%" th:text="${item.getDuration()}"></td>
-					<td width="10%" th:text="${item.getPercent()}"></td>
-					<td width="10px"><a th:href="'/event/'" th:text="D"></a></td>
+					<!--<td width="10%" th:text="${item.getPercent()}"></td> -->
+					<td width="10px"><a th:href="'/event/eventDetail?itemId=' + ${item.getParentId()} + '&itemName=' + ${item.getParentName()}" th:text="D"></a></td>
 				</tr>
 			</table>
 		</div>

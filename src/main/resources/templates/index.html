@@ -10,18 +10,13 @@
   <meta name="description" content="SpringBootとThymeleafのLayoutを使ってWebサイトを作るサンプルです。ここはトップページです。" />
   <script th:inline="javascript">
     /*<![CDATA[*/
-    function nw(str) {
-        var res = document.getElementById(str);
-        return res.innerText;
-    }
     /*]]>*/
-    </script>
+</script>
 </head>
 <body>
 <div layout:fragment="content">
 <p style="height:150px;">
 トップページです。
-
 
 </p>
 </div>

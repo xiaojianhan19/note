@@ -53,14 +53,24 @@ public class ItemController {
 	@Autowired
 	CategoryRepository catRepository;
 
+	@Autowired
+	EventService eventService;
+
+	@Autowired
+	EventRepository eventRepository;
+
 	@javax.annotation.Resource
     private ResourceLoader resourceLoader;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String read(Model model, Device device, Integer catId) {
+	public String read(Model model, Device device, Integer catId, Integer level,Boolean editFlag) {
+
+		if(!Utl.check(level)) {
+			level = 0;
+		}
 
 		// nav 
-		CategoryView guideCat = service.findGroupByCategoryId(ItemCatId, -9);
+		CategoryView guideCat = service.findGroupByCategoryId(ItemCatId, level);
 		List<Object> guides = new ArrayList<>(); 
 		for(CategoryView chv : guideCat.getChildren()) {
 			for(Object itv : chv.getItems()) {
@@ -73,9 +83,12 @@ public class ItemController {
 		if(!Utl.check(catId)) {
 			catId = RootCatId;
 		}
-		CategoryView diagram = service.findGroupByCategoryId(catId, -9);
+		CategoryView diagram = service.findGroupByCategoryId(catId, level);
 		model.addAttribute("diagram", diagram);
 		session.setAttribute("catId", catId);
+		if(editFlag != null) {
+			session.setAttribute("editFlag", editFlag);
+		}
 
 		// catList
 		Map<String, String> catList = new TreeMap<String, String>();
@@ -98,6 +111,7 @@ public class ItemController {
 			repository.findById(id).ifPresent( item -> {
 				model.addAttribute("item", item);
 			});
+			return "item_edit"; 
 		} else {
 			Item n = new Item();
 			n.setLevel(1);
@@ -110,15 +124,20 @@ public class ItemController {
 				});
 			}
 			if(Utl.check(catId)) {
-				n.setItemCategoryId(catId);
-				n.setItemCategory(catRepository.findCatName(catId));
-				n.setType(catRepository.findCatType(catId));			
+				catRepository.findById(catId).ifPresent( cat -> {
+					n.setItemCategoryId(catId);
+					n.setItemCategory(cat.getName());
+					n.setType(cat.getType());
+					if(Utl.check(cat.getRelatedId())) {
+						n.setEventCategoryId(cat.getRelatedId());
+						n.setEventCategory(catRepository.findCatName(cat.getRelatedId()));
+					}
+				});
 			}
 
 			model.addAttribute("item", n);
-		}
-
-		return "item_edit"; 
+			return "item_edit_simple"; 
+		}		
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
@@ -188,8 +207,8 @@ public class ItemController {
 	}
 
 	@RequestMapping(value = "/resourceEdit", method = RequestMethod.GET)
-	public String editDetail(Model model, Integer id, Integer itemId) {
-		
+	public String editDetail(Model model, Integer id, Integer itemId, Integer eventParentId) {
+
 		if(Utl.check(id)) {
 			resRepository.findById(id).ifPresent( res -> {
 				model.addAttribute("resource", res);
@@ -207,17 +226,40 @@ public class ItemController {
 			repository.findById(res.getParentId()).ifPresent(item -> {
 				model.addAttribute("item", item);
 			});
+			if(Utl.check(eventParentId)) {
+				model.addAttribute("eventParentId", eventParentId);
+			}
 		}
 
 		return "resource_edit";
 	}
 
 	@RequestMapping(value = "/saveResource", method = RequestMethod.POST)
-	public String saveResource(Resource resource, Model model, RedirectAttributes redirectAttributes) {
+	public String saveResource(Resource resource, Integer eventParentId, Model model, RedirectAttributes redirectAttributes) {
 
 		resource.setUpdateDate(LocalDate.now().toString());
-		resRepository.save(resource);		
+		resRepository.save(resource);
+
+		if(Utl.check(eventParentId)) {
+			Event ne = new Event();
+			ne.setName(resource.getName());
+			ne.setDate(LocalDate.now().toString());
+			ne.setTime(0.25);
+			ne.setParentId(eventParentId);
+			eventRepository.save(ne);
+		}
+
 		redirectAttributes.addAttribute("id", resource.getParentId());
+		return "redirect:/item/viewEdit";
+	}
+
+	@RequestMapping(value = "/delResource", method = RequestMethod.GET)
+	public String delResource(Integer parentId, Integer id, Model model, RedirectAttributes redirectAttributes) {
+		if(Utl.check(id)) {
+			resRepository.deleteById(id);
+		}
+
+		redirectAttributes.addAttribute("id", parentId);
 		return "redirect:/item/viewEdit";
 	}
 
@@ -236,7 +278,7 @@ public class ItemController {
 	public String convertToItem(@ModelAttribute("resourceId") int resourceId, Model model, RedirectAttributes redirectAttributes) {
 		try {
 			resRepository.findById(resourceId).ifPresent(resourceBean -> {
-				redirectAttributes.addAttribute("itemId", resourceBean.getParentId());
+				redirectAttributes.addAttribute("id", resourceBean.getParentId());
 
 				Item newItem = new Item();
 				newItem.setName(resourceBean.getName());
@@ -250,10 +292,10 @@ public class ItemController {
 				resRepository.save(resourceBean);
 			});			
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 		
-		return "redirect:/item/itemEdit";
+		return "redirect:/item/viewEdit";
 	}
 
 	@RequestMapping(value = "/itemAboveLevel", method = RequestMethod.GET)
@@ -267,17 +309,51 @@ public class ItemController {
 		CategoryView diagram = service.findGroupByCategoryId(catId, level);
 		diagram.clearChildNoItem();
 		model.addAttribute("diagram", diagram);
-		session.setAttribute("catId", catId);   
+		session.setAttribute("catId", catId);
 		return "diagram";
 	}
 
-	// @RequestMapping(value = "/unsorted", method = RequestMethod.GET)
-	// public String unsortedEdit(Model model) {
-	// 	//List<Item> list = service.findAll();
-    //     // List<Item> list = service.findUnsortedItems();
-	// 	// model.addAttribute("colList", list);
-	// 	// return "collection_edit";
-	// 	return "redirect:/item/";
-	// }
+	@RequestMapping(value = "/unsorted", method = RequestMethod.GET)
+	public String unsortedEdit(Model model) {
+		//List<Item> list = service.findAll();
+		CategoryView diagram = service.findUnsortedItems();
+		model.addAttribute("diagram", diagram);
+		return "diagram";
+	}
+
+	@RequestMapping(value = "/find", method = RequestMethod.GET)
+	public String addEventView(String name, String id1, Model model, Device device) {
+
+		if(Utl.check(name)) {
+			List<ItemView> itemList = repository.findEventSum(name);
+			for(ItemView iv : itemList) {
+				List<Item> chs = repository.findByParentId(iv.getId());
+				iv.setChcount(chs.size());
+				List<Resource> res = resRepository.findByParentId(iv.getId());
+				iv.setRcount(res.size());
+			}
+			model.addAttribute("itemList", itemList);
+		}
+		model.addAttribute("name", name);
+		model.addAttribute("id1", id1);
+
+		return "item_find";
+	}
+
+	@RequestMapping(value = "/mergeItem", method = RequestMethod.POST)
+	public String mergeItem(Integer id1, Integer id2, String name, Model model, Device device, RedirectAttributes redirectAttributes) {
+		if(Utl.check(id1) && Utl.check(id2)) {
+			if(service.mergeItem(id1, id2)) {
+				redirectAttributes.addAttribute("name", name);
+				redirectAttributes.addAttribute("id1", id1);
+				return "redirect:/item/find";
+			}
+		}
+		model.addAttribute("id2", id2);
+		model.addAttribute("name", name);
+		model.addAttribute("id1", id1);
+		return "item_find";
+	}
+	
 
 }

@@ -176,6 +176,10 @@ public class EventService {
       item.setDate(vBean.getChangeToDate());
     }
 
+    if(vBean.getTopicCategoryId() == -1 ) {
+      item.setTopicCategoryId(0);
+    }
+
     if(Utl.check(item.getName())) {
       itemRepository.save(item);
     }
@@ -594,4 +598,23 @@ public class EventService {
     }
     return new ItemView();
   }
+
+  public List<Event> findListByParentId(int itemId) {
+    List<Event> eventList = repository.findByParentIdOrderByDateAsc(itemId);
+    if(eventList.size() > 0) {
+      Event sum = new Event();
+      sum.setDate("SUM");
+      double sumTime = 0.0;
+      for(Event ev : eventList) {
+        sumTime += ev.getTime();
+      }
+      sum.setTime(sumTime);
+      sum.setName(Integer.toString(eventList.size()));
+      eventList.add(sum);
+    }
+    return eventList;
+  }
+
+
+
 }

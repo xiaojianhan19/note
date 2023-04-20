@@ -47,7 +47,20 @@ public class ItemView extends BaseBean{
     private int itemId;
     private String changeToDate;
 
+    //for item list
+    private long ecount;
+    private long chcount;
+    private long rcount;
+    private double time;
+
     public ItemView(){
+    }
+
+    public ItemView(Integer id, String name, long ecount, double time) {
+        this.id = id;
+        this.name = name;
+        this.ecount = ecount;
+        this.time = time;
     }
 
     public String getName2() {
@@ -312,6 +325,38 @@ public class ItemView extends BaseBean{
 
     public void setEvent(Event event) {
         this.event = event;
+    }
+
+    public long getEcount() {
+        return ecount;
+    }
+
+    public void setEcount(long ecount) {
+        this.ecount = ecount;
+    }
+
+    public long getRcount() {
+        return rcount;
+    }
+
+    public void setRcount(long rcount) {
+        this.rcount = rcount;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    public void setTime(double time) {
+        this.time = time;
+    }
+
+    public long getChcount() {
+        return chcount;
+    }
+
+    public void setChcount(long chcount) {
+        this.chcount = chcount;
     }
 
 }

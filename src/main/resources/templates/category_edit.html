@@ -15,15 +15,15 @@
 <div layout:fragment="content">
   <form name="addForm" method="POST" action="#" th:action="@{/category/save}" th:object="${catBean}" > 
     <table class="table table-bordered noborder headline">
-      <tr><td>id</td><td ><input th:field="*{id}" /></td></tr>
-      <tr><td>name</td><td ><input th:field="*{name}" /></td></tr>
-      <tr><td>parent</td><td ><input th:field="*{parent.id}" /> <b th:text="${parentName}"></b></td></tr>
-      <tr><td>order</td><td ><input th:field="*{orderNo}" /></td></tr>
-      <tr><td>relatedId</td><td ><input th:field="*{relatedId}" /></td></tr>
-      <tr><td>type</td><td ><input th:field="*{type}" class="type" /></td></tr>
-      <tr><td>date</td><td ><input th:field="*{date}" /></td></tr>
-      <tr><td>start</td><td ><input th:field="*{startDate}" /></td></tr>
-      <tr><td>end</td><td ><input th:field="*{endDate}" /></td></tr>
+      <tr><td>名称</td><td ><input th:field="*{name}" /></td></tr>
+      <tr><td>序号</td><td ><input th:field="*{orderNo}" /></td></tr>
+      <tr><td>ID</td><td ><input th:field="*{id}" readonly="true"/></td></tr>
+      <tr><td>上级分类</td><td ><input th:field="*{parent.id}" /> <b th:if="${parentName}!=null" th:text="${parentName}"></b></td></tr>      
+      <tr><td>关联分类</td><td ><input th:field="*{relatedId}" /></td></tr>
+      <tr><td>类型</td><td ><input th:field="*{type}" class="type" /></td></tr>
+      <tr><td>输入日期</td><td ><input th:field="*{date}" /></td></tr>
+      <tr><td>开始日期</td><td ><input th:field="*{startDate}" /></td></tr>
+      <tr><td>结束日期</td><td ><input th:field="*{endDate}" /></td></tr>
     </table>
       <input type="submit" value="Save" />
   </form>

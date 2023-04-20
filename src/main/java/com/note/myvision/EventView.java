@@ -42,9 +42,10 @@ public class EventView extends BaseBean {
         this.topicCategoryId = Utl.check(topicCategoryId) ? topicCategoryId : 0;
     }
 
-    public EventView(double time, Integer parentId, 
+    public EventView(double time, Long count, Integer parentId, 
                         String itemName, Integer eventCategoryId, Integer topicCategoryId) {
         this.time = Utl.parseTimeToString(time);
+        this.duration = count.toString();
         this.parentId = parentId;
         this.parentName = itemName;
         this.eventCategoryId = Utl.check(eventCategoryId) ? eventCategoryId : 0;

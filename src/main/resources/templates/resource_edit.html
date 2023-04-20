@@ -36,18 +36,21 @@
       <td colspan="4"><textarea th:field="*{text}" th:value="${text}" ></textarea></td>
     </tr>
   </table>
+  
+  <input type="hidden" th:if="${eventParentId}!=null" name="eventParentId" th:value="${eventParentId}"></p>
 
   <input type="submit" value="Save" />
-  <a th:if="${resource.id!=0}" th:href="'/item/delResource?id=' + ${resource.id}" value="Delete" style="float: right;"></a>
+  <a th:href="'/item/delResource?parentId=' + ${resource.parentId} + '&id=' + ${resource.id}" ><input type="button" value="Delete" /></a>
 </form>
 
 <hr>
 <h3>Upload File</h3>
 <p th:text="${item?.url}"></p>
 <form name="fileForm" method="POST" action="#" th:action="@{/file/upload}" enctype="multipart/form-data">
-    <input type="radio" name="resType" value="Image" th:text="Image" checked>
-    <input type="radio" name="resType" value="File" th:text="File" ><br>
-    <input type="file" name="files">
+    <input type="radio" name="resType" value="File" th:text="File" checked><br>
+    <input type="radio" name="resType" value="Image" th:text="Image" >    
+    <input type="file" name="files" multiple="multiple" > 
+    <!-- <input type="file" name="files" webkitdirectory directory >  -->
     <input type="hidden" name="itemId" th:value="${item?.id}"></p>
     <p><input type="submit" value="submit"></p>
 </form>

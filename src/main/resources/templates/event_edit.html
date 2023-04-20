@@ -7,18 +7,6 @@
 <meta charset="UTF-8"></meta>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function insertItem(id, time) {
-    document.getElementById("insertId").value = id;
-    if(time != 0.0) {
-      document.getElementById("targetTime").value = time;
-    }
-	insertForm.submit();
-}
-
-$(function () {
-    totalCalc();
-});
-
 /*]]>*/
 </script>
 </head>
@@ -36,7 +24,7 @@ $(function () {
           <tr><td>type</td><td><input th:field="*{type}" class="type" /></td>
             <td>date</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
           <tr><td>event</td><td><input th:field="*{event.name}" /></td><td>id</td><td><input th:field="*{event.id}" class="textbox"/></tr>
-          <tr><td>time <FONT color="red">*</FONT></td><td><input th:field="*{event.time}" /></td><td>status</td><td><input th:field="*{status}" class="status textbox"/></td></tr>
+          <tr><td>time <FONT color="red">*</FONT></td><td><input th:field="*{event.time}" class="time"/></td><td>status</td><td><input th:field="*{status}" class="status textbox"/></td></tr>
           <tr><td>date</td><td><input th:field="*{event.date}" class="textbox"/></td><td>changeTo</td><td><input th:field="*{changeToDate}" class="textbox"/></td></tr>
           <tr hidden=""><td>parent</td><td><input th:field="*{event.parentId}" class="textbox"/></td></tr>
           <tr>
@@ -45,10 +33,11 @@ $(function () {
           <tr><td>memo</td><td colspan="3"><input th:field="*{event.memo}" /></td></tr>
       </table>
       <input type="submit" value="Save" />
+      <a th:text="时间表" th:href="@{'/event/eventDetail?itemId=' + ${itemView.id} + '&itemName=' + ${itemView.name}}" class="addbtn"></a>
   </form>
 
   <hr/>
-  <h3>Search by Name</h3>
+  <h3>查找事件</h3>
   <form name="findForm" action="#" th:action="@{/event/find}" method="GET">
       <input type="hidden" name="date" th:value="${date}" readonly="true" />
       <input type="text" name="name" class="textbox"/>
@@ -60,12 +49,11 @@ $(function () {
       <b th:if="${current.name}==''" th:text="${current.parentName}"></b>
       <b th:if="${current.name}!=''" th:text="${current.parentName} + ' / ' + ${current.name}"></b>
       <b th:if="${current.eventCategory}!=null and ${current.eventCategory}!=''" th:text="' / ' + ${current.eventCategory}"></b>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=1.00'" class="addbtn"><input type="button" value="1.00" /></a>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.50'" class="addbtn"><input type="button" value="0.50" /></a>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.25'" class="addbtn"><input type="button" value="0.25" /></a>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.25'" class="addbtn3"><input type="button" value="0.25" /></a>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.50'" class="addbtn3"><input type="button" value="0.50" /></a>
+      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=1.00'" class="addbtn3"><input type="button" value="1.00" /></a>
     </li>
   </ul>
-  <div style="clear:both;border:0px;"></div>
 
 
 </div>

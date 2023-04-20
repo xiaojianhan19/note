@@ -39,18 +39,16 @@ function deleteItem(id) {
 
     <form name="addForm" method="POST" action="#" th:action="@{/item/save}" th:object="${item}">
         <table class="table table-bordered inputbox noborder">
-            <tr><td width="10%">名称</td><td><input th:field="*{name}" /></td></tr>
+            <tr><td width="15%">名称</td><td><input th:field="*{name}" /></td></tr>
             <tr><td>等级</td><td><input th:field="*{level}" /></td></tr>
             <tr><td>序号</td><td><input th:field="*{orderNo}" /></td></tr>
             <tr><td>别名</td><td><input th:field="*{name2}" /></td></tr>
-            <tr><td>ID</td><td><input th:field="*{id}" class="textbox"/></td></tr>
-            <tr><td>分类</td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></td></tr>
-            <tr><td>所属</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
-            <tr><td>类型</td><td><input th:field="*{type}" class="type" /></td></tr>
-            <tr><td>日期</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/>
-                    <input type="hidden" th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
+            <tr hidden=""><td>ID</td><td><input th:field="*{id}" class="textbox"/></td></tr>
+            <tr hidden=""><td>分类</td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></td></tr>
+            <tr hidden=""><td>所属</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
+            <tr hidden=""><td>类型</td><td><input th:field="*{type}" class="type" /></td></tr>
+            <tr><td>日期</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/></td></tr>
             <tr><td>详细</td><td><textarea th:field="*{memo}" th:value="${memo}" /></td></tr>
-            <tr><td>图片URL</td><td><input th:field="*{url}" /></td></tr>
             <tr><td>下级图表</td><td><input th:field="*{childCategoryId}" style="width:90%;" class="textbox"/><input type="checkbox" th:name="createCat" style="width:5%;"/></td></tr>
             <tr><td>系统URL</td><td><input th:field="*{systemUrl}" class="textbox"/></td></tr>
             <tr><td>事件分类</td><td><input th:field="*{eventCategory}" style="width:50%;" class="textbox"/><input th:field="*{eventCategoryId}" style="width:50%;" class="textbox"/></td></tr>

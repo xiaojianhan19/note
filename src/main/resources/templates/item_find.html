@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+  <h3>查找</h3>
+  <form name="findForm" action="#" th:action="@{/item/find}" method="GET">
+      <input type="text" name="name" th:value="${name}" class="textbox"/>
+      <input type="submit" value="查找"></input>
+  </form>
+
+  <table th:unless="${#lists.isEmpty(itemList)}" class="table table-bordered inputbox noborder" style="font-size:1rem;">
+    <tr>
+        <td>ID</td>
+        <td>名称</td>
+        <td>事件数</td>
+        <td>总时间</td>
+        <td>子项数</td>
+        <td>资源数</td>
+    </tr>
+    <th:block th:each="current,stat : ${itemList}"> 
+        <tr>
+            <td th:text="${current.id}"></td>
+            <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/view?id=' + ${current.id}}"></td>
+            <td th:text="${current.ecount}"></td>
+            <td th:text="${current.time}"></td>
+            <td th:text="${current.chcount}"></td>
+            <td th:text="${current.rcount}"></td>
+        </tr>
+    </th:block>
+  </table>
+
+  <hr>
+
+  <th:block th:unless="${session.editFlag} == null or ${session.editFlag} == false">
+    <form name="mergeItem" action="#" th:action="@{/item/mergeItem}" method="POST">
+      <span>合并ID</span><input type="text" name="id1" th:value="${id1}" class="textbox"/>
+      <span>被并ID</span><input type="text" name="id2" th:value="${id2}" class="textbox"/>
+      <input type="hidden" name="name" th:value="${name}" class="textbox"/>
+      <input type="submit" value="合并"></input>
+    </form>
+
+  </th:block>
+</div>
+</body>
+</html>

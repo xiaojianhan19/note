@@ -21,8 +21,11 @@ public class ItemService {
   @Autowired
   ResourceRepository resRepository;
 
-  // @Autowired
-  // EventService eventService;
+  @Autowired
+  EventService eventService;
+
+  @Autowired
+  EventRepository eventRepository;
 
   @Autowired
   CategoryService catService;
@@ -48,6 +51,8 @@ public class ItemService {
       iv.setItems(is);
       List<Resource> rs = resRepository.findByParentIdOrderByIndexAscDateDesc(item.getId());
       iv.setResources(rs);
+      List<Event> es = eventService.findListByParentId(item.getId());
+      iv.setEvents(es);
       return iv;
     }
 
@@ -130,13 +135,24 @@ public class ItemService {
   // }
 
   public void delete(String id) {
-    repository.deleteById(Utl.parseInt(id));
+
+    //check
+    int itemId = Utl.parseInt(id);
+    List<Event> events = eventRepository.findByParentIdOrderByDateAsc(itemId);
+    if(events.size() > 0) {
+      return ;
+    }
+    List<Resource> resources = resRepository.findByParentId(itemId);
+    if(resources.size() > 0) {
+      return ;
+    }
+    repository.deleteById(itemId);
   }
 
-  public void insert(String id, String date)
-  {
+  // public void insert(String id, String date)
+  // {
 
-  }
+  // }
 
   // public void createByEvent(EventView vBean)
   // {
@@ -174,7 +190,9 @@ public class ItemService {
     if(opt.isPresent()) {
       catService.sortCategory(opt.get());
       CategoryView cat = new CategoryView(opt.get());
-      AddItemToGroup(cat, level);
+      Counter counter = new Counter();
+      AddItemToGroup(cat, level, counter);
+      cat.setCount(counter.getCount());
       return cat;
     }
     return null;
@@ -182,7 +200,7 @@ public class ItemService {
 
   public CategoryView findGroup(CategoryView c, String category, int level) {
     if(c.getName().equals(category)) {
-      AddItemToGroup(c, level);
+      AddItemToGroup(c, level, new Counter());
       return c;
     }
     for(CategoryView cat : c.getChildren()) {
@@ -207,7 +225,7 @@ public class ItemService {
   //     return res;
   // }
 
-  public void AddItemToGroup(CategoryView group, int level)
+  public void AddItemToGroup(CategoryView group, int level, Counter counter)
   {
     if(group == null)
         return;
@@ -218,11 +236,12 @@ public class ItemService {
       objList.add(p);
     }
     group.setItems(objList);
+    counter.setCount(counter.getCount() + list.size());
     if(group.getChildren() != null)
     {
         for(CategoryView child : group.getChildren())
         {
-          AddItemToGroup(child, level);
+          AddItemToGroup(child, level, counter);
         }
     }
   }
@@ -261,4 +280,68 @@ public class ItemService {
     }
   }
 
+  public CategoryView findUnsortedItems() {
+    CategoryView diagram = new CategoryView();
+    List<Object> ls = new ArrayList<Object>();
+    diagram.setName("Unsorted");
+    List<Item> items = repository.findUnsortedItems();
+    for(Item i : items) {
+      ls.add(i);
+    }
+    diagram.setItems(ls);
+    return diagram;
+  }
+  
+  public boolean mergeItem(Integer id1, Integer id2){
+    Optional<Item> res = repository.findById(id1);
+    Optional<Item> res2 = repository.findById(id2);
+    if(res.isPresent() && res2.isPresent()) { 
+      Item item = res.get();
+      Item item2 = res2.get();
+      if(!Utl.check(item.getName()) && Utl.check(item2.getName2())) {
+        item.setName2(item2.getName2());
+      }
+      if(Utl.check(item2.getMemo())) {
+        item.setMemo(item.getMemo()+item2.getMemo());
+      }
+      if(item.getDate().compareTo(item2.getDate()) > 0) {
+        item.setDate(item2.getDate());
+      }
+      if(item.getLevel() < item2.getLevel()) {
+        item.setLevel(item2.getLevel());
+      }
+      if(!Utl.check(item.getType()) && Utl.check(item2.getType())) {
+        item.setType(item2.getType());
+      }
+      if(!Utl.check(item.getEventCategoryId()) && Utl.check(item2.getEventCategoryId())) {
+        item.setEventCategoryId(item2.getEventCategoryId());
+      }
+      if(!Utl.check(item.getTopicCategoryId()) && Utl.check(item2.getTopicCategoryId())) {
+        item.setTopicCategoryId(item2.getTopicCategoryId());
+      }
+      if(!Utl.check(item.getStatus()) && Utl.check(item2.getStatus())) {
+        item.setStatus(item2.getStatus());
+      }
+      List<Item> is = repository.findByParentId(item2.getId());
+      for(Item s : is) {
+        s.setParentId(item.getId());
+        s.setParentName(item.getName());
+        repository.save(s);
+      }
+      List<Resource> rs = resRepository.findByParentIdOrderByIndexAscDateDesc(item2.getId());
+      for(Resource s : rs) {
+        s.setParentId(item.getId());
+        resRepository.save(s);
+      }
+      List<Event> es = eventRepository.findByParentIdOrderByDateAsc(item2.getId());
+      for(Event s : es) {
+        s.setParentId(item.getId());
+        eventRepository.save(s);
+      }
+      repository.delete(item2);
+      return true;
+    }
+
+    return false;
+  }
 }

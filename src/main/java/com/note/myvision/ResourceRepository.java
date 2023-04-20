@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Integer> {
+    public List<Resource> findByParentId(Integer parentId);
     public List<Resource> findByParentIdOrderByIndexAscDateDesc(Integer parentId);
 }

@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,7 @@ public class FileController {
     private String uploadFilePath;
 
     @Value("${user.file.path}")
-    private String filePath;
+    private String downLoadFilePath;
 
     @Autowired
     ItemRepository itemRepository;
@@ -46,44 +47,51 @@ public class FileController {
         }
 
         for (int i = 0; i < files.length; i++) {
-            String fileName = files[i].getOriginalFilename(); // 文件名
-            //String url = '/' + fileName;
-            File dest = new File(uploadFilePath + '/' + fileName);
-            if (!dest.getParentFile().exists()) {
-                dest.getParentFile().mkdirs();
-            }
-            try {
-                files[i].transferTo(dest);
-                itemRepository.findById(itemId).ifPresent(item -> {
-                    if("Image".equals(resType)) {
-                        item.setUrl(fileName);
-                        itemRepository.save(item);
-                    } else {
-                        // new resource
-                        Resource newRes = new Resource();
-                        newRes.setParentId(item.getId());
-                        newRes.setUrl(fileName);
-                        newRes.setName(fileName);
-                        newRes.setDate(LocalDate.now().toString());
-                        newRes.setUpdateDate(LocalDate.now().toString());
-                        resourceRepository.save(newRes);
-                    }
-                });
+            
+            Optional<Item> res = itemRepository.findById(itemId);
+            if(!res.isPresent()) continue;
 
+            try{
+                Item item = res.get();
+                String fileName = files[i].getOriginalFilename(); // 文件名
+                String url = '/' + item.getName() + '/' + fileName;
+                File dest = new File(uploadFilePath + url);
+                if (!dest.getParentFile().exists()) {
+                    dest.getParentFile().mkdirs();
+                }
+                files[i].transferTo(dest);
+
+                Resource newRes = new Resource();
+                newRes.setType(resType);
+                newRes.setParentId(item.getId());
+                newRes.setUrl(url);
+                newRes.setName(fileName);
+                newRes.setDate(LocalDate.now().toString());
+                newRes.setUpdateDate(LocalDate.now().toString());
+                resourceRepository.save(newRes);
+                
             } catch (Exception e) {
 
             }
+
         }
 
         return "redirect:/item/view?id="+itemId;
     }
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)
-    public ResponseEntity<FileSystemResource> getFile(@RequestParam String fileName) throws FileNotFoundException,
+    public ResponseEntity<FileSystemResource> getFile(String url, Integer itemId, String fileName) throws FileNotFoundException,
             UnsupportedEncodingException {
-        // String path = System.getProperty("user.dir")+ "/data/";
 
-        File file = new File(filePath + fileName);
+        String filePath = "";
+        if(Utl.check(url)) {
+            filePath = downLoadFilePath + url;
+        } else {
+            Optional<Item> res = itemRepository.findById(itemId);
+            if(!res.isPresent()) return null;
+            filePath = downLoadFilePath + "/" + res.get().getName() + "/" + fileName;
+        }
+        File file = new File(filePath);
         if (file.exists()) {
             return export(file);
         }

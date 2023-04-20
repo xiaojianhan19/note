@@ -23,40 +23,43 @@ function deleteItem(id) {
   <form name="deleteForm" method="POST" action="#" th:action="@{/item/delete}" >
     <input type="hidden" id="delId" name="delId" value=""></input>
   </form>
-
+  
+  <a th:text="维基百科" th:href="@{'https://zh.m.wikipedia.org/zh/' + ${item.name}}" class="addbtn"></a>
+  <a th:text="百度百科" th:href="@{'https://baike.baidu.com/item/' + ${item.name}}" class="addbtn"></a>
+  
   <form name="addForm" method="POST" action="#" th:action="@{/item/save}" th:object="${item}">
     <table class="table table-bordered noborder">
-      <tr><td width="10%">name <FONT color="red">*</FONT></td><td colspan="3"><input th:field="*{name}" /></td></tr>
-      <tr><td>name2</td><td><input th:field="*{name2}" /></td><td width="10%">id</td><td><input th:field="*{id}" class="textbox"/></td></tr>
-      <tr><td>level</td><td><input th:field="*{level}" /></td>
-          <td>cat</td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></tr>
-      <tr><td>order</td><td><input th:field="*{orderNo}" /></td>
-          <td>parent</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
-      <tr><td>type</td><td><input th:field="*{type}" class="type" /></td>
-        <td>date</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
-        <tr th:if="${item.memo}!=''"><td>memo</td><td colspan="3"><textarea th:field="*{memo}" th:value="${memo}" /></td></tr>
+      <tr><td width="10%">名称 <FONT color="red">*</FONT></td><td colspan="3"><input th:field="*{name}" /></td></tr>
+      <tr><td>别名</td><td><input th:field="*{name2}" /></td><td width="10%">ID</td><td><input th:field="*{id}" class="textbox"/></td></tr>
+      <tr><td>等级</td><td><input th:field="*{level}" /></td>
+          <td><a th:text="所属" th:href="@{'/item/?catId=' + ${item.itemCategoryId}}"></a></td><td><input th:field="*{itemCategory}" style="width:50%;" class="textbox"/><input th:field="*{itemCategoryId}" style="width:50%;" class="textbox"/></tr>
+      <tr><td>排序</td><td><input th:field="*{orderNo}" /></td>
+          <td>上位</td><td><input th:field="*{parentName}" style="width:50%;" class="textbox"/><input th:field="*{parentId}" style="width:50%;" class="textbox"/></td></tr>
+      <tr><td>类型</td><td><input th:field="*{type}" class="type" /></td>
+        <td>日期</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
+        <tr th:if="${item.memo}!=''"><td>备注</td><td colspan="3"><textarea th:field="*{memo}" th:value="${memo}" /></td></tr>
     </table>
-    <input type="submit" value="Update" />
-    <input type="button" value="Delete" th:data-id="${item.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>
+    <input type="submit" value="更新" />
+    <input type="button" value="删除" th:data-id="${item.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>
     <a th:if="${item.childCategoryId!=0}" th:text="EditView" th:href="@{'/category/?id=' + ${item.childCategoryId}}" class="addbtn"></a>
-    <a th:text="EditView" th:href="@{'/item/viewEdit?id=' + ${item.id}}" class="addbtn"></a>
-    <a th:text="EditUrl" th:href="@{'/item/edit?id=' + ${item.id}}" class="addbtn"></a>
-    <a th:text="AddItem" th:href="@{'/item/edit?parentId=' + ${item.id}}" class="addbtn"></a>  
-    <a th:text="AddRes" th:href="@{'/item/resourceEdit?itemId=' + ${item.id}}" class="addbtn"></a>
+    <a th:text="修改子项" th:href="@{'/item/viewEdit?id=' + ${item.id}}" class="addbtn"></a>
+    <a th:text="修改信息" th:href="@{'/item/edit?id=' + ${item.id}}" class="addbtn"></a>
+    <a th:text="添加子项" th:href="@{'/item/edit?parentId=' + ${item.id}}" class="addbtn"></a>  
+    <a th:text="添加资源" th:href="@{'/item/resourceEdit?itemId=' + ${item.id}}" class="addbtn"></a>
   </form>
 
   <div th:if="${item.url != null and item.url != ''}">
     <hr>
-    <img class="main-img" th:src="'/' + ${item.url}" />
+    <img class="main-img" th:src="${item.url}" />
     
     <br>
-    <a th:href="'/file/download?fileName=' + ${item.url}" th:text="${item.url}"></a>
+    <a th:href="'/file/download?url=' + ${item.url}" th:text="${item.url}"></a>
   </div>
 
   <div th:unless="${#lists.isEmpty(item.items)}">
     <hr/>
-    <h3>Items</h3>
-    <table class="table table-bordered table-hover table-striped">
+    <b>Items</b>
+    <table class="table-bordered table-hover table-striped">
         <th:block th:unless="${#lists.isEmpty(item.items)}" th:each="current : ${item.items}">
           <tr>
             <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/view?id=' + ${current.id}}"></td>
@@ -65,7 +68,7 @@ function deleteItem(id) {
           </tr>
           <tr>
             <td colspan="3">
-              <div id="article" th:text="${current.memo}"></div>
+              <div class="article" th:text="${current.memo}"></div>
             </td>
           </tr>
         </th:block>
@@ -74,25 +77,41 @@ function deleteItem(id) {
 
   <div th:unless="${#lists.isEmpty(item.resources)}">
     <hr/>
-    <h3>Resources</h3>
-    <table class="table table-bordered table-hover table-striped">
+    <b>Resources</b>
+    <table class="table-bordered table-hover table-striped">
         <th:block th:unless="${#lists.isEmpty(item.resources)}" th:each="current : ${item.resources}">
           <tr>
-            <td th:text="${current.index}"></td>
             <td><a style="color:blue;" th:text="${current.name}" th:href="@{'/item/resource?id=' + ${current.id}}"></td>
             <td><a style="color:blue;" th:text="Edit" th:href="@{'/item/resourceEdit?id=' + ${current.id}}"></td>
             <td th:text="${current.date}"></td>
           </tr>
           <tr th:if="${current.url==null}">
-            <td colspan="11">
-              <div id="article" th:text="${current.text}"></div>
+            <td colspan="4">
+              <div class="article" th:text="${current.text}"></div>
             </td>
           </tr>
           <tr th:if="${current.url!=null}">
-            <td colspan="11">
-              <b>File Download : </b><a th:href="'/file/download?fileName=' + ${current.url}" th:text="${current.url}"></a>
+            <td colspan="4">
+              <img th:if="${current.type}=='Image'" class="main-img" th:src="${current.url}" />
+              <br>
+              <b>File Download : </b><a th:href="'/file/download?url=' + ${current.url}" th:text="${current.url}"></a>
             </td>
           </tr>        
+        </th:block>
+    </table>
+  </div>
+
+  <div th:unless="${#lists.isEmpty(item.events)}">
+    <hr/>
+    <b>Resources</b>
+    <table class="table table-bordered inputbox noborder" style="font-size:1rem;">
+        <th:block th:unless="${#lists.isEmpty(item.events)}" th:each="current : ${item.events}">
+          <tr>
+            <td th:text="${current.date}" th:href="@{'/event/?date=' + ${current.date}}"></td>
+            <td th:text="${current.name}"></td>
+            <td th:text="${current.time}"></td>
+            <td><small th:text="${current.memo}"></small></td>
+          </tr> 
         </th:block>
     </table>
   </div>

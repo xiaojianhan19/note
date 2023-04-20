@@ -222,6 +222,18 @@ public class EventController {
 		return "event_view";
 	}
 
+	@RequestMapping(value = "/eventDetail", method = RequestMethod.GET)
+	public String eventDetail(Integer itemId, String itemName, Model model) {
+		if(Utl.check(itemId)) {
+			model.addAttribute("itemName", itemName);
+			List<Event> eventList = service.findListByParentId(itemId);
+			model.addAttribute("eventList", eventList);
+			return "event_list";
+		} else {
+			return "redirect:/event/"; 
+		}	
+	}
+
 	// @RequestMapping(value = "/eventEdit", method = RequestMethod.GET)
 	// public String readForEdit(Model model) {
 	// 	Map<String, String> catList = catService.GetCategoryMapByName("Event");

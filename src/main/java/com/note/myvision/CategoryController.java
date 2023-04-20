@@ -97,12 +97,14 @@ public class CategoryController {
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String edit(Model model, Device device, Integer id, Integer parentId) {
+	public String edit(Model model, Integer id, Integer parentId) {
 
 		if(Utl.check(id)) {
 			repository.findById(id).ifPresent( cat -> {
 				model.addAttribute("catBean", cat);
-				model.addAttribute("parentName", cat.getParent().getName());
+				if(cat.getParent() != null) {
+					model.addAttribute("parentName", cat.getParent().getName());
+				}
 			});
 		} else {
 			Category c = new Category();		
@@ -121,7 +123,7 @@ public class CategoryController {
 	}
 
 	@RequestMapping(value = "/editDiagram", method = RequestMethod.GET)
-	public String editDiagram(Model model, Device device, Integer id) {
+	public String editDiagram(Model model, Integer id) {
 
 		if(!Utl.check(id)) {
 			id = RootCatId;
@@ -134,11 +136,7 @@ public class CategoryController {
 			service.createIndex(cv, 0);
 			model.addAttribute("cat", cv);
 		});
-		if (!device.isMobile()) {
-            session.setAttribute("ispc", true);
-		} else {
-			session.setAttribute("ispc", false);
-		}
+
 		model.addAttribute("form", new CategoryForm());
 		return "category_group";
 	}

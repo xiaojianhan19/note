@@ -17,8 +17,9 @@
     <span th:text="${cat.id} + ' ' +${cat.name}">
         (item's content here.)</span>
     <a th:href="'/category/editDiagram?id=' + ${cat.id}" style="float: right;">EditDiagram</a>
+    <a th:if="${cat.parent!=null}" th:text="Parent" th:href="'/category/?id='+${cat.parent?.id}"></a>
     <a th:text="Edit" th:href="'/category/edit?id='+${cat.id}"></a>
-
+    <a th:text="Add" th:href="'/category/edit?id=0&parentId=' + ${cat.id}" ></a>
   <th:block th:if=${session.ispc}>
     <div class="bg-box">
       <div class="left-box">
@@ -73,6 +74,8 @@
         </li>
     </ul>
   </th:block>
+
+  <a th:href="'/item/?catId=' + ${cat.id}"><input type="button" value="Diagram" /></a>
 </div>
 </body>
 </html>

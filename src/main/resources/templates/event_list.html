@@ -15,20 +15,16 @@
 </head>
 <body>
 <div layout:fragment="content">
-
-<h3>Achievement</h3>
-<table class="table table-bordered noborder">
-  <tr>
-    <td th:text="${resourceBean.index}"></td>
-    <td th:text="${resourceBean.name}"></td>
-    <td th:text="${resourceBean.date}"></td>
-    <td><a style="color:blue;" th:text="Edit" th:href="@{'/item/resourceEdit?id=' + ${resourceBean.id}}"></td>
-  </tr>
-  <tr><td colspan="6">
-    <div class="article" th:text="${resourceBean.text}"></div>
-  </td></tr>
-
-</table>
+    <h3 th:text="${itemName}"></h3>
+    <table th:unless="${#lists.isEmpty(eventList)}" class="table table-bordered inputbox noborder" style="font-size:1rem;">
+        <th:block th:each="current,stat : ${eventList}"> 
+            <tr>
+                <td th:text="${current.date}"></td>
+                <td th:text="${current.name}"></td>
+                <td th:text="${current.time}"></td>
+            </tr>
+        </th:block>
+    </table>
 
 </div>
 </body>

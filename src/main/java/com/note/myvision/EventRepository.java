@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Integer> {
 
-    
+    public List<Event> findByParentIdOrderByDateAsc(Integer parentId);
     public List<Event> findByDateAndParentId(String date, Integer parentId);
     public List<Event> findByDateBetween(String start, String end);
 
@@ -18,7 +18,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         + " from Event e join Item i on e.parentId = i.id where e.date=?1 ")
     public List<EventView> findByDate(String date);
 
-    @Query(value = "select new com.note.myvision.EventView(SUM(e.time), i.id, i.name, i.eventCategoryId, i.topicCategoryId) "
+    @Query(value = "select new com.note.myvision.EventView(SUM(e.time), COUNT(*) as count, i.id, i.name, i.eventCategoryId, i.topicCategoryId) "
         + " from Event e join Item i on e.parentId = i.id where e.date>=?1 and e.date<=?2 group by i.id, i.name, i.eventCategoryId, i.topicCategoryId ")
     public List<EventView> findByPeriod(String start, String end);    
 
