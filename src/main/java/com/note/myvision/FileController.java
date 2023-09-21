@@ -71,7 +71,7 @@ public class FileController {
                 resourceRepository.save(newRes);
                 
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
 
         }

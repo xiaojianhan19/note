@@ -27,15 +27,15 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     //     + "where e.name like CONCAT('%', ?1, '%') or i.name like CONCAT('%', ?1, '%') ")
     // public List<EventView> findEventViewByNameContaining(String name);
     
-    @Query(value = "select COALESCE(e.name, '') as name, Max(e.date) as date, i.name as parentName, i.id as parentId, i.event_category from event as e right join item i on e.parent_id = i.id "
-    + " where e.name like CONCAT('%', ?1, '%') or i.name like CONCAT('%', ?1, '%') group by e.name, i.name, i.id, i.event_category order by date desc, i.id desc ", nativeQuery = true)
+    @Query(value = "select '' as name, Max(e.date) as date, i.name as parentName, i.id as parentId, i.event_category_id from event as e right join item i on e.parent_id = i.id "
+    + " where i.name like CONCAT('%', ?1, '%') group by i.name, i.id, i.event_category_id order by date desc, i.id desc ", nativeQuery = true)
     public List<Map<String, Object>> findEventViewByNameContaining(String name);
 
-    @Query(value = "select e.name, Max(e.date) as date, i.name as parentName, e.parent_id from event as e join item i on e.parent_id = i.id "
-        + " where i.event_category_id = ?1 and e.date > ?2 group by e.name, i.name, e.parent_id order by date desc, e.parent_id desc ", nativeQuery = true)
+    @Query(value = "select '' as name, Max(e.date) as date, i.name as parentName, e.parent_id, i.event_category_id from event as e join item i on e.parent_id = i.id "
+        + " where i.event_category_id = ?1 and e.date > ?2 group by i.name, e.parent_id, i.event_category_id order by date desc, e.parent_id desc ", nativeQuery = true)
     public List<Map<String, Object>> findEventViewByEventCategoryIdAndDate(Integer catId, String date);
 
-    @Query(value = "select e.name, Max(e.date) as date, i.name as parentName, e.parent_id from event as e join item i on e.parent_id = i.id "
-        + " where i.topic_category_id = ?1 and e.date > ?2 group by e.name, i.name, e.parent_id order by date desc, e.parent_id desc ", nativeQuery = true)
+    @Query(value = "select '' as name, Max(e.date) as date, i.name as parentName, e.parent_id, i.event_category_id from event as e join item i on e.parent_id = i.id "
+        + " where i.topic_category_id = ?1 and e.date > ?2 group by i.name, e.parent_id, i.event_category_id order by date desc, e.parent_id desc ", nativeQuery = true)
     public List<Map<String, Object>> findEventViewByTopicCategoryIdAndDate(Integer catId, String date);
 }

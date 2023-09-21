@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传和下载</title>
+</head>
+<body>
+    <h1>文件上传和下载</h1>
+
+    <h2>上传文件</h2>
+    <form method="post" action="/file2/" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <br />
+        <input type="submit" value="上传" />
+    </form>
+
+    <h2>已上传的文件</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>文件名</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="file : ${files}">
+                
+                <td th:text="${file.getFilename()}"></td>        
+                <td>
+                    <a th:href="@{/file2/download(filename=${file.getFilename()})}">下载</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

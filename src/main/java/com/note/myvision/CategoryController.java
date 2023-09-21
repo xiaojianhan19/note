@@ -57,7 +57,16 @@ public class CategoryController {
 	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Category catBean, Model model, RedirectAttributes redirectAttributes) {
+	public String save(Category catBean, Boolean clearDate, Boolean clearCategory, Model model, RedirectAttributes redirectAttributes) {
+
+		if(clearCategory != null && clearCategory) {
+			catBean.setParent(null);
+		}
+
+		if(clearDate != null && clearDate) {
+			catBean.setStartDate("");
+			catBean.setEndDate("");
+		}
 		repository.save(catBean);
 
 		String catId = RootCatId.toString();

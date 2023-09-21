@@ -46,9 +46,8 @@
 
   <ul th:unless="${#lists.isEmpty(refEvents)}">
     <li th:each="current : ${refEvents}" th:style="${session.ispc==false}?'':'width:30%;float: left;display: block;margin: 5px 15px 0px 5px;'">
-      <b th:if="${current.name}==''" th:text="${current.parentName}"></b>
-      <b th:if="${current.name}!=''" th:text="${current.parentName} + ' / ' + ${current.name}"></b>
-      <b th:if="${current.eventCategory}!=null and ${current.eventCategory}!=''" th:text="' / ' + ${current.eventCategory}"></b>
+      <b th:text="${current.parentName}"></b>
+      <b th:if="${current.eventCategoryId}==0" th:text="'/NoCat'"></b>
       <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.25'" class="addbtn3"><input type="button" value="0.25" /></a>
       <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.50'" class="addbtn3"><input type="button" value="0.50" /></a>
       <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=1.00'" class="addbtn3"><input type="button" value="1.00" /></a>

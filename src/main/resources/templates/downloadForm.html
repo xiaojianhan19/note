@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>文件下载</title>
+</head>
+<body>
+  <h1>文件下载</h1>
+  <ul>
+    <th>文件名</th>
+    <th>操作</th>
+    <br>
+    <!-- 列出所有上传的文件 -->
+    <#list files as file>
+      <li>
+        <td>${file.name}</td>
+        <td><a href="/download?filename=${file.name}">下载</a></td>
+      </li>
+    </#list>
+  </ul>
+</body>
+</html>

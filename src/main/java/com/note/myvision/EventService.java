@@ -230,7 +230,7 @@ public class EventService {
 
   public List<EventView> findRefEventsByEvent(Integer catId, String date)
   {
-    String start = LocalDate.now().plusMonths(-1).toString();
+    String start = LocalDate.now().plusMonths(-2).toString();
     List<Map<String, Object>> ret = repository.findEventViewByEventCategoryIdAndDate(catId, start);
     String js = JSON.toJSONString(ret);
     List<EventView> refEvents = JSON.parseArray(js, EventView.class);
@@ -239,7 +239,7 @@ public class EventService {
 
   public List<EventView> findRefEventsByTopic(Integer topicId, String date)
   {
-    String start = LocalDate.now().plusMonths(-1).toString();
+    String start = LocalDate.now().plusMonths(-2).toString();
     List<Map<String, Object>> ret = repository.findEventViewByTopicCategoryIdAndDate(topicId, start);
     String js = JSON.toJSONString(ret);
     List<EventView> refEvents = JSON.parseArray(js, EventView.class);
