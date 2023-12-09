@@ -246,7 +246,7 @@ public class EventService {
     return refEvents;
   }
 
-  public void insert(Integer parentId, String date, String name, String time, String eventCategoryId, String topicCategoryId)
+  public void insert(Integer parentId, String date, String name, String time)
   {
     List<Event> res = repository.findByDateAndParentId(date, parentId);
     if(res.size() == 0)

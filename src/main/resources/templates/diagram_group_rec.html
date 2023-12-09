@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<div th:fragment="frag" th:if="${child}">
+		<span class="bgbox" th:classappend="'div' + ${idx}">
+
+			<input type="hidden" th:name="|items[${child.getIndex()}].id|" th:value="${child.id}" class="textbox"/>
+			<input th:name="|items[${child.getIndex()}].name|" th:value="${child.name}" class="textbox"/>
+			<input type="hidden" th:name="|items[${child.getIndex()}].parentId|" th:value="${child.parentId}" class="textbox"/>
+			<input th:name="|items[${child.getIndex()}].relatedId|" th:value="${child.relatedId}" class="textbox"/>
+			<input type="hidden" th:name="|items[${child.getIndex()}].index|" th:value="${child.index}" />
+			<input th:name="|items[${child.getIndex()}].orderNo|" th:value="${child.orderNo}" class="shortbox" />
+			<input type="checkbox" th:name="|items[${child.getIndex()}].isUpdate|" class="shortbox" />
+			<input type="hidden" name="dataCount" />
+			<input type="button" value="+" th:data-pid="${child.id}" th:data-idx="${idx}" th:onclick="addNewCat(this.getAttribute('data-pid'), this.getAttribute('data-idx'))" 
+			class="btn-comn" style="float: right;"></input>
+			<div style="clear:both;"></div>
+		</span> 
+		<ul class="wtree" th:id="${child.id}">
+			<li th:each="child : ${child.children}">
+				<div th:replace="diagram_group_rec :: frag">
+				(sub-nodes here)</div>
+			</li>
+		</ul>
+	</div>
+	
+</body>

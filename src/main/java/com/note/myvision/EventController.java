@@ -193,10 +193,9 @@ public class EventController {
 		return "event_edit";
 	}
 
-	@RequestMapping(value = "/insert", method = RequestMethod.GET)
-	public String insertEventById(Integer parentId, String date, String name, String time, String eventCategoryId, String topicCategoryId,
-						Model model, RedirectAttributes redirectAttributes) {
-		service.insert(parentId, date, name, time, eventCategoryId, topicCategoryId);
+	@RequestMapping(value = "/insert", method = RequestMethod.POST)
+	public String insertEventById(Integer parentId, String date, String name, String time, Model model, RedirectAttributes redirectAttributes) {
+		service.insert(parentId, date, name, time);
 		redirectAttributes.addAttribute("date", date);
 		return "redirect:/event/";
 	}

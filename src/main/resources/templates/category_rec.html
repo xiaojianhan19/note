@@ -11,9 +11,6 @@
 		<span class="bgbox" th:classappend="'div' + ${idx}">
 			<b th:text="${child.id} + ' ' +${child.name}" ></b>
 
-			<a th:text="Del" th:href="'/category/delete?id='+${child.id}"
-			style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 5px;text-align: top;"></a>
-
 			<a th:text="Add" th:href="'/category/edit?id=0&parentId=' + ${child.id}"
 			style="float:right;font-size:small;height:20px;padding-top:0px;margin-left: 5px;text-align: top;"></a>
 

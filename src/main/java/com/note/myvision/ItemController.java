@@ -79,12 +79,12 @@ public class ItemController {
 		}
 		model.addAttribute("guides", guides);
 
-		// diagram 
+		// catView 
 		if(!Utl.check(catId)) {
 			catId = RootCatId;
 		}
-		CategoryView diagram = service.findGroupByCategoryId(catId, level);
-		model.addAttribute("diagram", diagram);
+		CategoryView catView = service.findGroupByCategoryId(catId, level);
+		model.addAttribute("catView", catView);
 		session.setAttribute("catId", catId);
 		if(editFlag != null) {
 			session.setAttribute("editFlag", editFlag);
@@ -92,7 +92,7 @@ public class ItemController {
 
 		// catList
 		Map<String, String> catList = new TreeMap<String, String>();
-		catService.AddToMap(diagram, catList);
+		catService.AddToMap(catView, catList);
 		model.addAttribute("catList", catList);
 
         if (!device.isMobile()) {
@@ -101,7 +101,7 @@ public class ItemController {
 			session.setAttribute("ispc", false);
 		}
 		session.setAttribute("saveByCat", false);
-		return "diagram";
+		return "category_view";
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
@@ -253,7 +253,7 @@ public class ItemController {
 		return "redirect:/item/viewEdit";
 	}
 
-	@RequestMapping(value = "/delResource", method = RequestMethod.GET)
+	@RequestMapping(value = "/delResource", method = RequestMethod.POST)
 	public String delResource(Integer parentId, Integer id, Model model, RedirectAttributes redirectAttributes) {
 		if(Utl.check(id)) {
 			resRepository.deleteById(id);
@@ -274,7 +274,8 @@ public class ItemController {
 		return "redirect:/item/"; 
 	}
 	
-	@RequestMapping(value = "/convertToItem", method = RequestMethod.GET)
+	// Change to Post
+	@RequestMapping(value = "/convertToItem", method = RequestMethod.POST)
 	public String convertToItem(@ModelAttribute("resourceId") int resourceId, Model model, RedirectAttributes redirectAttributes) {
 		try {
 			resRepository.findById(resourceId).ifPresent(resourceBean -> {
@@ -310,7 +311,7 @@ public class ItemController {
 		diagram.clearChildNoItem();
 		model.addAttribute("diagram", diagram);
 		session.setAttribute("catId", catId);
-		return "diagram";
+		return "category_view";
 	}
 
 	@RequestMapping(value = "/unsorted", method = RequestMethod.GET)
@@ -318,7 +319,7 @@ public class ItemController {
 		//List<Item> list = service.findAll();
 		CategoryView diagram = service.findUnsortedItems();
 		model.addAttribute("diagram", diagram);
-		return "diagram";
+		return "category_view";
 	}
 
 	@RequestMapping(value = "/find", method = RequestMethod.GET)

@@ -1,4 +1,4 @@
-package com.note.myvision;
+package com.note.myvision.Diagram;
 
 import java.util.List;
 
@@ -18,22 +18,25 @@ import javax.validation.constraints.NotEmpty;
 
 import org.springframework.data.annotation.Transient;
 
+import com.note.myvision.BaseBean;
+
 @Entity
 public class Point extends BaseBean{
     
     //for point
     private int level;
     private int orderNo;
-    private int category;
+    private int diagram;
+    private int childDiagramId;
     @Column(length = 7500)
     private String memo;
 
-    public int getCategory() {
-        return category;
+    public int getDiagram() {
+        return diagram;
     }
 
-    public void setCategory(int category) {
-        this.category = category;
+    public void setDiagram(int diagram) {
+        this.diagram = diagram;
     }
 
     public int getLevel() {
@@ -60,4 +63,11 @@ public class Point extends BaseBean{
         this.orderNo = orderNo;
     }
 
+    public int getChildDiagramId() {
+        return childDiagramId;
+    }
+
+    public void setChildDiagramId(int childDiagramId) {
+        this.childDiagramId = childDiagramId;
+    }
 }

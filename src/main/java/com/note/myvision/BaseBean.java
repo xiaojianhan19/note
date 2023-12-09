@@ -18,11 +18,10 @@ public class BaseBean {
         sequenceName = "comm_id_seq",
         initialValue = 10000001,
         allocationSize = 1)
-    int id;
-    
-    String name;
-    String date;
-    String type;
+    public int id;
+    public String name;
+    public String date;
+    public String type;
 
     public BaseBean() {
 

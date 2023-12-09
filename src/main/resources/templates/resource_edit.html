@@ -38,9 +38,15 @@
   </table>
   
   <input type="hidden" th:if="${eventParentId}!=null" name="eventParentId" th:value="${eventParentId}"></p>
-
   <input type="submit" value="Save" />
-  <a th:href="'/item/delResource?parentId=' + ${resource.parentId} + '&id=' + ${resource.id}" ><input type="button" value="Delete" /></a>
+</form>
+
+<br>
+
+<form name="deleteForm" method="POST" action="#" th:action="@{/item/delResource}" >
+  <input type="hidden" id="delId" name="id" th:value="${resource.id}"></input>
+  <input type="hidden" id="delParentId" name="parentId" th:value="${resource.parentId}"></input>
+  <input type="submit" value="Delete" />
 </form>
 
 <hr>

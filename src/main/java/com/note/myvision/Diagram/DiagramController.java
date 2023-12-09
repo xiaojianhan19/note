@@ -1,13 +1,17 @@
-package com.note.myvision;
+package com.note.myvision.Diagram;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+import com.note.myvision.Category;
+import com.note.myvision.Utl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,16 +26,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
-@RequestMapping("/category")
-public class CategoryController {
+@RequestMapping("/diagram")
+public class DiagramController {
 
-    private Integer RootCatId = 10000001;
-
-	@Autowired
-	CategoryService service;
+    private Integer RootCatId = 10030627; //test
 
 	@Autowired
-	CategoryRepository repository;
+	DiagramService service;
+
+	@Autowired
+	DiagramRepository repository;
 
 	@Autowired
 	HttpSession session;
@@ -44,7 +48,7 @@ public class CategoryController {
 		session.setAttribute("catId", id);
 
 		repository.findById(id).ifPresent( cat -> {
-			service.sortCategory(cat);
+			service.sortDiagram(cat);
 			model.addAttribute("cat", cat);
 		});
 		if (!device.isMobile()) {
@@ -53,19 +57,14 @@ public class CategoryController {
 			session.setAttribute("ispc", false);
 		}
 		session.setAttribute("saveByCat", true);
-		return "category";
+		return "diagram";
 	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Category catBean, Boolean clearDate, Boolean clearCategory, Model model, RedirectAttributes redirectAttributes) {
+	public String save(Diagram catBean, Boolean clearDate, Boolean clearDiagram, Model model, RedirectAttributes redirectAttributes) {
 
-		if(clearCategory != null && clearCategory) {
+		if(clearDiagram != null && clearDiagram) {
 			catBean.setParent(null);
-		}
-
-		if(clearDate != null && clearDate) {
-			catBean.setStartDate("");
-			catBean.setEndDate("");
 		}
 		repository.save(catBean);
 
@@ -78,13 +77,13 @@ public class CategoryController {
 		Object flg = session.getAttribute("saveByCat");
 		if(flg == null || false == (boolean)flg) {
 			redirectAttributes.addAttribute("catId", catId);
-			return "redirect:/item/";
+			return "redirect:/point/";
 		} else {
 			redirectAttributes.addAttribute("id", catId);
 			if(catBean.getParent() != null) {
 				redirectAttributes.addAttribute("parentId", catBean.getParent().getId());
 			}
-			return "redirect:/category/";
+			return "redirect:/diagram/";
 		}
 	}
 
@@ -102,7 +101,7 @@ public class CategoryController {
 			catId = rc.toString();
 		}
 		redirectAttributes.addAttribute("id", catId);
-		return "redirect:/category/";
+		return "redirect:/diagram/";
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
@@ -116,7 +115,7 @@ public class CategoryController {
 				}
 			});
 		} else {
-			Category c = new Category();		
+			Diagram c = new Diagram();		
 			if(Utl.check(parentId)) {
 				repository.findById(parentId).ifPresent( p -> {
 					c.setParent(p);
@@ -128,7 +127,7 @@ public class CategoryController {
 			model.addAttribute("catBean", c);
 		}
 
-		return "category_edit";
+		return "diagram_edit";
 	}
 
 	@RequestMapping(value = "/editDiagram", method = RequestMethod.GET)
@@ -140,25 +139,25 @@ public class CategoryController {
 		session.setAttribute("catId", id);
 
 		repository.findById(id).ifPresent( cat -> {
-			service.sortCategory(cat);
-			CategoryView cv = new CategoryView(cat);
+			service.sortDiagram(cat);
+			DiagramView cv = new DiagramView(cat);
 			service.createIndex(cv, 0);
 			model.addAttribute("cat", cv);
 		});
 
-		model.addAttribute("form", new CategoryForm());
-		return "category_group";
+		model.addAttribute("form", new DiagramForm());
+		return "diagram_group";
 	}
 
 	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
-	public String saveList(CategoryForm form, Model model, RedirectAttributes redirectAttributes) {
+	public String saveList(DiagramForm form, Model model, RedirectAttributes redirectAttributes) {
 
-		for(CategoryView cv : form.getItems()) {
+		for(DiagramView cv : form.getItems()) {
 			if(cv.getIsUpdate()) {
 
-				Category c = new Category();
+				Diagram c = new Diagram();
 				if(Utl.check(cv.getId())) {
-					Optional<Category> opt = repository.findById(cv.getId());
+					Optional<Diagram> opt = repository.findById(cv.getId());
 					if(opt.isPresent()) {
 						c = opt.get();
 					}
@@ -182,7 +181,7 @@ public class CategoryController {
 							continue;
 						}
 					}
-					Optional<Category> p = repository.findById(parentId);
+					Optional<Diagram> p = repository.findById(parentId);
 					if(p.isPresent()) {
 						c.setParent(p.get());
 						repository.save(c);
@@ -206,15 +205,35 @@ public class CategoryController {
 	// @RequestMapping(value = "/createRoot", method = RequestMethod.GET)
 	// public String rootCatInsert(Model model, RedirectAttributes redirectAttributes) {
 
-	// 	Optional<Category> opt = repository.findById(RootCatId);
+	// 	Optional<Diagram> opt = repository.findById(RootCatId);
 	// 	if(!opt.isPresent()) {
-	// 		Category cat = new Category();
+	// 		Diagram cat = new Diagram();
 	// 		cat.setId(RootCatId);
-	// 		cat.setName("Category");
+	// 		cat.setName("Diagram");
 	// 		repository.save(cat);
 	// 	}
 
 	// 	return "redirect:/category/";
 	// }
+
+	@RequestMapping(value = "/convertPage", method = RequestMethod.GET)
+	public String convertPage(Model model) {
+
+		return "diagram_convert";
+	}
+
+	@RequestMapping(value = "/convert", method = RequestMethod.POST)
+	public String convert(Integer catId, Integer parentId, Model model, RedirectAttributes redirectAttributes) {
+
+		Integer id = service.convertCategoryToDiagram(catId, parentId);
+		if(id != null) {
+			redirectAttributes.addAttribute("catId", id);
+			return "redirect:/point/";
+		} else {
+			redirectAttributes.addAttribute("catId", catId);
+			return "redirect:/item/";
+		}
+
+	}
 
 }

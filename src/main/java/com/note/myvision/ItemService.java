@@ -149,6 +149,26 @@ public class ItemService {
     repository.deleteById(itemId);
   }
 
+  public boolean checkChild(int id) {
+
+    //check
+    List<Item> items = repository.findByParentId(id);
+    if(items.size() > 0) {
+      return true;
+    }    
+
+    List<Event> events = eventRepository.findByParentIdOrderByDateAsc(id);
+    if(events.size() > 0) {
+      return true;
+    }
+    List<Resource> resources = resRepository.findByParentId(id);
+    if(resources.size() > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   // public void insert(String id, String date)
   // {
 

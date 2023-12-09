@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8"></meta>
+<script th:inline="javascript">
+/*<![CDATA[*/
+/*]]>*/
+</script>
+</head>
+<body>
+<div layout:fragment="content">
+    <form action="#" th:action="@{/diagram/convert}" method="POST">
+      <span>转换ID</span><input type="text" name="catId" class="textbox"/>
+      <span>上级ID</span><input type="text" name="parentId" class="textbox"/>
+      <input type="submit" value="转换"></input>
+    </form>
+</div>
+</body>
+</html>

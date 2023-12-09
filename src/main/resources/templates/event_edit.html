@@ -7,6 +7,11 @@
 <meta charset="UTF-8"></meta>
 <script th:inline="javascript">
 /*<![CDATA[*/
+function insertItem(id, time) {
+  document.getElementById("insertId").value = id;
+  document.getElementById("insertTime").value = time;
+	insertForm.submit();
+}
 /*]]>*/
 </script>
 </head>
@@ -48,12 +53,20 @@
     <li th:each="current : ${refEvents}" th:style="${session.ispc==false}?'':'width:30%;float: left;display: block;margin: 5px 15px 0px 5px;'">
       <b th:text="${current.parentName}"></b>
       <b th:if="${current.eventCategoryId}==0" th:text="'/NoCat'"></b>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.25'" class="addbtn3"><input type="button" value="0.25" /></a>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=0.50'" class="addbtn3"><input type="button" value="0.50" /></a>
-      <a th:href="'/event/insert?date=' + ${date} + '&parentId=' + ${current.parentId} + '&name=' + ${current.name} + '&time=1.00'" class="addbtn3"><input type="button" value="1.00" /></a>
-    </li>
+      <input th:unless="${current.parentId==0}" type="button" value="0.25" th:data-id="${current.parentId}"
+                th:onclick="insertItem(this.getAttribute('data-id'), 0.25);" ></input>
+      <input th:unless="${current.parentId==0}" type="button" value="0.5" th:data-id="${current.parentId}"
+                th:onclick="insertItem(this.getAttribute('data-id'), 0.5);" ></input>
+      <input th:unless="${current.parentId==0}" type="button" value="1.0" th:data-id="${current.parentId}"
+                th:onclick="insertItem(this.getAttribute('data-id'), 1.0);" ></input>
+   </li>
   </ul>
 
+  <form name="insertForm" method="POST" action="#" th:action="@{/event/insert}" >
+    <input type="hidden" id="insertDate" name="date" th:value="${date}" ></input>
+    <input type="hidden" id="insertId" name="parentId" value=""></input>
+    <input type="hidden" id="insertTime" name="time" value="0.5"></input>
+  </form>
 
 </div>
 </body>
