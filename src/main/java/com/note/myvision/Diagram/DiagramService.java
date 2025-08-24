@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class DiagramService extends Node {
 
   private Integer RootCatId = 10000001;
+  private Integer NoCatItem = 10032610;
 
   @Autowired
   DiagramRepository repository;
@@ -325,8 +326,6 @@ public class DiagramService extends Node {
     catService.sortCategory(cat);
     newId = CtoD(cat, null);
 
-    if(!Utl.check(parentId)) 
-      parentId = cat.getParent().getId();
     if(Utl.check(parentId)) {
       Item i = new Item();
       i.setName(cat.getName());
@@ -364,8 +363,13 @@ public class DiagramService extends Node {
       pointRepository.save(p);
 
       if(itemService.checkChild(i.getId())) {
-        i.setItemCategory(i.getEventCategory());
-        i.setItemCategoryId(i.getEventCategoryId());
+        if(Utl.check(i.getEventCategoryId())) {
+          i.setItemCategory(i.getEventCategory());
+          i.setItemCategoryId(i.getEventCategoryId());
+        } else {
+          i.setItemCategoryId(NoCatItem);
+        }
+
         itemRepository.save(i);
       } else {
         itemRepository.delete(i);

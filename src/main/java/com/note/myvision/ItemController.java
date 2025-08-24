@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.note.myvision.Diagram.Diagram;
+import com.note.myvision.Diagram.DiagramRepository;
+
 
 @Controller
 @RequestMapping("/item")
@@ -52,6 +55,9 @@ public class ItemController {
 
 	@Autowired
 	CategoryRepository catRepository;
+
+	@Autowired
+	DiagramRepository diaRepository;
 
 	@Autowired
 	EventService eventService;
@@ -85,6 +91,7 @@ public class ItemController {
 		}
 		CategoryView catView = service.findGroupByCategoryId(catId, level);
 		model.addAttribute("catView", catView);
+		model.addAttribute("redirectId", catId);
 		session.setAttribute("catId", catId);
 		if(editFlag != null) {
 			session.setAttribute("editFlag", editFlag);
@@ -105,8 +112,9 @@ public class ItemController {
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String itemAdd(Model model, Integer id, Integer parentId, Integer catId) {
-
+	public String itemAdd(Model model, Integer id, Integer parentId, Integer catId, Integer redirectId) {
+		model.addAttribute("redirectId", redirectId);
+		
 		if(Utl.check(id)) {
 			repository.findById(id).ifPresent( item -> {
 				model.addAttribute("item", item);
@@ -141,7 +149,8 @@ public class ItemController {
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Item item, Boolean createCat, Model model, Device device, RedirectAttributes redirectAttributes) {
+	public String save(Item item, Boolean createCat, Boolean createDia, Integer redirectId, 
+	                   Model model, Device device, RedirectAttributes redirectAttributes) {
 		if(createCat != null) {
 			if(createCat && !Utl.check(item.getChildCategoryId())) {
 				Category nc = new Category();
@@ -152,35 +161,54 @@ public class ItemController {
 			}
 		}
 
+		if(createDia != null) {
+			if(createDia && !Utl.check(item.getChildDiagramId())) {
+				Diagram nc = new Diagram();
+				nc.setName(item.getName());
+				nc.setDate(LocalDate.now().toString());
+				diaRepository.save(nc);
+				item.setChildDiagramId(nc.getId());
+			}
+		}		
+
 		service.save(item);
 		
-		if(Utl.check(item.getParentId())) {
-			redirectAttributes.addAttribute("id", item.getParentId());
-			return "redirect:/item/viewEdit"; 
+		if(Utl.check(redirectId)) {
+			redirectAttributes.addAttribute("catId", redirectId);
+		} else {
+			if(Utl.check(item.getParentId())) {
+				redirectAttributes.addAttribute("id", item.getParentId());
+				return "redirect:/item/viewEdit"; 
+			}
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				redirectAttributes.addAttribute("catId", rc.toString());
+			}
 		}
 
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			redirectAttributes.addAttribute("catId", rc.toString());		
-		}
 		return "redirect:/item/"; 
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public String delete(Model model, @RequestParam(value = "delId") String delId, RedirectAttributes redirectAttributes) {
+	public String delete(Model model, @RequestParam(value = "delId") String delId, Integer redirectId, RedirectAttributes redirectAttributes) {
 		service.delete(delId);
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			redirectAttributes.addAttribute("catId", rc.toString());		
+		if(Utl.check(redirectId)) {
+			redirectAttributes.addAttribute("catId", redirectId);
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				redirectAttributes.addAttribute("catId", rc.toString());
+			}
 		}
 		return "redirect:/item/"; 
 	}
 	
 	@RequestMapping(value = "/view", method = RequestMethod.GET)
-	public String view(Model model, Integer id) {
+	public String view(Model model, Integer id, Integer redirectId) {
 
 		ItemView iv = service.findWithResource(id);
 		model.addAttribute("item", iv);
+		model.addAttribute("redirectId", redirectId);
 		return "item_view";
 	}
 
@@ -328,6 +356,9 @@ public class ItemController {
 		if(Utl.check(name)) {
 			List<ItemView> itemList = repository.findEventSum(name);
 			for(ItemView iv : itemList) {
+				Item itm = repository.findById(iv.getId()).get();
+				iv.setItemCategoryId(itm.getItemCategoryId());
+				iv.setItemCategory(itm.getItemCategory());
 				List<Item> chs = repository.findByParentId(iv.getId());
 				iv.setChcount(chs.size());
 				List<Resource> res = resRepository.findByParentId(iv.getId());
@@ -337,6 +368,24 @@ public class ItemController {
 		}
 		model.addAttribute("name", name);
 		model.addAttribute("id1", id1);
+
+		return "item_find";
+	}
+
+	@RequestMapping(value = "/findSimilar", method = RequestMethod.GET)
+	public String findSimilar(String name, String id1, Model model, Device device) {
+		
+		List<ItemView> itemList = repository.findSimilarItem();
+		for(ItemView iv : itemList) {
+			Item itm = repository.findById(iv.getId()).get();
+			iv.setItemCategoryId(itm.getItemCategoryId());
+			iv.setItemCategory(itm.getItemCategory());
+			List<Item> chs = repository.findByParentId(iv.getId());
+			iv.setChcount(chs.size());
+			List<Resource> res = resRepository.findByParentId(iv.getId());
+			iv.setRcount(res.size());
+		}
+		model.addAttribute("itemList", itemList);
 
 		return "item_find";
 	}
@@ -355,6 +404,15 @@ public class ItemController {
 		model.addAttribute("id1", id1);
 		return "item_find";
 	}
+
+	@RequestMapping(value = "/updateEventCategory", method = RequestMethod.POST)
+	public String updateEventCategory(Model model, Integer itemCategoryId, Integer eventCategoryId) {
+		service.updateEventCategory(itemCategoryId, eventCategoryId);
+		model.addAttribute("itemCategoryId", itemCategoryId);
+		model.addAttribute("eventCategoryId", eventCategoryId);
+		return "item_find";
+	}
 	
+
 
 }

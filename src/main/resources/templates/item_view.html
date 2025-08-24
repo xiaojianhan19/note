@@ -21,6 +21,7 @@ function deleteItem(id) {
 <div layout:fragment="content">
 
   <form name="deleteForm" method="POST" action="#" th:action="@{/item/delete}" >
+    <input type="hidden" name="redirectId" th:value="${redirectId}"></input>
     <input type="hidden" id="delId" name="delId" value=""></input>
   </form>
   
@@ -38,6 +39,7 @@ function deleteItem(id) {
       <tr><td>类型</td><td><input th:field="*{type}" class="type" /></td>
         <td>日期</td><td><input th:field="*{date}" style="width:50%;" class="textbox"/><input th:field="*{releaseDate}" style="width:50%;" class="textbox"/></td></tr>
         <tr th:if="${item.memo}!=''"><td>备注</td><td colspan="3"><textarea th:field="*{memo}" th:value="${memo}" /></td></tr>
+        <tr hidden=""><td>返回</td><td><input name="redirectId" th:value="${redirectId}" class="textbox"/></td></tr>
     </table>
     <input type="submit" value="更新" />
     <input type="button" value="删除" th:data-id="${item.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>

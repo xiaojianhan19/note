@@ -30,12 +30,14 @@ function deleteItem(id) {
       <tr><td>开始日期</td><td ><input th:field="*{startDate}" /></td></tr>
       <tr><td>结束日期</td><td ><input th:field="*{endDate}" /></td></tr>
       <tr><td>清除日期</td><td ><input type="checkbox" th:name="clearDate" /></td></tr>
+      <tr hidden=""><td>返回</td><td><input name="redirectId" th:value="${redirectId}" class="textbox"/></td></tr>
     </table>
       <input type="submit" value="Save" />
       <input th:unless="${catBean.id==0}" type="button" value="Delete" th:data-id="${catBean.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>
   </form>
 
   <form name="deleteForm" method="POST" action="#" th:action="@{/category/delete}" >
+    <input type="hidden" name="redirectId" th:value="${redirectId}"></input>
     <input type="hidden" id="delId" name="delId" value=""></input>
   </form>  
 

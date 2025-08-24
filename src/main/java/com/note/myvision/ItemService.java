@@ -1,9 +1,12 @@
 package com.note.myvision;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
+
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -363,5 +366,47 @@ public class ItemService {
     }
 
     return false;
+  }
+
+  public void updateEventCategory(Integer itemCategoryId, Integer eventCategoryId){
+    if(!Utl.check(itemCategoryId) || !Utl.check(eventCategoryId)) {
+      return ; 
+    }
+    Optional<Category> opt = catRepository.findById(itemCategoryId);
+    if(opt.isPresent()) {
+      Queue<Category> queue = new ArrayDeque<Category>();
+      queue.offer(opt.get());
+
+      while(!queue.isEmpty()) {
+        int cnt = queue.size();
+        for(int i=0; i<cnt;i++) {
+          Category cat = queue.poll();
+          List<Item> list = repository.findByItemCategoryId(cat.getId());
+          for(Item item : list) {
+            if(!Utl.check(item.getEventCategoryId())) {
+              item.setEventCategoryId(eventCategoryId);
+              repository.save(item);
+            }
+            List<Item> childItemList = repository.findByParentId(item.getId());
+            for(Item childItem : childItemList) {
+              if(!Utl.check(childItem.getEventCategoryId())) {
+                childItem.setEventCategoryId(eventCategoryId);
+                repository.save(childItem);
+              }
+            }
+
+            if(Utl.check(item.getChildCategoryId())) {
+              Optional<Category> childCatOpt = catRepository.findById(item.getChildCategoryId());
+              if(childCatOpt.isPresent()) {
+                queue.offer(childCatOpt.get());
+              }                
+            }
+          }
+          for(Category child : cat.getChildren()) {
+            queue.offer(child);
+          }
+        }
+      }
+    }
   }
 }

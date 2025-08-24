@@ -34,6 +34,7 @@ function deleteItem(id) {
 <div layout:fragment="content">
 
     <form name="deleteForm" method="POST" action="#" th:action="@{/item/delete}" >
+        <input type="hidden" name="redirectId" th:value="${redirectId}"></input>
         <input type="hidden" id="delId" name="delId" value=""></input>
     </form>
 
@@ -52,6 +53,7 @@ function deleteItem(id) {
             <tr><td>下级图表</td><td><input th:field="*{childCategoryId}" style="width:90%;" class="textbox"/><input type="checkbox" th:name="createCat" style="width:5%;"/></td></tr>
             <tr><td>系统URL</td><td><input th:field="*{systemUrl}" class="textbox"/></td></tr>
             <tr><td>事件分类</td><td><input th:field="*{eventCategory}" style="width:50%;" class="textbox"/><input th:field="*{eventCategoryId}" style="width:50%;" class="textbox"/></td></tr>
+            <tr hidden=""><td>返回</td><td><input name="redirectId" th:value="${redirectId}" class="textbox"/></td></tr>
         </table>
           <input type="submit" value="Save" />
           <input th:unless="${item.id==0}" type="button" value="Delete" th:data-id="${item.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>

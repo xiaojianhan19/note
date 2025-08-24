@@ -39,9 +39,16 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     // public List<Item> findByNameAndCategoryOrderById(String name, String category);
     public List<Item> findByTopicCategoryId(Integer topicCategoryId);    
     public List<Item> findByTopicCategory(String topicCategory);
+    public List<Item> findByChildCategoryId(Integer childCategoryId);    
     
+
     @Query(value = "select new com.note.myvision.ItemView(i.id, i.name, count(e), coalesce(sum(e.time), 0.0)) from Item i left join Event e on i.id = e.parentId where i.name like CONCAT('%', ?1, '%') group by i.id, i.name ")
     public List<ItemView> findEventSum(String name);
+
+    @Query(value = "select new com.note.myvision.ItemView(i.id, i.name, i2.id as id2, i2.name as name2) from Item i, Item i2 where i.id <> i2.id and i.name = i2.name ")
+    public List<ItemView> findSimilarItem();
+
+
 
     // public List<ItemView> findItemViewWithCounting();
 

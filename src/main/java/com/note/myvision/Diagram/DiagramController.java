@@ -38,6 +38,9 @@ public class DiagramController {
 	DiagramRepository repository;
 
 	@Autowired
+	PointRepository pointRepository;
+
+	@Autowired
 	HttpSession session;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
@@ -61,18 +64,28 @@ public class DiagramController {
 	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Diagram catBean, Boolean clearDate, Boolean clearDiagram, Model model, RedirectAttributes redirectAttributes) {
+	public String save(Diagram catBean, Boolean clearDiagram, Integer redirectId, Model model, RedirectAttributes redirectAttributes) {
 
-		if(clearDiagram != null && clearDiagram) {
+		if(catBean.getParent() == null || catBean.getParent().getId() == 0){
 			catBean.setParent(null);
 		}
 		repository.save(catBean);
+		List<Point> itms = pointRepository.findByChildDiagramId(catBean.getId());
+		for(Point i : itms) {
+			i.setName(catBean.getName());
+			pointRepository.save(i);
+		}
 
 		String catId = RootCatId.toString();
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			catId = rc.toString();
+		if(catBean.getParent() == null || catBean.getParent().getId() == 0){
+			catId = Utl.parseIdToString(catBean.getId());
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				catId = rc.toString();
+			}
 		}
+		if(Utl.check(redirectId)) catId = Utl.parseIdToString(redirectId);
 
 		Object flg = session.getAttribute("saveByCat");
 		if(flg == null || false == (boolean)flg) {
@@ -80,15 +93,12 @@ public class DiagramController {
 			return "redirect:/point/";
 		} else {
 			redirectAttributes.addAttribute("id", catId);
-			if(catBean.getParent() != null) {
-				redirectAttributes.addAttribute("parentId", catBean.getParent().getId());
-			}
 			return "redirect:/diagram/";
 		}
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public String delete(Model model, Integer delId, RedirectAttributes redirectAttributes) {
+	public String delete(Model model, Integer delId, Integer redirectId, RedirectAttributes redirectAttributes) {
 		if(Utl.check(delId)) {
 			repository.findById(delId).ifPresent( cat -> {
 				repository.delete(cat);
@@ -100,12 +110,14 @@ public class DiagramController {
 		if(rc != null) {
 			catId = rc.toString();
 		}
+		if(Utl.check(redirectId)) catId = Utl.parseIdToString(redirectId);
+
 		redirectAttributes.addAttribute("id", catId);
 		return "redirect:/diagram/";
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String edit(Model model, Integer id, Integer parentId) {
+	public String edit(Model model, Integer id, Integer parentId, Integer redirectId) {
 
 		if(Utl.check(id)) {
 			repository.findById(id).ifPresent( cat -> {
@@ -126,7 +138,8 @@ public class DiagramController {
 			c.setDate(LocalDate.now().toString());
 			model.addAttribute("catBean", c);
 		}
-
+		model.addAttribute("redirectId", redirectId);
+		
 		return "diagram_edit";
 	}
 

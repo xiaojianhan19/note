@@ -41,6 +41,15 @@ public class Item extends BaseBean{
     private String tags;
     private String url;
     private int childCategoryId;
+    private int childDiagramId;
+
+    public int getChildDiagramId() {
+        return childDiagramId;
+    }
+
+    public void setChildDiagramId(int childDiagramId) {
+        this.childDiagramId = childDiagramId;
+    }
 
     @Column(length = 7500)
     private String memo;

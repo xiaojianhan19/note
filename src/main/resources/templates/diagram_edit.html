@@ -23,12 +23,14 @@ function deleteItem(id) {
       <tr><td>序号</td><td ><input th:field="*{orderNo}" /></td></tr>
       <tr><td>ID</td><td ><input th:field="*{id}" readonly="true"/></td></tr>
       <tr><td>上级分类</td><td ><input th:field="*{parent.id}" /> <b th:if="${parentName}!=null" th:text="${parentName}"></b></td></tr>
+      <tr hidden=""><td>返回</td><td><input name="redirectId" th:value="${redirectId}" class="textbox"/></td></tr>
     </table>
       <input type="submit" value="Save" />
       <input th:unless="${catBean.id==0}" type="button" value="Delete" th:data-id="${catBean.id}" th:onclick="deleteItem(this.getAttribute('data-id'));" ></input>
     </form>
 
     <form name="deleteForm" method="POST" action="#" th:action="@{/diagram/delete}" >
+      <input type="hidden" name="redirectId" th:value="${redirectId}"></input>
       <input type="hidden" id="delId" name="delId" value=""></input>
     </form>  
 </div>

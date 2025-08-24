@@ -34,8 +34,7 @@ import com.note.myvision.Utl;
 public class PointController {
 	//private static final Logger log = LoggerFactory.getLogger(CollectionController.class);
 
-	Integer RootCatId = 10030627;
-	Integer PointCatId = 10030627;
+	Integer RootCatId = 10032602;
 
 	@Autowired
 	HttpSession session;
@@ -62,22 +61,13 @@ public class PointController {
 			level = 0;
 		}
 
-		// nav 
-		DiagramView guideCat = service.findGroupByDiagramId(PointCatId, level);
-		List<Object> guides = new ArrayList<>(); 
-		for(DiagramView chv : guideCat.getChildren()) {
-			for(Object itv : chv.getItems()) {
-				guides.add(itv);
-			}
-		}
-		model.addAttribute("guides", guides);
-
 		// catView 
 		if(!Utl.check(catId)) {
 			catId = RootCatId;
 		}
 		DiagramView catView = service.findGroupByDiagramId(catId, level);
 		model.addAttribute("catView", catView);
+		model.addAttribute("redirectId", catId);
 		session.setAttribute("catId", catId);
 		if(editFlag != null) {
 			session.setAttribute("editFlag", editFlag);
@@ -98,8 +88,9 @@ public class PointController {
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String pointAdd(Model model, Integer id, Integer parentId, Integer catId) {
+	public String pointAdd(Model model, Integer id, Integer parentId, Integer catId, Integer redirectId) {
 
+		model.addAttribute("redirectId", redirectId);
 		if(Utl.check(id)) {
 			repository.findById(id).ifPresent( point -> {
 				model.addAttribute("point", point);
@@ -117,22 +108,41 @@ public class PointController {
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Point point, Boolean createCat, Model model, Device device, RedirectAttributes redirectAttributes) {
+	public String save(Point point, Boolean createCat, Integer redirectId, Model model, Device device, RedirectAttributes redirectAttributes) {
+
+		if(createCat != null) {
+			if(createCat && !Utl.check(point.getChildDiagramId())) {
+				Diagram nc = new Diagram();
+				nc.setName(point.getName());
+				nc.setDate(LocalDate.now().toString());
+				catRepository.save(nc);
+				point.setChildDiagramId(nc.getId());
+			}
+		}
 
 		service.save(point);
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			redirectAttributes.addAttribute("catId", rc.toString());		
+		if(Utl.check(redirectId)) {
+			redirectAttributes.addAttribute("catId", redirectId);	
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				redirectAttributes.addAttribute("catId", rc.toString());		
+			}
 		}
 		return "redirect:/point/"; 
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public String delete(Model model, @RequestParam(value = "delId") String delId, RedirectAttributes redirectAttributes) {
+	public String delete(Model model, @RequestParam(value = "delId") String delId, Integer redirectId, RedirectAttributes redirectAttributes) {
 		service.delete(delId);
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			redirectAttributes.addAttribute("catId", rc.toString());		
+
+		if(Utl.check(redirectId)) {
+			redirectAttributes.addAttribute("catId", redirectId);		
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				redirectAttributes.addAttribute("catId", rc.toString());		
+			}
 		}
 		return "redirect:/point/"; 
 	}
@@ -171,7 +181,6 @@ public class PointController {
 		
 		return "redirect:/point/viewEdit";
 	}
-
 
 	@RequestMapping(value = "/find", method = RequestMethod.GET)
 	public String addEventView(String name, String id1, Model model, Device device) {

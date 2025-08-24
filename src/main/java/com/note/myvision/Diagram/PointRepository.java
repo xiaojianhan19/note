@@ -9,5 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface PointRepository extends JpaRepository<Point, Integer> {
     public List<Point> findByDiagram(Integer diagram);
     public List<Point> findByDiagramOrderByOrderNoAsc(Integer diagram);
-    public List<Point> findByDiagramAndLevelGreaterThan(Integer diagram, Integer level);
+    public List<Point> findByDiagramAndLevelGreaterThanOrderByOrderNoAscDateAsc(Integer diagram, Integer level);
+    public List<Point> findByChildDiagramId(Integer childDiagramId);
+    
 }

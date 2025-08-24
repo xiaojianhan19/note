@@ -23,6 +23,16 @@
         </server>
     </servers>
     
+    <settings>
+    <mirrors>
+        <mirror>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+        <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+    </settings>
+
     <!-- 阿里云镜像 -->
     <mirrors>
         <mirror>

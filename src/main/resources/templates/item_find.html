@@ -26,6 +26,9 @@
         <td>总时间</td>
         <td>子项数</td>
         <td>资源数</td>
+        <td>分类</td>
+        <td>分类ID</td>
+        <td>分类ID2</td>
     </tr>
     <th:block th:each="current,stat : ${itemList}"> 
         <tr>
@@ -35,21 +38,33 @@
             <td th:text="${current.time}"></td>
             <td th:text="${current.chcount}"></td>
             <td th:text="${current.rcount}"></td>
+            <td th:text="${current.itemCategory}"></td>
+            <td th:text="${current.itemCategoryId}"></td>
         </tr>
     </th:block>
   </table>
 
-  <hr>
-
   <th:block th:unless="${session.editFlag} == null or ${session.editFlag} == false">
+    <hr>
+    <h4>合并Item</h4>
     <form name="mergeItem" action="#" th:action="@{/item/mergeItem}" method="POST">
-      <span>合并ID</span><input type="text" name="id1" th:value="${id1}" class="textbox"/>
-      <span>被并ID</span><input type="text" name="id2" th:value="${id2}" class="textbox"/>
+      <span>合并ID</span><input type="text" name="id1" class="textbox"/>
+      <span>被并ID</span><input type="text" name="id2" class="textbox"/>
       <input type="hidden" name="name" th:value="${name}" class="textbox"/>
       <input type="submit" value="合并"></input>
     </form>
-
   </th:block>
+
+  <th:block th:unless="${session.editFlag} == null or ${session.editFlag} == false">
+    <hr> 
+    <h4>更新事件分类</h4>
+    <form name="mergeItem" action="#" th:action="@{/item/updateEventCategory}" method="POST">
+      <span>ItemCatID</span><input type="text" name="itemCategoryId" class="textbox"/>
+      <span>EventCatID</span><input type="text" name="eventCategoryId" class="textbox"/>
+      <input type="submit" value="更新"></input>
+    </form>
+  </th:block>
+
 </div>
 </body>
 </html>

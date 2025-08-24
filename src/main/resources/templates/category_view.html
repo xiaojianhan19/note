@@ -51,6 +51,7 @@ function delItems() {
 <body>
 <div layout:fragment="content" th:with="floor=1">
 
+    <!--
     <th:block th:unless="${catView.id}=='10000001'">
         <nav class="navbar-expand" role="navigation">
             <div id="navbar">
@@ -62,6 +63,7 @@ function delItems() {
             </div>
         </nav>
     </th:block>
+    -->
 
     <form name="updateAllForm" action="#" th:action="@{/item/updateItemList}" method="post">
         
@@ -71,7 +73,7 @@ function delItems() {
                 <div style="border: 0px;">
                     <FONT style="FONT-SIZE: 15pt; FILTER: shadow(color=green); COLOR: rgb(0, 0, 0);FONT-FAMILY: 华文彩云"><B th:text="${catView.name}"></B></FONT>
                     <a th:if="${catView.parentId!=0}" th:href="'/item/?catId=' + ${catView.parentId}" style="font-weight: bold;margin-left:20px;">  P</a>
-                    <a th:href="'/category/edit?id=0&parentId=' + ${catView.id}" style="font-weight: bold;margin-left:20px;">  C</a>
+                    <a th:href="'/category/edit?id=0&parentId=' + ${catView.id} + '&redirectId=' + ${redirectId}" style="font-weight: bold;margin-left:20px;">  C</a>
 
                     <th:block th:unless="${#lists.isEmpty(catView.items)} and (${session.editFlag} == null or ${session.editFlag} == false)">
                         <span style="float:right;">
@@ -114,6 +116,7 @@ function delItems() {
     <a th:href="'/item/?id=' + ${catView.id} + '&editFlag=true'"><input type="button" value="BoxOn" /></a>
     <a th:href="'/item/?id=' + ${catView.id} + '&editFlag=false'"><input type="button" value="BoxOff" /></a>
     <a th:href="'/item/itemAboveLevel?catId=' + ${catView.id} + '&level=4'"><input type="button" value="Lv4" /></a>
+    <a th:href="@{'/category/edit?id=' + ${catView.id} + '&redirectId=' + ${redirectId}}"><input type="button" value="修改标题" /></a>
     <span style="font-size:20px;margin: 10px;float:right;">Total Count :<span th:text="${catView.count}"></span></span>
 </div>
 </body>

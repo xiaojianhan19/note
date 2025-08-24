@@ -31,6 +31,9 @@ public class CategoryController {
 	CategoryService service;
 
 	@Autowired
+	ItemRepository itemRepository;
+
+	@Autowired
 	CategoryRepository repository;
 
 	@Autowired
@@ -41,6 +44,7 @@ public class CategoryController {
 		if(!Utl.check(id)) {
 			id = RootCatId;
 		}
+		model.addAttribute("redirectId", id);
 		session.setAttribute("catId", id);
 
 		repository.findById(id).ifPresent( cat -> {
@@ -57,7 +61,7 @@ public class CategoryController {
 	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String save(Category catBean, Boolean clearDate, Boolean clearCategory, Model model, RedirectAttributes redirectAttributes) {
+	public String save(Category catBean, Boolean clearDate, Boolean clearCategory, Integer redirectId, Model model, RedirectAttributes redirectAttributes) {
 
 		if(clearCategory != null && clearCategory) {
 			catBean.setParent(null);
@@ -69,27 +73,42 @@ public class CategoryController {
 		}
 		repository.save(catBean);
 
-		String catId = RootCatId.toString();
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			catId = rc.toString();
+		List<Item> itms = itemRepository.findByChildCategoryId(catBean.getId());
+		for(Item i : itms) {
+			i.setName(catBean.getName());
+			itemRepository.save(i);
 		}
 
-		Object flg = session.getAttribute("saveByCat");
-		if(flg == null || false == (boolean)flg) {
-			redirectAttributes.addAttribute("catId", catId);
-			return "redirect:/item/";
+		String catId = RootCatId.toString();
+		if(Utl.check(redirectId)) {
+			catId = Utl.parseIdToString(redirectId);
 		} else {
-			redirectAttributes.addAttribute("id", catId);
-			if(catBean.getParent() != null) {
-				redirectAttributes.addAttribute("parentId", catBean.getParent().getId());
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				catId = rc.toString();
 			}
+		}
+
+		try {
+			Object flg = session.getAttribute("saveByCat");
+			if(flg == null || false == (boolean)flg) {
+				redirectAttributes.addAttribute("catId", catId);
+				return "redirect:/item/";
+			} else {
+				redirectAttributes.addAttribute("id", catId);
+				if(catBean.getParent() != null) {
+					redirectAttributes.addAttribute("parentId", new Integer(catBean.getParent().getId()).toString());
+				}
+				return "redirect:/category/";
+			}
+		} catch (Exception e) {
+			redirectAttributes.addAttribute("catId", RootCatId.toString());
 			return "redirect:/category/";
 		}
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public String delete(Model model, Integer delId, RedirectAttributes redirectAttributes) {
+	public String delete(Model model, Integer delId, Integer redirectId, RedirectAttributes redirectAttributes) {
 		if(Utl.check(delId)) {
 			repository.findById(delId).ifPresent( cat -> {
 				repository.delete(cat);
@@ -97,16 +116,20 @@ public class CategoryController {
 		}
 
 		String catId = RootCatId.toString();
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			catId = rc.toString();
+		if(Utl.check(redirectId)) {
+			catId = Utl.parseIdToString(redirectId);
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				catId = rc.toString();
+			}
 		}
 		redirectAttributes.addAttribute("id", catId);
 		return "redirect:/category/";
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String edit(Model model, Integer id, Integer parentId) {
+	public String edit(Model model, Integer id, Integer parentId, Integer redirectId) {
 
 		if(Utl.check(id)) {
 			repository.findById(id).ifPresent( cat -> {
@@ -127,12 +150,13 @@ public class CategoryController {
 			c.setDate(LocalDate.now().toString());
 			model.addAttribute("catBean", c);
 		}
+		model.addAttribute("redirectId", redirectId);
 
 		return "category_edit";
 	}
 
 	@RequestMapping(value = "/editDiagram", method = RequestMethod.GET)
-	public String editDiagram(Model model, Integer id) {
+	public String editDiagram(Model model, Integer id, Integer redirectId) {
 
 		if(!Utl.check(id)) {
 			id = RootCatId;
@@ -145,13 +169,13 @@ public class CategoryController {
 			service.createIndex(cv, 0);
 			model.addAttribute("cat", cv);
 		});
-
+		model.addAttribute("redirectId", redirectId);
 		model.addAttribute("form", new CategoryForm());
 		return "category_group";
 	}
 
 	@RequestMapping(value = "/saveList", method = RequestMethod.POST)
-	public String saveList(CategoryForm form, Model model, RedirectAttributes redirectAttributes) {
+	public String saveList(CategoryForm form, Integer redirectId, Model model, RedirectAttributes redirectAttributes) {
 
 		for(CategoryView cv : form.getItems()) {
 			if(cv.getIsUpdate()) {
@@ -195,9 +219,13 @@ public class CategoryController {
 		}
 
 		String catId = RootCatId.toString();
-		Object rc = session.getAttribute("catId");
-		if(rc != null) {
-			catId = rc.toString();
+		if(Utl.check(redirectId)) {
+			catId = Utl.parseIdToString(redirectId);
+		} else {
+			Object rc = session.getAttribute("catId");
+			if(rc != null) {
+				catId = rc.toString();
+			}
 		}
 		redirectAttributes.addAttribute("id", catId);
 		return "redirect:/category/";

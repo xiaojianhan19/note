@@ -106,7 +106,7 @@ public class PointService {
   {
     if(group == null)
         return;
-    List<Point> list = repository.findByDiagramAndLevelGreaterThan(group.getId(), level);
+    List<Point> list = repository.findByDiagramAndLevelGreaterThanOrderByOrderNoAscDateAsc(group.getId(), level);
     List<Object> objList = group.getItems();
     for(Point p : list)
     {

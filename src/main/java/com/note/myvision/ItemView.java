@@ -45,6 +45,7 @@ public class ItemView extends BaseBean{
     private String relatedItemName;
 
     private int itemId;
+    private String itemIdCategory;
     private String changeToDate;
 
     //for item list
@@ -54,6 +55,13 @@ public class ItemView extends BaseBean{
     private double time;
 
     public ItemView(){
+    }
+
+    public ItemView(Integer id, String name, Integer id2, String name2) {
+        this.id = id;
+        this.name = name;
+        this.itemId = id2;
+        this.name2 = name2;
     }
 
     public ItemView(Integer id, String name, long ecount, double time) {
@@ -358,5 +366,13 @@ public class ItemView extends BaseBean{
     public void setChcount(long chcount) {
         this.chcount = chcount;
     }
+
+    public String getItemIdCategory() {
+        return itemIdCategory;
+    }
+
+    public void setItemIdCategory(String itemIdCategory) {
+        this.itemIdCategory = itemIdCategory;
+    }    
 
 }

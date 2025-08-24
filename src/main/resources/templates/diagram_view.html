@@ -12,27 +12,6 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script th:inline="javascript">
 /*<![CDATA[*/
-function convertCat(str) {
-    var catList = [[${catList}]];
-    var tmp = catList[str];
-    if(typeof(tmp) != "undefined") {
-        return tmp;
-    } else {
-        return str;
-    }
-}
-$(function() {
-    $('.diagram').on('blur', function() {
-        var str = $(this).val();
-        $(this).val(convertCat(str));
-    });
-});
-
-function delItems() {
-    document.getElementById("deleteFlg").value = "true";
-	updateAllForm.submit();
-}
-
 /*]]>*/
 </script>
 <style>
@@ -51,19 +30,7 @@ function delItems() {
 <body>
 <div layout:fragment="content" th:with="floor=1">
 
-    <th:block th:unless="${catView.id}=='10000001'">
-        <nav class="navbar-expand" role="navigation">
-            <div id="navbar">
-                <ul class="navbar-nav" style="width: 100%;overflow: auto;display:inline-block;">
-                    <li th:each="guide,guideStat : ${guides}" class="nav-item nitem">
-                        <a th:unless="${guide.childDiagramId==0}" class="nav-link" th:href="@{'/item/?catId=' + ${guide.childDiagramId}}" th:text="${guide.name}"></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </th:block>
-
-    <form name="updateAllForm" action="#" th:action="@{/item/updateItemList}" method="post">
+    <form name="updateAllForm" action="#" method="post">
         
         <div style="padding-bottom: 15px;border: 2px solid #aaa;">
             <div class="title bgbox" th:classappend="div0" style="padding:8px;border: 1px solid #aaa;"> 
@@ -71,7 +38,7 @@ function delItems() {
                 <div style="border: 0px;">
                     <FONT style="FONT-SIZE: 15pt; FILTER: shadow(color=green); COLOR: rgb(0, 0, 0);FONT-FAMILY: 华文彩云"><B th:text="${catView.name}"></B></FONT>
                     <a th:if="${catView.parentId!=0}" th:href="'/point/?catId=' + ${catView.parentId}" style="font-weight: bold;margin-left:20px;">  P</a>
-                    <a th:href="'/diagram/edit?id=0&parentId=' + ${catView.id}" style="font-weight: bold;margin-left:20px;">  C</a>
+                    <a th:href="'/diagram/edit?id=0&parentId=' + ${catView.id} + '&redirectId=' + ${redirectId}" style="font-weight: bold;margin-left:20px;">  C</a>
 
                     <th:block th:unless="${#lists.isEmpty(catView.items)} and (${session.editFlag} == null or ${session.editFlag} == false)">
                         <span style="float:right;">
@@ -109,7 +76,8 @@ function delItems() {
     </form>
 
     <hr/>
-    <a th:href="'/diagram/?id=' + ${catView.id}"><input type="button" value="Diagram" /></a>
+    <a th:href="'/diagram/?id=' + ${catView.id}"><input type="button" value="转换视图" /></a>
+    <a th:href="@{'/diagram/edit?id=' + ${catView.id}}"><input type="button" value="修改标题" /></a>
     <span style="font-size:20px;margin: 10px;float:right;">Total Count :<span th:text="${catView.count}"></span></span>
 </div>
 </body>
