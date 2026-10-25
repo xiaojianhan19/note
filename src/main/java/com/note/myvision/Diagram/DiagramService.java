@@ -319,7 +319,6 @@ public class DiagramService extends Node {
   public Integer convertCategoryToDiagram(Integer id, Integer parentId) {
     Integer newId = null;
     if(!Utl.check(id)) return null;
-    catRepository.findById(id);
     Optional<Category> opt = catRepository.findById(id);
     if(!opt.isPresent()) return null;
     Category cat = opt.get();

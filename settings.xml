@@ -22,16 +22,6 @@
             <password>He2019</password>
         </server>
     </servers>
-    
-    <settings>
-    <mirrors>
-        <mirror>
-        <id>central</id>
-        <url>https://repo.maven.apache.org/maven2</url>
-        <mirrorOf>central</mirrorOf>
-        </mirror>
-    </mirrors>
-    </settings>
 
     <!-- 阿里云镜像 -->
     <mirrors>
@@ -40,6 +30,12 @@
             <name>aliyun maven</name>
             <!-- https://maven.aliyun.com/repository/public/ -->
             <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+        <mirrors>
+            <mirror>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
             <mirrorOf>central</mirrorOf>
         </mirror>
     </mirrors>

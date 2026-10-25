@@ -75,15 +75,15 @@ public class ItemController {
 			level = 0;
 		}
 
-		// nav 
-		CategoryView guideCat = service.findGroupByCategoryId(ItemCatId, level);
-		List<Object> guides = new ArrayList<>(); 
-		for(CategoryView chv : guideCat.getChildren()) {
-			for(Object itv : chv.getItems()) {
-				guides.add(itv);
-			}
-		}
-		model.addAttribute("guides", guides);
+		// // nav 
+		// CategoryView guideCat = service.findGroupByCategoryId(ItemCatId, level);
+		// List<Object> guides = new ArrayList<>(); 
+		// for(CategoryView chv : guideCat.getChildren()) {
+		// 	for(Object itv : chv.getItems()) {
+		// 		guides.add(itv);
+		// 	}
+		// }
+		// model.addAttribute("guides", guides);
 
 		// catView 
 		if(!Utl.check(catId)) {

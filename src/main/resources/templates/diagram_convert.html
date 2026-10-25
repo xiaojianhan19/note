@@ -12,11 +12,27 @@
 </head>
 <body>
 <div layout:fragment="content">
+    <h3>Category转Diagram图表</h3>
     <form action="#" th:action="@{/diagram/convert}" method="POST">
       <span>转换ID</span><input type="text" name="catId" class="textbox"/>
       <span>上级ID</span><input type="text" name="parentId" class="textbox"/>
       <input type="submit" value="转换"></input>
     </form>
+    <br>
+    <h3>复制Category图表</h3>
+    <form action="#" th:action="@{/category/copyCategoryList}" method="POST">
+      <span>复制ID</span><input type="text" name="catId" class="textbox"/>
+      <span>上级ID</span><input type="text" name="parentId" class="textbox"/>
+      <input type="submit" value="复制"></input>
+    </form>
+    <br>
+    <h3>更新Category图表</h3>
+    <form action="#" th:action="@{/category/updateCategory}" method="POST">
+      <span>CatID</span><input type="text" name="catId" class="textbox"/>
+      <span>Type</span><input type="text" name="type" class="textbox"/>
+      <input type="submit" value="更新"></input>
+    </form>
+    
 </div>
 </body>
 </html>

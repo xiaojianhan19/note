@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import javax.transaction.Transactional;
 
 import com.note.myvision.Utl;
+import com.note.myvision.Diagram.Diagram;
 
 import org.hibernate.hql.internal.ast.tree.Node;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class CategoryService extends Node {
 
   @Autowired
   CategoryRepository repository;
+
+  @Autowired
+  ItemService itemService;
 
   public void delete(Category item){
     deleteFromBottom(item);
@@ -222,6 +226,68 @@ public class CategoryService extends Node {
     }	
 	}
 
+  public Integer copyCategoryList(Integer id, Integer parentId) {
+    Integer newId = null;
+    if(!Utl.check(id)) return null;
+    Optional<Category> opt = repository.findById(id);
+    if(!opt.isPresent()) return null;
+    Category cat = opt.get();
+    sortCategory(cat);
+    newId = CopyCat(cat, null);
+
+    if(Utl.check(parentId)) {
+      Item i = new Item();
+      i.setName(cat.getName());
+      i.setLevel(1);
+      i.setChildCategoryId(newId);
+      i.setItemCategoryId(parentId);
+      itemService.save(i);
+    }
+
+    //delete
+    //deleteCat(cat);
+
+    return newId;
+  }
+
+  public Integer CopyCat(Category cat, Category parent) {
+
+    Category d = new Category();
+    Utl.copyPropertiesIgnoreNull(cat, d);
+    d.setId(0);
+    d.setParent(parent);
+    d.setChildren(null);
+    repository.save(d);
+
+    if(cat.getChildren() != null) {
+      for(Category c : cat.getChildren()) {
+        CopyCat(c, d);
+      }
+    }
+
+    return d.getId();
+  }  
+
+  public Integer updateCategory(Integer id, String type) {
+    if(!Utl.check(id)) return null;
+    Optional<Category> opt = repository.findById(id);
+    if(!opt.isPresent()) return null;
+    Category cat = opt.get();
+
+    updateType(cat, type);
+    return 0;
+  }
+  
+  public void updateType(Category cat, String type) {
+    cat.setType(type);
+    repository.save(cat);
+
+    if(cat.getChildren() != null) {
+      for(Category c : cat.getChildren()) {
+        updateType(c, type);
+      }
+    }
+  }  
   // public void saveTopic(TopicViewBean topic) {
   //   TopicBean b = new TopicBean(topic);
   //   topicRepository.save(b);

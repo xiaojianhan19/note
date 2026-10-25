@@ -63,7 +63,7 @@ public class CategoryController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String save(Category catBean, Boolean clearDate, Boolean clearCategory, Integer redirectId, Model model, RedirectAttributes redirectAttributes) {
 
-		if(clearCategory != null && clearCategory) {
+		if((clearCategory != null && clearCategory) || (catBean.getParent() != null && catBean.getParent().id == 0)) {
 			catBean.setParent(null);
 		}
 
@@ -244,5 +244,29 @@ public class CategoryController {
 
 	// 	return "redirect:/category/";
 	// }
+
+	@RequestMapping(value = "/copyCategoryList", method = RequestMethod.POST)
+	public String convert(Integer catId, Integer parentId, Model model, RedirectAttributes redirectAttributes) {
+
+		Integer id = service.copyCategoryList(catId, parentId);
+		if(id != null) {
+			redirectAttributes.addAttribute("catId", id);
+		} else {
+			redirectAttributes.addAttribute("catId", catId);
+		}
+		return "redirect:/item/";
+	}
+
+	@RequestMapping(value = "/updateCategory", method = RequestMethod.POST)
+	public String updateType(Integer catId, String type , Model model, RedirectAttributes redirectAttributes) {
+
+		Integer id = service.updateCategory(catId, type);
+		if(id != null) {
+			redirectAttributes.addAttribute("catId", id);
+		} else {
+			redirectAttributes.addAttribute("catId", catId);
+		}
+		return "redirect:/item/";
+	}
 
 }

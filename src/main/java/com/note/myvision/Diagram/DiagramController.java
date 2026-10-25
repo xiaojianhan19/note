@@ -246,7 +246,6 @@ public class DiagramController {
 			redirectAttributes.addAttribute("catId", catId);
 			return "redirect:/item/";
 		}
-
 	}
 
 }

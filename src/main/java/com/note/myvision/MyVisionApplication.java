@@ -32,8 +32,10 @@ public class MyVisionApplication {
 
 			try {
 				String fileName = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "_Auto.sql";
-				//String cmd = "D:\\Development\\PostgreSQL\\bin\\pg_dump -c --dbname=postgresql://postgres:123456@localhost:5432/myvision2022 -f D:\\Project\\myvision\\data\\sql\\" + fileName;
-				String cmd = "/usr/bin/pg_dump -c --dbname=postgresql://postgres:123456@localhost:5432/myvision2022 -f /home/myvision/sql/" + fileName;
+				//linux
+				//String cmd = "/usr/bin/pg_dump -c --dbname=postgresql://postgres:123456@localhost:5432/myvision2022 -f /home/myvision/sql/" + fileName;
+				//windows
+				String cmd = "D:\\Development\\PostgreSQL\\bin\\pg_dump -c --dbname=postgresql://postgres:123456@localhost:5432/myvision2022 -f D:\\Project\\myvision\\data\\sql\\" + fileName;
 				Process ps = Runtime.getRuntime().exec(cmd);
 				InputStream eS = ps.getErrorStream();
 				// int ret = ps.waitFor();
